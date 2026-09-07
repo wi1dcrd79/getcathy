@@ -18,35 +18,53 @@ export type Database = {
         Row: {
           asset_tag: string
           assigned_to: string | null
+          bin: string
           category: Database["public"]["Enums"]["asset_category"]
           created_at: string
+          current_location: string
           id: string
           image_url: string | null
           location: string
+          make_model: string
           name: string
           owner_id: string | null
+          serial_or_vin: string
+          site: string
+          zone: string
         }
         Insert: {
           asset_tag: string
           assigned_to?: string | null
+          bin?: string
           category?: Database["public"]["Enums"]["asset_category"]
           created_at?: string
+          current_location?: string
           id?: string
           image_url?: string | null
           location?: string
+          make_model?: string
           name: string
           owner_id?: string | null
+          serial_or_vin?: string
+          site?: string
+          zone?: string
         }
         Update: {
           asset_tag?: string
           assigned_to?: string | null
+          bin?: string
           category?: Database["public"]["Enums"]["asset_category"]
           created_at?: string
+          current_location?: string
           id?: string
           image_url?: string | null
           location?: string
+          make_model?: string
           name?: string
           owner_id?: string | null
+          serial_or_vin?: string
+          site?: string
+          zone?: string
         }
         Relationships: []
       }
@@ -93,6 +111,68 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      location_history: {
+        Row: {
+          asset_id: string
+          asset_tag: string
+          created_at: string
+          id: string
+          moved_by: string
+          moved_from: string
+          moved_to: string
+        }
+        Insert: {
+          asset_id: string
+          asset_tag?: string
+          created_at?: string
+          id?: string
+          moved_by?: string
+          moved_from?: string
+          moved_to: string
+        }
+        Update: {
+          asset_id?: string
+          asset_tag?: string
+          created_at?: string
+          id?: string
+          moved_by?: string
+          moved_from?: string
+          moved_to?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_history_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          plan: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          plan?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          plan?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       welder_qualifications: {
         Row: {
