@@ -226,7 +226,7 @@ function Dashboard() {
           </div>
         </div>
 
-        {loading && <p className="mt-8 text-sm text-muted-foreground">Loading compliance records…</p>}
+        {loading && rows.length === 0 && <p className="mt-8 text-sm text-muted-foreground">Loading compliance records…</p>}
         {error && (
           <p className="mt-8 text-sm text-destructive">Could not load records. Pull to refresh and try again.</p>
         )}
