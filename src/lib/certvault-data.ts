@@ -43,6 +43,10 @@ export interface NewInspectionInput {
 }
 
 export async function logInspection(input: NewInspectionInput) {
+  const { data: auth } = await supabase.auth.getUser();
+  const ownerId = auth.user?.id;
+  if (!ownerId) throw new Error("You must be signed in to log an inspection.");
+
   const { data: existing } = await supabase
     .from("assets")
     .select("id")
