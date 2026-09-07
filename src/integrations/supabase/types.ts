@@ -14,7 +14,113 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assets: {
+        Row: {
+          asset_tag: string
+          assigned_to: string | null
+          category: Database["public"]["Enums"]["asset_category"]
+          created_at: string
+          id: string
+          image_url: string | null
+          location: string
+          name: string
+        }
+        Insert: {
+          asset_tag: string
+          assigned_to?: string | null
+          category?: Database["public"]["Enums"]["asset_category"]
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          location?: string
+          name: string
+        }
+        Update: {
+          asset_tag?: string
+          assigned_to?: string | null
+          category?: Database["public"]["Enums"]["asset_category"]
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          location?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      inspections: {
+        Row: {
+          asset_id: string
+          created_at: string
+          expiration_date: string
+          id: string
+          inspection_date: string
+          inspector_name: string
+          notes: string | null
+          result: Database["public"]["Enums"]["inspection_result"]
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          expiration_date: string
+          id?: string
+          inspection_date?: string
+          inspector_name: string
+          notes?: string | null
+          result?: Database["public"]["Enums"]["inspection_result"]
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          expiration_date?: string
+          id?: string
+          inspection_date?: string
+          inspector_name?: string
+          notes?: string | null
+          result?: Database["public"]["Enums"]["inspection_result"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspections_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      welder_qualifications: {
+        Row: {
+          continuity_date: string
+          created_at: string
+          expiration_date: string
+          id: string
+          process: Database["public"]["Enums"]["weld_process"]
+          standard: string
+          welder_id_stamp: string
+          welder_name: string
+        }
+        Insert: {
+          continuity_date: string
+          created_at?: string
+          expiration_date: string
+          id?: string
+          process?: Database["public"]["Enums"]["weld_process"]
+          standard: string
+          welder_id_stamp: string
+          welder_name: string
+        }
+        Update: {
+          continuity_date?: string
+          created_at?: string
+          expiration_date?: string
+          id?: string
+          process?: Database["public"]["Enums"]["weld_process"]
+          standard?: string
+          welder_id_stamp?: string
+          welder_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +129,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      asset_category: "rigging" | "welder_cert" | "heavy_equipment" | "ppe"
+      inspection_result: "Pass" | "Fail" | "Needs Service"
+      weld_process: "SMAW" | "GTAW" | "GMAW" | "FCAW"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +258,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      asset_category: ["rigging", "welder_cert", "heavy_equipment", "ppe"],
+      inspection_result: ["Pass", "Fail", "Needs Service"],
+      weld_process: ["SMAW", "GTAW", "GMAW", "FCAW"],
+    },
   },
 } as const
