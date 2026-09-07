@@ -105,8 +105,8 @@ function Dashboard() {
   const [scanOpen, setScanOpen] = useState(false);
   const [sortKey, setSortKey] = useState<"tag" | "name" | "expiration" | "status">("expiration");
 
-  const assetsQ = useQuery({ queryKey: ["assets"], queryFn: fetchAssets });
-  const weldersQ = useQuery({ queryKey: ["welders"], queryFn: fetchWelders });
+  const assetsQ = useQuery({ queryKey: ["assets"], queryFn: fetchAssets, enabled: !!session });
+  const weldersQ = useQuery({ queryKey: ["welders"], queryFn: fetchWelders, enabled: !!session });
 
   const rows = useMemo<UnifiedRow[]>(
     () => [
