@@ -63,6 +63,7 @@ export async function logInspection(input: NewInspectionInput) {
         name: input.name,
         category: input.category,
         location: input.location,
+        owner_id: ownerId,
       } as never)
       .select("id")
       .single();
@@ -77,6 +78,7 @@ export async function logInspection(input: NewInspectionInput) {
     expiration_date: input.expiration_date,
     result: input.result,
     notes: input.notes,
+    owner_id: ownerId,
   } as never);
   if (inspErr) throw inspErr;
 }
