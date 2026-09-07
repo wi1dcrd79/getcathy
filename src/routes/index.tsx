@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { fetchAssets, fetchWelders, type AssetRecord } from "@/lib/certvault-data";
 import {
   CATEGORY_LABEL,
@@ -92,13 +93,20 @@ function toWelderRow(w: WelderRow): UnifiedRow {
 const BAD = new Set(["Out of Compliance", "Lapsed", "Expiring Soon", "Grace Period"]);
 
 function Dashboard() {
+  const { session, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && !session) navigate({ to: "/auth" });
+  }, [authLoading, session, navigate]);
+
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const [scanOpen, setScanOpen] = useState(false);
   const [sortKey, setSortKey] = useState<"tag" | "name" | "expiration" | "status">("expiration");
 
-  const assetsQ = useQuery({ queryKey: ["assets"], queryFn: fetchAssets });
-  const weldersQ = useQuery({ queryKey: ["welders"], queryFn: fetchWelders });
+  const assetsQ = useQuery({ queryKey: ["assets"], queryFn: fetchAssets, enabled: !!session });
+  const weldersQ = useQuery({ queryKey: ["welders"], queryFn: fetchWelders, enabled: !!session });
 
   const rows = useMemo<UnifiedRow[]>(
     () => [

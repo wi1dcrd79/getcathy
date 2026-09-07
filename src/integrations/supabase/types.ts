@@ -24,6 +24,7 @@ export type Database = {
           image_url: string | null
           location: string
           name: string
+          owner_id: string | null
         }
         Insert: {
           asset_tag: string
@@ -34,6 +35,7 @@ export type Database = {
           image_url?: string | null
           location?: string
           name: string
+          owner_id?: string | null
         }
         Update: {
           asset_tag?: string
@@ -44,6 +46,7 @@ export type Database = {
           image_url?: string | null
           location?: string
           name?: string
+          owner_id?: string | null
         }
         Relationships: []
       }
@@ -56,6 +59,7 @@ export type Database = {
           inspection_date: string
           inspector_name: string
           notes: string | null
+          owner_id: string | null
           result: Database["public"]["Enums"]["inspection_result"]
         }
         Insert: {
@@ -66,6 +70,7 @@ export type Database = {
           inspection_date?: string
           inspector_name: string
           notes?: string | null
+          owner_id?: string | null
           result?: Database["public"]["Enums"]["inspection_result"]
         }
         Update: {
@@ -76,6 +81,7 @@ export type Database = {
           inspection_date?: string
           inspector_name?: string
           notes?: string | null
+          owner_id?: string | null
           result?: Database["public"]["Enums"]["inspection_result"]
         }
         Relationships: [
@@ -94,6 +100,7 @@ export type Database = {
           created_at: string
           expiration_date: string
           id: string
+          owner_id: string | null
           process: Database["public"]["Enums"]["weld_process"]
           standard: string
           welder_id_stamp: string
@@ -104,6 +111,7 @@ export type Database = {
           created_at?: string
           expiration_date: string
           id?: string
+          owner_id?: string | null
           process?: Database["public"]["Enums"]["weld_process"]
           standard: string
           welder_id_stamp: string
@@ -114,6 +122,7 @@ export type Database = {
           created_at?: string
           expiration_date?: string
           id?: string
+          owner_id?: string | null
           process?: Database["public"]["Enums"]["weld_process"]
           standard?: string
           welder_id_stamp?: string
