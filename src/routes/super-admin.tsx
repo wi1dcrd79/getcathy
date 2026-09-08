@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { SUPER_ADMIN_EMAIL } from "@/lib/legal";
+import { planFor, seatsForTier, type PlanTier } from "@/lib/plans";
 
 export const Route = createFileRoute("/super-admin")({
   head: () => ({
