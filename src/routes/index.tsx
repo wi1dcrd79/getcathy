@@ -55,6 +55,8 @@ interface UnifiedRow {
   result: string;
   status: ComplianceStatus | "Active" | "Grace Period" | "Lapsed";
   notes: string;
+  breadcrumb: string;
+  serial: string;
 }
 
 function toAssetRow(a: AssetRecord): UnifiedRow {
@@ -65,14 +67,16 @@ function toAssetRow(a: AssetRecord): UnifiedRow {
     tag: a.asset_tag,
     name: a.name,
     category: CATEGORY_LABEL[a.category],
-    location: a.location,
-    detail: a.assigned_to ?? "Unassigned",
+    location: a.current_location || a.location,
+    detail: a.make_model || a.assigned_to || "Unassigned",
     inspector: insp?.inspector_name ?? "—",
     lastDate: insp?.inspection_date ?? null,
     expiration: insp?.expiration_date ?? null,
     result: insp?.result ?? "—",
     status: insp ? assetStatus(insp.expiration_date, insp.result) : "Out of Compliance",
     notes: insp?.notes ?? "",
+    breadcrumb: a.current_location || a.location || "",
+    serial: a.serial_or_vin ?? "",
   };
 }
 
