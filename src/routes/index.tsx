@@ -367,10 +367,10 @@ function Dashboard() {
       <nav className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between px-6 py-3">
           <button
-            onClick={() => setFilter("all")}
+            onClick={() => setTransferOpen(true)}
             className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
           >
-            Assets
+            Transfer
           </button>
           <button
             onClick={() => setScanOpen(true)}
@@ -390,11 +390,31 @@ function Dashboard() {
 
       <ScanSheet
         open={scanOpen}
+        companyId={companyId}
         onClose={() => setScanOpen(false)}
+        onLimit={() =>
+          setUpgradeReason(
+            "Free accounts track up to 3 assets. Upgrade to add unlimited yard inventory.",
+          )
+        }
         onSaved={() => {
           assetsQ.refetch();
           weldersQ.refetch();
         }}
+      />
+
+      <TransferSheet
+        open={transferOpen}
+        assets={assetsQ.data ?? []}
+        companyId={companyId}
+        onClose={() => setTransferOpen(false)}
+        onMoved={() => assetsQ.refetch()}
+      />
+
+      <UpgradeModal
+        open={upgradeReason !== null}
+        reason={upgradeReason ?? ""}
+        onClose={() => setUpgradeReason(null)}
       />
     </div>
   );
