@@ -187,7 +187,7 @@ function Dashboard() {
             <img src="/images/certvault-icon.png" alt="" width={36} height={36} className="rounded-md" />
             <div>
               <h1 className="text-xl font-bold uppercase leading-none">
-                CertVault <span className="text-primary">AI</span>
+                CertVault <span className="text-primary">Industries</span>
               </h1>
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
                 QA/QC · Rigging · Welder Continuity
