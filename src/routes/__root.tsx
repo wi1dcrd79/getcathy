@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { Toaster } from "@/components/ui/sonner";
 import {
   Outlet,
   Link,
