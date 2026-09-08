@@ -68,7 +68,7 @@ function SuperAdmin() {
       const patch: Record<string, unknown> = {};
       if (vars.tier !== undefined) {
         patch['subscription_tier'] = vars.tier;
-        patch['seat_limit'] = vars.tier === "free" ? 1 : 5;
+        patch['seat_limit'] = seatsForTier(vars.tier as PlanTier);
       }
       if (vars.seats !== undefined) patch['seat_limit'] = vars.seats;
       const { error } = await supabase.from("companies").update(patch as never).eq("id", vars.id);
@@ -135,17 +135,24 @@ function SuperAdmin() {
                       : "border-success/40 bg-success/15 text-success"
                   }`}
                 >
-                  {c.subscription_tier}
+                  {planFor(c.subscription_tier).name}
                 </span>
-                <button
-                  disabled={update.isPending}
-                  onClick={() =>
-                    update.mutate({ id: c.id, tier: c.subscription_tier === "free" ? "pro" : "free" })
-                  }
-                  className="rounded-md border border-primary px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary disabled:opacity-50"
-                >
-                  {c.subscription_tier === "free" ? "Upgrade to Pro" : "Downgrade to Free"}
-                </button>
+                <div className="flex overflow-hidden rounded-md border border-primary">
+                  {(["free", "pro", "enterprise"] as PlanTier[]).map((t) => (
+                    <button
+                      key={t}
+                      disabled={update.isPending || c.subscription_tier === t}
+                      onClick={() => update.mutate({ id: c.id, tier: t })}
+                      className={`px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest ${
+                        c.subscription_tier === t
+                          ? "bg-primary text-primary-foreground"
+                          : "text-primary hover:bg-primary/10"
+                      }`}
+                    >
+                      {t === "free" ? "Free" : t === "pro" ? "Pro $279" : "Ent $699"}
+                    </button>
+                  ))}
+                </div>
                 <label className="flex items-center gap-1 text-[11px] uppercase tracking-widest text-muted-foreground">
                   Seats
                   <input
