@@ -1,12 +1,21 @@
 import { useRef, useState } from "react";
-import { logInspection, mockOcrExtract, type NewInspectionInput } from "@/lib/certvault-data";
+import {
+  PlanLimitError,
+  logInspection,
+  mockOcrExtract,
+  type NewInspectionInput,
+} from "@/lib/certvault-data";
 import { CATEGORY_LABEL, type AssetCategory } from "@/lib/compliance";
 
 const EMPTY: NewInspectionInput = {
   asset_tag: "",
   name: "",
   category: "rigging",
-  location: "",
+  make_model: "",
+  serial_or_vin: "",
+  site: "",
+  zone: "",
+  bin: "",
   inspector_name: "",
   expiration_date: "",
   result: "Pass",
@@ -17,7 +26,19 @@ const field =
   "w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary";
 const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
 
-export function ScanSheet({ open, onClose, onSaved }: { open: boolean; onClose: () => void; onSaved: () => void }) {
+export function ScanSheet({
+  open,
+  companyId,
+  onClose,
+  onSaved,
+  onLimit,
+}: {
+  open: boolean;
+  companyId: string | null;
+  onClose: () => void;
+  onSaved: () => void;
+  onLimit: () => void;
+}) {
   const [form, setForm] = useState<NewInspectionInput>(EMPTY);
   const [photo, setPhoto] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
@@ -41,7 +62,11 @@ export function ScanSheet({ open, onClose, onSaved }: { open: boolean; onClose: 
         asset_tag: ocr.asset_tag ?? f.asset_tag,
         name: ocr.name ?? f.name,
         category: (ocr.category as AssetCategory) ?? f.category,
-        location: ocr.location ?? f.location,
+        make_model: ocr.make_model ?? f.make_model,
+        serial_or_vin: ocr.serial_or_vin ?? f.serial_or_vin,
+        site: ocr.site ?? f.site,
+        zone: ocr.zone ?? f.zone,
+        bin: ocr.bin ?? f.bin,
         notes: ocr.notes ?? f.notes,
         expiration_date: ocr.expiration_date ?? f.expiration_date,
       }));
@@ -55,14 +80,19 @@ export function ScanSheet({ open, onClose, onSaved }: { open: boolean; onClose: 
     setSaving(true);
     setError(null);
     try {
-      await logInspection(form);
+      await logInspection(form, companyId ?? "");
       setForm(EMPTY);
       setPhoto(null);
       setConfidence(null);
       onSaved();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save this inspection.");
+      if (err instanceof PlanLimitError) {
+        onClose();
+        onLimit();
+      } else {
+        setError(err instanceof Error ? err.message : "Could not save this inspection.");
+      }
     } finally {
       setSaving(false);
     }
@@ -160,8 +190,35 @@ export function ScanSheet({ open, onClose, onSaved }: { open: boolean; onClose: 
             <input required className={field} value={form.name} onChange={(e) => set("name", e.target.value)} />
           </div>
           <div className="col-span-1">
-            <label className={label}>Location</label>
-            <input className={field} value={form.location} onChange={(e) => set("location", e.target.value)} />
+            <label className={label}>Make / Model</label>
+            <input
+              className={field}
+              value={form.make_model}
+              onChange={(e) => set("make_model", e.target.value)}
+              placeholder="Crosby G-209A"
+            />
+          </div>
+          <div className="col-span-1">
+            <label className={label}>Serial / VIN</label>
+            <input
+              className={`${field} tag-mono`}
+              value={form.serial_or_vin}
+              onChange={(e) => set("serial_or_vin", e.target.value.toUpperCase())}
+            />
+          </div>
+          <div className="col-span-2 grid grid-cols-3 gap-3 rounded-lg border border-border bg-input/40 p-3">
+            <div>
+              <label className={label}>Site</label>
+              <input className={field} value={form.site} onChange={(e) => set("site", e.target.value)} />
+            </div>
+            <div>
+              <label className={label}>Zone</label>
+              <input className={field} value={form.zone} onChange={(e) => set("zone", e.target.value)} />
+            </div>
+            <div>
+              <label className={label}>Bin</label>
+              <input className={field} value={form.bin} onChange={(e) => set("bin", e.target.value)} />
+            </div>
           </div>
           <div className="col-span-1">
             <label className={label}>Inspector</label>
