@@ -170,7 +170,7 @@ function Dashboard() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `certvault-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `cathy-export-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
