@@ -26,7 +26,7 @@ export const Route = createFileRoute("/import")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: ImportPage;
+  component: ImportPage,
 });
 
 const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
