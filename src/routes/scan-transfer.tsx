@@ -7,7 +7,9 @@ import { fetchAssets, transferAsset } from "@/lib/certvault-data";
 import { buildBreadcrumb } from "@/lib/compliance";
 import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { ScannerInput } from "@/components/certvault/ScannerInput";
-import { enqueueTransfer, flushQueue, readQueue } from "@/lib/offline-queue";
+import { enqueueTransfer, flushQueue, nextSequenceId, readQueue } from "@/lib/offline-queue";
+import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/scan-transfer")({
   head: () => ({
@@ -156,18 +158,21 @@ function ScanTransfer() {
       if (offline) {
         const n = await enqueueTransfer({
           id: crypto.randomUUID(),
-          assetId: asset.id,
-          assetTag: asset.asset_tag,
-          companyId: companyId ?? "",
-          from,
-          to,
+          asset_id: asset.id,
+          asset_tag: asset.asset_tag,
+          company_id: companyId ?? "",
+          from_bin_id: from,
+          to_bin_id: to,
           site,
           zone,
           bin,
-          ts,
+          captured_at: ts,
+          local_sequence_id: await nextSequenceId(),
         });
         setQueued(n);
         setMsg(`Offline — ${asset.asset_tag} → ${to} queued and will sync automatically.`);
+        toast.info(`Queued offline — ${asset.asset_tag} → ${to}`);
+
       } else {
         setErr(e instanceof Error ? e.message : "Could not move this asset.");
         setBusy(false);
