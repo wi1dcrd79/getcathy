@@ -110,9 +110,12 @@ function Dashboard() {
     if (!authLoading && !session) navigate({ to: "/auth" });
   }, [authLoading, session, navigate]);
 
+  const { companyId, isPro, isSuperAdmin } = useProfile();
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const [scanOpen, setScanOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<"tag" | "name" | "expiration" | "status">("expiration");
 
   const assetsQ = useQuery({ queryKey: ["assets"], queryFn: fetchAssets, enabled: !!session });
