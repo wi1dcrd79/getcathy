@@ -288,8 +288,13 @@ function Dashboard() {
                 </div>
                 <StatusBadge status={r.status} />
               </div>
+              {r.breadcrumb ? (
+                <div className="mt-2">
+                  <BreadcrumbChips value={r.breadcrumb} />
+                </div>
+              ) : null}
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                <span>{r.location}</span>
+                <span className="tag-mono">{r.serial || r.location}</span>
                 <span className="text-right">{r.category}</span>
                 <span>{r.detail}</span>
                 <span className="text-right">
