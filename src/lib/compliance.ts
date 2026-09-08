@@ -12,6 +12,12 @@ export interface AssetRow {
   assigned_to: string | null;
   image_url: string | null;
   created_at: string;
+  site: string;
+  zone: string;
+  bin: string;
+  current_location: string;
+  make_model: string;
+  serial_or_vin: string;
 }
 
 export interface InspectionRow {
@@ -32,6 +38,14 @@ export interface WelderRow {
   standard: string;
   continuity_date: string;
   expiration_date: string;
+}
+
+export interface LocationMove {
+  id: string;
+  asset_id: string;
+  moved_from: string;
+  moved_to: string;
+  created_at: string;
 }
 
 const MS_DAY = 86_400_000;
@@ -72,6 +86,15 @@ export const CATEGORY_LABEL: Record<AssetCategory, string> = {
   heavy_equipment: "Heavy Equipment",
   ppe: "PPE",
 };
+
+/** Site > Zone > Bin breadcrumb. */
+export function buildBreadcrumb(site: string, zone: string, bin: string): string {
+  return [site, zone, bin].map((p) => p.trim()).filter(Boolean).join(" > ");
+}
+
+export function breadcrumbParts(value: string): string[] {
+  return value.split(">").map((p) => p.trim()).filter(Boolean);
+}
 
 export function formatDate(dateStr: string): string {
   return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
