@@ -95,6 +95,8 @@ function toWelderRow(w: WelderRow): UnifiedRow {
     result: w.process,
     status: welderStatus(w.continuity_date),
     notes: `${w.standard} · continuity logged ${formatDate(w.continuity_date)}`,
+    breadcrumb: "",
+    serial: w.welder_id_stamp,
   };
 }
 
