@@ -187,10 +187,10 @@ function Dashboard() {
             <img src="/images/certvault-icon.png" alt="" width={36} height={36} className="rounded-md" />
             <div>
               <h1 className="text-xl font-bold uppercase leading-none">
-                C.A.T.H.Y.</h1>PLACEHOLDER
+                C.A.T.<span className="text-primary">H.Y.</span>
               </h1>
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
-                QA/QC · Rigging · Welder Continuity
+                Compliance, Asset Tracking &amp; Heavy Yards
               </p>
             </div>
           </div>
