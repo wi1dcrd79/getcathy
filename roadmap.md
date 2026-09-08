@@ -1,4 +1,4 @@
-# CertVault Industries Roadmap
+# C.A.T.H.Y. Roadmap
 
 ## Phase 1 — Enterprise architecture (in progress)
 - [ ] companies + profiles (company_id, role, is_super_admin, session token)

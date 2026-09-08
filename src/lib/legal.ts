@@ -1,7 +1,7 @@
-export const BRAND = "CertVault Industries";
-export const BRAND_DIVISION = "CertVault Industries — Compliance & Asset Division";
+export const BRAND = "C.A.T.H.Y.";
+export const BRAND_DIVISION = "C.A.T.H.Y. — Compliance, Asset Tracking & Heavy Yards";
 export const COPYRIGHT_LINE =
-  "Copyright © 2026 CertVault Industries. All Rights Reserved. Proprietary and Confidential.";
+  "Copyright © 2026 C.A.T.H.Y. All Rights Reserved. Proprietary and Confidential.";
 export const TERMS_VERSION = "2026-01";
 export const SUPER_ADMIN_EMAIL = "w1dcrd79@gmail.com";
 
@@ -65,7 +65,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
   {
     heading: "8. Confidentiality and Governing Terms",
     body: [
-      "The Platform, its non-public features, and pricing are the confidential and proprietary information of CertVault Industries. These Terms, together with any executed order form, are the entire agreement between the parties and supersede prior discussions.",
+      "The Platform, its non-public features, and pricing are the confidential and proprietary information of C.A.T.H.Y. These Terms, together with any executed order form, are the entire agreement between the parties and supersede prior discussions.",
       COPYRIGHT_LINE,
     ],
   },

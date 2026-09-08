@@ -85,13 +85,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover",
       },
 
-      { title: "CertVault Industries — Industrial Compliance Tracking" },
+      { title: "C.A.T.H.Y. — Industrial Compliance Tracking" },
       {
         name: "description",
         content:
           "Track rigging inspections, equipment certs and welder continuity from the field. OSHA-ready audit binders.",
       },
-      { property: "og:title", content: "CertVault Industries — Industrial Compliance Tracking" },
+      { property: "og:title", content: "C.A.T.H.Y. — Industrial Compliance Tracking" },
       {
         property: "og:description",
         content: "Field QA/QC compliance tracking for rigging, equipment and welder certifications.",
@@ -100,7 +100,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#0F172A" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "CertVault" },
+      { name: "apple-mobile-web-app-title", content: "CATHY" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
     ],
     links: [

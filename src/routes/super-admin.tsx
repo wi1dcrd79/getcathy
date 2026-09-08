@@ -10,15 +10,15 @@ import { planFor, seatsForTier, type PlanTier } from "@/lib/plans";
 export const Route = createFileRoute("/super-admin")({
   head: () => ({
     meta: [
-      { title: "Company Control — CertVault Industries" },
+      { title: "Company Control — C.A.T.H.Y." },
       {
         name: "description",
-        content: "Super-admin console for managing CertVault Industries company accounts, plans and crew seats.",
+        content: "Super-admin console for managing C.A.T.H.Y. company accounts, plans and crew seats.",
       },
-      { property: "og:title", content: "Company Control — CertVault Industries" },
+      { property: "og:title", content: "Company Control — C.A.T.H.Y." },
       {
         property: "og:description",
-        content: "Manage CertVault Industries company accounts, subscription tiers and seat counts.",
+        content: "Manage C.A.T.H.Y. company accounts, subscription tiers and seat counts.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

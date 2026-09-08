@@ -22,13 +22,13 @@ import { useProfile } from "@/hooks/useProfile";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CertVault Industries — Rigging & Welder Compliance Tracking" },
+      { title: "C.A.T.H.Y. — Rigging & Welder Compliance Tracking" },
       {
         name: "description",
         content:
           "Field-first QA/QC dashboard tracking rigging inspections, equipment certifications and welder continuity with OSHA-ready audit binders.",
       },
-      { property: "og:title", content: "CertVault Industries — Rigging & Welder Compliance Tracking" },
+      { property: "og:title", content: "C.A.T.H.Y. — Rigging & Welder Compliance Tracking" },
       {
         property: "og:description",
         content:
@@ -170,7 +170,7 @@ function Dashboard() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `certvault-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `cathy-export-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -187,10 +187,10 @@ function Dashboard() {
             <img src="/images/certvault-icon.png" alt="" width={36} height={36} className="rounded-md" />
             <div>
               <h1 className="text-xl font-bold uppercase leading-none">
-                CertVault <span className="text-primary">Industries</span>
+                C.A.T.<span className="text-primary">H.Y.</span>
               </h1>
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
-                QA/QC · Rigging · Welder Continuity
+                Compliance, Asset Tracking &amp; Heavy Yards
               </p>
             </div>
           </div>
@@ -370,7 +370,7 @@ function Dashboard() {
         </section>
 
         <p className="mt-6 hidden text-xs text-muted-foreground print:block">
-          CertVault Industries compliance summary generated {new Date().toLocaleString()} — {metrics.total} tracked records,{" "}
+          C.A.T.H.Y. compliance summary generated {new Date().toLocaleString()} — {metrics.total} tracked records,{" "}
           {metrics.out} out of compliance, {metrics.soon} expiring within 30 days.
         </p>
       </main>
