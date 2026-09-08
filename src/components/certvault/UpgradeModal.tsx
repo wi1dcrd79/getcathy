@@ -19,7 +19,7 @@ export function UpgradeModal({
   const [notice, setNotice] = useState<string | null>(null);
   const { openCheckout, loading } = usePaddleCheckout();
   const { session } = useAuth();
-  const { company } = useProfile();
+  const { companyId } = useProfile();
 
   if (!open) return null;
 
@@ -30,10 +30,10 @@ export function UpgradeModal({
     try {
       await openCheckout({
         priceId: PADDLE_PRICE_BY_TIER[selected as "pro" | "enterprise"],
-        customerEmail: session?.user.email ?? undefined,
+        ...(session?.user.email ? { customerEmail: session.user.email } : {}),
         customData: {
           userId: session?.user.id ?? "",
-          companyId: company?.id ?? "",
+          companyId: companyId ?? "",
         },
         successUrl: `${window.location.origin}/?checkout=success`,
       });
