@@ -80,13 +80,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "viewport",
         content: "width=device-width, initial-scale=1, viewport-fit=cover",
       },
-      { title: "CertVault AI — Industrial Compliance Tracking" },
+      { title: "CertVault Industries — Industrial Compliance Tracking" },
       {
         name: "description",
         content:
           "Track rigging inspections, equipment certs and welder continuity from the field. OSHA-ready audit binders.",
       },
-      { property: "og:title", content: "CertVault AI — Industrial Compliance Tracking" },
+      { property: "og:title", content: "CertVault Industries — Industrial Compliance Tracking" },
       {
         property: "og:description",
         content: "Field QA/QC compliance tracking for rigging, equipment and welder certifications.",

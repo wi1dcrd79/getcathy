@@ -10,13 +10,13 @@ import { assetStatus, formatDate, welderStatus, CATEGORY_LABEL } from "@/lib/com
 export const Route = createFileRoute("/audit-binder")({
   head: () => ({
     meta: [
-      { title: "Compliance Audit Binder | CertVault AI" },
+      { title: "Compliance Audit Binder | CertVault Industries" },
       {
         name: "description",
         content:
           "Paginated, print-ready OSHA and client audit binder listing equipment, serials, bin locations, inspection stamps and welder continuity logs.",
       },
-      { property: "og:title", content: "Compliance Audit Binder | CertVault AI" },
+      { property: "og:title", content: "Compliance Audit Binder | CertVault Industries" },
       {
         property: "og:description",
         content: "Print-ready compliance binder for OSHA and general contractor review.",
@@ -36,7 +36,7 @@ function AuditBinder() {
   }, [loading, session, navigate]);
 
   const { context } = useProfile();
-  const companyName = context?.company?.name ?? "CertVault AI";
+  const companyName = context?.company?.name ?? "CertVault Industries";
 
   const assetsQ = useQuery({ queryKey: ["assets"], queryFn: fetchAssets, enabled: !!session });
   const weldersQ = useQuery({ queryKey: ["welders"], queryFn: fetchWelders, enabled: !!session });

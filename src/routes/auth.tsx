@@ -6,13 +6,13 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign In — CertVault AI Compliance Tracking" },
+      { title: "Sign In — CertVault Industries Compliance Tracking" },
       {
         name: "description",
         content:
-          "Secure sign in for CertVault AI: rigging, equipment and welder certification compliance records for authorized crews only.",
+          "Secure sign in for CertVault Industries: rigging, equipment and welder certification compliance records for authorized crews only.",
       },
-      { property: "og:title", content: "Sign In — CertVault AI" },
+      { property: "og:title", content: "Sign In — CertVault Industries" },
       {
         property: "og:description",
         content: "Authorized access to rigging and welder compliance records.",
@@ -72,7 +72,7 @@ function AuthPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6">
-        <h1 className="text-2xl font-bold uppercase tracking-wide text-foreground">CertVault AI</h1>
+        <h1 className="text-2xl font-bold uppercase tracking-wide text-foreground">CertVault Industries</h1>
         <p className="mt-1 mb-5 text-xs uppercase tracking-widest text-muted-foreground">
           Authorized personnel only
         </p>

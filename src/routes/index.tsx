@@ -22,13 +22,13 @@ import { useProfile } from "@/hooks/useProfile";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CertVault AI — Rigging & Welder Compliance Tracking" },
+      { title: "CertVault Industries — Rigging & Welder Compliance Tracking" },
       {
         name: "description",
         content:
           "Field-first QA/QC dashboard tracking rigging inspections, equipment certifications and welder continuity with OSHA-ready audit binders.",
       },
-      { property: "og:title", content: "CertVault AI — Rigging & Welder Compliance Tracking" },
+      { property: "og:title", content: "CertVault Industries — Rigging & Welder Compliance Tracking" },
       {
         property: "og:description",
         content:
@@ -370,7 +370,7 @@ function Dashboard() {
         </section>
 
         <p className="mt-6 hidden text-xs text-muted-foreground print:block">
-          CertVault AI compliance summary generated {new Date().toLocaleString()} — {metrics.total} tracked records,{" "}
+          CertVault Industries compliance summary generated {new Date().toLocaleString()} — {metrics.total} tracked records,{" "}
           {metrics.out} out of compliance, {metrics.soon} expiring within 30 days.
         </p>
       </main>

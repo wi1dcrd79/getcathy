@@ -8,15 +8,15 @@ import { useProfile } from "@/hooks/useProfile";
 export const Route = createFileRoute("/super-admin")({
   head: () => ({
     meta: [
-      { title: "Company Control — CertVault AI" },
+      { title: "Company Control — CertVault Industries" },
       {
         name: "description",
-        content: "Super-admin console for managing CertVault AI company accounts, plans and crew seats.",
+        content: "Super-admin console for managing CertVault Industries company accounts, plans and crew seats.",
       },
-      { property: "og:title", content: "Company Control — CertVault AI" },
+      { property: "og:title", content: "Company Control — CertVault Industries" },
       {
         property: "og:description",
-        content: "Manage CertVault AI company accounts, subscription tiers and seat counts.",
+        content: "Manage CertVault Industries company accounts, subscription tiers and seat counts.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
