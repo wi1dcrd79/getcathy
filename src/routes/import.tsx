@@ -15,7 +15,7 @@ export const Route = createFileRoute("/import")({
       {
         name: "description",
         content:
-          "Upload equipment and personnel spreadsheets, map your columns with a live preview, and load them straight into C.A.T.H.Y..",
+          "Upload equipment and personnel spreadsheets, map your columns with a live preview, and load them straight into C.A.T.H.Y.",
       },
       { property: "og:title", content: "CSV Bulk Onboarding | C.A.T.H.Y." },
       {

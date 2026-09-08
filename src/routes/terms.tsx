@@ -13,7 +13,7 @@ export const Route = createFileRoute("/terms")({
       { property: "og:title", content: "Terms of Service — C.A.T.H.Y." },
       {
         property: "og:description",
-        content: "Licensed use, restricted rights, data ownership and liability terms for C.A.T.H.Y..",
+        content: "Licensed use, restricted rights, data ownership and liability terms for C.A.T.H.Y.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
