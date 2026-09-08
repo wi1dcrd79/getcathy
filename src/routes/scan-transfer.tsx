@@ -14,13 +14,13 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/scan-transfer")({
   head: () => ({
     meta: [
-      { title: "Yard Scanner — Scan-to-Transfer | CertVault Industries" },
+      { title: "Yard Scanner — Scan-to-Transfer | C.A.T.H.Y." },
       {
         name: "description",
         content:
           "High-speed Telxon-style yard scanner: scan an asset, pick Site › Zone › Bin and confirm the move in one tap, online or offline.",
       },
-      { property: "og:title", content: "Yard Scanner — Scan-to-Transfer | CertVault Industries" },
+      { property: "og:title", content: "Yard Scanner — Scan-to-Transfer | C.A.T.H.Y." },
       {
         property: "og:description",
         content: "Scan-to-transfer yard inventory with hardware scanner gun support and offline sync.",

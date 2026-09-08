@@ -4,16 +4,16 @@ import { BRAND, BRAND_DIVISION, COPYRIGHT_LINE, TERMS_SECTIONS, TERMS_VERSION } 
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms of Service — CertVault Industries" },
+      { title: "Terms of Service — C.A.T.H.Y." },
       {
         name: "description",
         content:
-          "CertVault Industries Terms of Service: licensed use, restrictions on scraping and reverse engineering, customer ownership of records, and limitation of liability for third-party audits.",
+          "C.A.T.H.Y. Terms of Service: licensed use, restrictions on scraping and reverse engineering, customer ownership of records, and limitation of liability for third-party audits.",
       },
-      { property: "og:title", content: "Terms of Service — CertVault Industries" },
+      { property: "og:title", content: "Terms of Service — C.A.T.H.Y." },
       {
         property: "og:description",
-        content: "Licensed use, restricted rights, data ownership and liability terms for CertVault Industries.",
+        content: "Licensed use, restricted rights, data ownership and liability terms for C.A.T.H.Y..",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -11,13 +11,13 @@ import { PlanLimitError } from "@/lib/certvault-data";
 export const Route = createFileRoute("/import")({
   head: () => ({
     meta: [
-      { title: "CSV Bulk Onboarding | CertVault Industries" },
+      { title: "CSV Bulk Onboarding | C.A.T.H.Y." },
       {
         name: "description",
         content:
-          "Upload equipment and personnel spreadsheets, map your columns with a live preview, and load them straight into CertVault Industries.",
+          "Upload equipment and personnel spreadsheets, map your columns with a live preview, and load them straight into C.A.T.H.Y..",
       },
-      { property: "og:title", content: "CSV Bulk Onboarding | CertVault Industries" },
+      { property: "og:title", content: "CSV Bulk Onboarding | C.A.T.H.Y." },
       {
         property: "og:description",
         content: "Map spreadsheet columns to assets and crew records with a preview before importing.",
