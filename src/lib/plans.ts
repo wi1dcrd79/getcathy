@@ -55,6 +55,11 @@ export const PLANS: Record<PlanTier, PlanDef> = {
   },
 };
 
+export const PADDLE_PRICE_BY_TIER: Record<"pro" | "enterprise", string> = {
+  pro: "field_yard_pro_monthly",
+  enterprise: "enterprise_contractor_monthly",
+};
+
 export const PAID_TIERS: PlanTier[] = ["pro", "enterprise"];
 
 export function planFor(tier: string | null | undefined): PlanDef {
@@ -63,15 +68,4 @@ export function planFor(tier: string | null | undefined): PlanDef {
 
 export function seatsForTier(tier: PlanTier): number {
   return PLANS[tier].seats;
-}
-
-/**
- * Plan-aware checkout entry point. Once built-in payments are switched on this
- * calls the checkout session creator with the selected tier's price config.
- */
-export async function startCheckout(tier: PlanTier): Promise<{ url: string | null; message: string }> {
-  return {
-    url: null,
-    message: `Secure checkout for ${PLANS[tier].name} (${PLANS[tier].priceLabel}) is not connected yet.`,
-  };
 }

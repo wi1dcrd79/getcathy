@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { FREE_ASSET_LIMIT, PLANS, startCheckout, type PlanTier } from "@/lib/plans";
+import { FREE_ASSET_LIMIT, PADDLE_PRICE_BY_TIER, PLANS, type PlanTier } from "@/lib/plans";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/hooks/useAuth";
 
 const CHOICES: PlanTier[] = ["pro", "enterprise"];
 
@@ -14,18 +17,29 @@ export function UpgradeModal({
 }) {
   const [selected, setSelected] = useState<PlanTier>("pro");
   const [notice, setNotice] = useState<string | null>(null);
+  const { openCheckout, loading } = usePaddleCheckout();
+  const { session } = useAuth();
+  const { company } = useProfile();
 
   if (!open) return null;
 
   const plan = PLANS[selected];
 
   const handleCheckout = async () => {
-    const res = await startCheckout(selected);
-    if (res.url) {
-      window.location.href = res.url;
-      return;
+    setNotice(null);
+    try {
+      await openCheckout({
+        priceId: PADDLE_PRICE_BY_TIER[selected as "pro" | "enterprise"],
+        customerEmail: session?.user.email ?? undefined,
+        customData: {
+          userId: session?.user.id ?? "",
+          companyId: company?.id ?? "",
+        },
+        successUrl: `${window.location.origin}/?checkout=success`,
+      });
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "Could not open checkout.");
     }
-    setNotice(res.message);
   };
 
   return (
@@ -78,14 +92,15 @@ export function UpgradeModal({
 
           <p className="mt-4 rounded-md border border-border bg-input px-3 py-2 text-xs text-muted-foreground">
             {notice ??
-              `Free accounts include ${FREE_ASSET_LIMIT} tracked assets. Card billing is not switched on yet — say the word and I'll connect secure checkout.`}
+              `Free accounts include ${FREE_ASSET_LIMIT} tracked assets. Preview checkouts run in test mode — no real charges.`}
           </p>
 
           <button
             onClick={handleCheckout}
-            className="mt-4 w-full rounded-lg bg-primary px-4 py-3 text-sm font-bold uppercase tracking-widest text-primary-foreground"
+            disabled={loading}
+            className="mt-4 w-full rounded-lg disabled:opacity-60 bg-primary px-4 py-3 text-sm font-bold uppercase tracking-widest text-primary-foreground"
           >
-            Upgrade to {plan.name}
+            {loading ? "Opening checkout…" : `Upgrade to ${plan.name}`}
           </button>
           <button
             onClick={onClose}
