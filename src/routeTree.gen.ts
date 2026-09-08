@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PersonnelRouteImport } from './routes/personnel'
 import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PersonnelRoute = PersonnelRouteImport.update({
+  id: '/personnel',
+  path: '/personnel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScanTransferRoute = ScanTransferRouteImport.update({
@@ -38,12 +44,14 @@ const SuperAdminRoute = SuperAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/personnel': typeof PersonnelRoute
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/personnel': typeof PersonnelRoute
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
 }
@@ -51,20 +59,28 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/personnel': typeof PersonnelRoute
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/scan-transfer' | '/super-admin'
+  fullPaths: '/' | '/auth' | '/personnel' | '/scan-transfer' | '/super-admin'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/scan-transfer' | '/super-admin'
-  id: '__root__' | '/' | '/auth' | '/scan-transfer' | '/super-admin'
+  to: '/' | '/auth' | '/personnel' | '/scan-transfer' | '/super-admin'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/personnel'
+    | '/scan-transfer'
+    | '/super-admin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  PersonnelRoute: typeof PersonnelRoute
   ScanTransferRoute: typeof ScanTransferRoute
   SuperAdminRoute: typeof SuperAdminRoute
 }
@@ -83,6 +99,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/personnel': {
+      id: '/personnel'
+      path: '/personnel'
+      fullPath: '/personnel'
+      preLoaderRoute: typeof PersonnelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/scan-transfer': {
@@ -105,6 +128,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  PersonnelRoute: PersonnelRoute,
   ScanTransferRoute: ScanTransferRoute,
   SuperAdminRoute: SuperAdminRoute,
 }
