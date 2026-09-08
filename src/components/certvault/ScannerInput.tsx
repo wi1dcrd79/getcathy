@@ -1,11 +1,14 @@
-import { useRef, type KeyboardEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 
 /**
  * Hardware-scanner friendly input.
- * In gun mode the virtual keyboard is suppressed (inputMode="none") and
- * keystrokes are collected in a ref buffer — never React state — so a rapid
- * laser burst cannot lose characters to a mid-burst re-render. The buffer is
- * committed on Enter, which every scanner gun fires as its terminator.
+ *
+ * In gun mode the field is taken out of the tab order and the virtual keyboard is
+ * suppressed (inputMode="none"), and a window-level keydown listener collects the
+ * burst instead — keystrokes land in a ref buffer, never React state, so a rapid
+ * laser burst cannot lose characters to a mid-burst re-render. Inter-character
+ * latency under 50ms marks the burst as machine-fired; the buffer commits on
+ * Enter or Tab, which every scanner gun sends as its terminator.
  */
 export function ScannerInput({
   gunMode,
@@ -14,6 +17,7 @@ export function ScannerInput({
   onChange,
   onScan,
   autoFocus,
+  captureWindow,
 }: {
   gunMode: boolean;
   placeholder: string;
@@ -21,28 +25,64 @@ export function ScannerInput({
   onChange: (v: string) => void;
   onScan: (code: string) => void;
   autoFocus?: boolean;
+  /** When true this input owns the window-level burst capture in gun mode. */
+  captureWindow?: boolean;
 }) {
   const buffer = useRef("");
   const lastKey = useRef(0);
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  const feed = (key: string): string | null => {
     const now = Date.now();
-    // A pause longer than 120ms means a human typed it — restart the burst.
-    if (now - lastKey.current > 120) buffer.current = "";
+    const fast = now - lastKey.current < 50;
     lastKey.current = now;
 
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const code = (buffer.current || (e.currentTarget.value ?? "")).trim();
+    if (key === "Enter" || key === "Tab") {
+      const code = buffer.current.trim();
       buffer.current = "";
-      if (code) onScan(code);
-      return;
+      return code || null;
     }
-    if (e.key === "Backspace") {
+    if (key === "Backspace") {
       buffer.current = buffer.current.slice(0, -1);
-      return;
+      return null;
     }
-    if (e.key.length === 1) buffer.current += e.key;
+    if (key.length === 1) {
+      // A pause longer than 50ms means a human typed it — restart the burst.
+      buffer.current = fast ? buffer.current + key : key;
+    }
+    return null;
+  };
+
+  // Window-level capture: the gun can fire even with nothing focused.
+  useEffect(() => {
+    if (!gunMode || !captureWindow) return;
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      const typingElsewhere =
+        el && (el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable);
+      if (typingElsewhere) return;
+      if (e.key === "Enter" || e.key === "Tab") {
+        const code = feed(e.key);
+        if (code) {
+          e.preventDefault();
+          onChange(code);
+          onScan(code);
+        }
+        return;
+      }
+      feed(e.key);
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [gunMode, captureWindow, onScan, onChange]);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (gunMode && captureWindow) return; // window listener owns it
+    const code = feed(e.key);
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      const final = code || (e.currentTarget.value ?? "").trim();
+      if (final) onScan(final);
+    }
   };
 
   return (
@@ -50,6 +90,8 @@ export function ScannerInput({
       autoFocus={autoFocus}
       value={value}
       inputMode={gunMode ? "none" : "text"}
+      tabIndex={gunMode ? -1 : 0}
+      readOnly={gunMode && captureWindow}
       autoComplete="off"
       autoCorrect="off"
       spellCheck={false}

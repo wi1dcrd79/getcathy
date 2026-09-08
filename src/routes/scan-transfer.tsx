@@ -7,7 +7,9 @@ import { fetchAssets, transferAsset } from "@/lib/certvault-data";
 import { buildBreadcrumb } from "@/lib/compliance";
 import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { ScannerInput } from "@/components/certvault/ScannerInput";
-import { enqueueTransfer, flushQueue, readQueue } from "@/lib/offline-queue";
+import { enqueueTransfer, flushQueue, nextSequenceId, readQueue } from "@/lib/offline-queue";
+import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/scan-transfer")({
   head: () => ({
@@ -64,11 +66,27 @@ function ScanTransfer() {
     refreshQueue();
     const goOnline = async () => {
       setOnline(true);
-      const n = await flushQueue();
+      const report = await flushQueue();
       await refreshQueue();
-      if (n > 0) {
-        setMsg(`Back online — ${n} queued transfer${n === 1 ? "" : "s"} synced.`);
+      if (report.applied > 0 || report.conflicts.length > 0) {
         assetsQ.refetch();
+      }
+      if (report.applied > 0) {
+        toast.success(
+          `Back online — ${report.applied} queued transfer${report.applied === 1 ? "" : "s"} synced.`,
+        );
+        setMsg(`Back online — ${report.applied} queued transfer${report.applied === 1 ? "" : "s"} synced.`);
+      }
+      for (const c of report.conflicts) {
+        toast.warning(`Sync reconciliation — ${c.assetTag}`, {
+          description: `Someone else moved it to ${c.actual} while you were offline. Your move to ${c.attempted} was logged as a conflict, not applied.`,
+          duration: 12000,
+        });
+      }
+      if (report.conflicts.length > 0) {
+        setErr(
+          `${report.conflicts.length} queued move${report.conflicts.length === 1 ? "" : "s"} conflicted with a newer move by another worker — logged for review.`,
+        );
       }
     };
     const goOffline = () => setOnline(false);
@@ -81,6 +99,7 @@ function ScanTransfer() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   const asset = useMemo(() => assets.find((a) => a.id === assetId) ?? null, [assets, assetId]);
   const uniq = (vals: string[]) => Array.from(new Set(vals.filter(Boolean))).sort();
@@ -139,18 +158,21 @@ function ScanTransfer() {
       if (offline) {
         const n = await enqueueTransfer({
           id: crypto.randomUUID(),
-          assetId: asset.id,
-          assetTag: asset.asset_tag,
-          companyId: companyId ?? "",
-          from,
-          to,
+          asset_id: asset.id,
+          asset_tag: asset.asset_tag,
+          company_id: companyId ?? "",
+          from_bin_id: from,
+          to_bin_id: to,
           site,
           zone,
           bin,
-          ts,
+          captured_at: ts,
+          local_sequence_id: await nextSequenceId(),
         });
         setQueued(n);
         setMsg(`Offline — ${asset.asset_tag} → ${to} queued and will sync automatically.`);
+        toast.info(`Queued offline — ${asset.asset_tag} → ${to}`);
+
       } else {
         setErr(e instanceof Error ? e.message : "Could not move this asset.");
         setBusy(false);
@@ -224,6 +246,7 @@ function ScanTransfer() {
             <ScannerInput
               autoFocus
               gunMode={gunMode}
+              captureWindow={!assetId}
               value={assetCode}
               placeholder="Fire scanner or type tag…"
               onChange={setAssetCode}
@@ -260,6 +283,7 @@ function ScanTransfer() {
             <span className={label}>2 · Scan destination bin label</span>
             <ScannerInput
               gunMode={gunMode}
+              captureWindow={!!assetId}
               value={destCode}
               placeholder="YARD A|BAY 2|BIN 14"
               onChange={setDestCode}
