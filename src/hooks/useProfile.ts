@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { bootstrapAccount } from "@/lib/account.functions";
 
 export interface CompanyContext {
   profile: {
@@ -24,11 +25,9 @@ async function loadContext(): Promise<CompanyContext | null> {
   const uid = auth.user?.id;
   if (!uid) return null;
 
-  await supabase.rpc("bootstrap_current_user");
-  // single-device session marker
-  await supabase.rpc("rotate_session_token", {
-    _token: crypto.randomUUID(),
-  } as never);
+  // Account initialization happens server-side only.
+  await bootstrapAccount();
+
 
   const { data: profile } = await supabase
     .from("profiles")
