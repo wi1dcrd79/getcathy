@@ -257,6 +257,8 @@ export type Database = {
       }
       personnel_certs: {
         Row: {
+          approval_status: string
+          approved_at: string | null
           cert_name: string
           cert_number: string | null
           company_id: string
@@ -265,9 +267,12 @@ export type Database = {
           id: string
           issue_date: string
           personnel_id: string
+          submitted_by: string | null
           verified_by: string | null
         }
         Insert: {
+          approval_status?: string
+          approved_at?: string | null
           cert_name: string
           cert_number?: string | null
           company_id: string
@@ -276,9 +281,12 @@ export type Database = {
           id?: string
           issue_date: string
           personnel_id: string
+          submitted_by?: string | null
           verified_by?: string | null
         }
         Update: {
+          approval_status?: string
+          approved_at?: string | null
           cert_name?: string
           cert_number?: string | null
           company_id?: string
@@ -287,6 +295,7 @@ export type Database = {
           id?: string
           issue_date?: string
           personnel_id?: string
+          submitted_by?: string | null
           verified_by?: string | null
         }
         Relationships: [
