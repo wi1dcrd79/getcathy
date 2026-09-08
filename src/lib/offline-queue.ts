@@ -1,20 +1,46 @@
 import { get, set } from "idb-keyval";
 import { supabase } from "@/integrations/supabase/client";
 
-const KEY = "certvault.transfer-queue.v1";
+const KEY = "certvault.transfer-queue.v2";
+const SEQ_KEY = "certvault.transfer-seq.v1";
 
 export interface QueuedTransfer {
   id: string;
-  assetId: string;
-  assetTag: string;
-  companyId: string;
-  from: string;
-  to: string;
+  asset_id: string;
+  asset_tag: string;
+  company_id: string;
+  /** Location the device believed the asset was in when scanned. */
+  from_bin_id: string;
+  to_bin_id: string;
   site: string;
   zone: string;
   bin: string;
-  /** ISO timestamp used for last-write-wins conflict resolution. */
-  ts: string;
+  /** ISO timestamp of the physical scan on the device. */
+  captured_at: string;
+  /** Monotonic per-device counter so replays keep their true field order. */
+  local_sequence_id: number;
+}
+
+export type SyncOutcome =
+  | { kind: "applied"; item: QueuedTransfer }
+  | { kind: "conflict"; item: QueuedTransfer; actualLocation: string }
+  | { kind: "failed"; item: QueuedTransfer };
+
+export interface SyncReport {
+  applied: number;
+  conflicts: Array<{ assetTag: string; attempted: string; actual: string }>;
+  failed: number;
+}
+
+export async function nextSequenceId(): Promise<number> {
+  try {
+    const current = ((await get(SEQ_KEY)) as number | undefined) ?? 0;
+    const next = current + 1;
+    await set(SEQ_KEY, next);
+    return next;
+  } catch {
+    return Date.now();
+  }
 }
 
 export async function readQueue(): Promise<QueuedTransfer[]> {
@@ -40,15 +66,49 @@ export async function enqueueTransfer(item: QueuedTransfer) {
   return q.length;
 }
 
-async function pushOne(item: QueuedTransfer): Promise<boolean> {
-  // Last-write-wins: skip if the server already recorded a newer move.
-  const { data: newer } = await supabase
-    .from("location_history")
-    .select("created_at")
-    .eq("asset_id", item.assetId)
-    .gt("created_at", item.ts)
-    .limit(1);
-  if (newer && newer.length > 0) return true; // superseded — drop it
+async function logMove(item: QueuedTransfer, syncStatus: "offline_sync" | "conflict") {
+  const { error } = await supabase.from("location_history").insert({
+    asset_id: item.asset_id,
+    asset_tag: item.asset_tag,
+    moved_from: item.from_bin_id,
+    moved_to: item.to_bin_id,
+    company_id: item.company_id,
+    created_at: item.captured_at,
+    captured_at: item.captured_at,
+    expected_from: item.from_bin_id,
+    local_sequence_id: String(item.local_sequence_id),
+    sync_status: syncStatus,
+  } as never);
+  return !error;
+}
+
+/**
+ * Chain-of-custody push. The device clock never wins by itself: the move is only
+ * applied when the asset is still where the scanner believed it was. If another
+ * worker moved it while we were offline the move is appended to the immutable
+ * location_history flagged as a conflict and the current location is left alone.
+ */
+async function pushOne(item: QueuedTransfer): Promise<SyncOutcome> {
+  const { data: asset, error } = await supabase
+    .from("assets")
+    .select("id, current_location, location")
+    .eq("id", item.asset_id)
+    .maybeSingle();
+  if (error || !asset) return { kind: "failed", item };
+
+  const serverLocation =
+    (asset as { current_location?: string; location?: string }).current_location ||
+    (asset as { location?: string }).location ||
+    "Unassigned";
+
+  const expected = item.from_bin_id || "Unassigned";
+
+  if (serverLocation !== expected && serverLocation !== item.to_bin_id) {
+    const ok = await logMove(item, "conflict");
+    return ok
+      ? { kind: "conflict", item, actualLocation: serverLocation }
+      : { kind: "failed", item };
+  }
 
   const { error: updErr } = await supabase
     .from("assets")
@@ -56,41 +116,42 @@ async function pushOne(item: QueuedTransfer): Promise<boolean> {
       site: item.site,
       zone: item.zone,
       bin: item.bin,
-      current_location: item.to,
-      location: item.to,
+      current_location: item.to_bin_id,
+      location: item.to_bin_id,
     } as never)
-    .eq("id", item.assetId);
-  if (updErr) return false;
+    .eq("id", item.asset_id);
+  if (updErr) return { kind: "failed", item };
 
-  const { error: histErr } = await supabase.from("location_history").insert({
-    asset_id: item.assetId,
-    asset_tag: item.assetTag,
-    moved_from: item.from,
-    moved_to: item.to,
-    company_id: item.companyId,
-    created_at: item.ts,
-  } as never);
-  return !histErr;
+  const ok = await logMove(item, "offline_sync");
+  return ok ? { kind: "applied", item } : { kind: "failed", item };
 }
 
-/** Push every queued transfer. Returns how many synced. */
-export async function flushQueue(): Promise<number> {
+/** Push every queued transfer in true field order. */
+export async function flushQueue(): Promise<SyncReport> {
   const q = await readQueue();
-  if (q.length === 0) return 0;
+  const report: SyncReport = { applied: 0, conflicts: [], failed: 0 };
+  if (q.length === 0) return report;
 
-  // Last-write-wins per asset: only the newest queued move per asset matters.
-  const newestPerAsset = new Map<string, QueuedTransfer>();
-  for (const item of [...q].sort((a, b) => a.ts.localeCompare(b.ts))) {
-    newestPerAsset.set(item.assetId, item);
-  }
+  const ordered = [...q].sort(
+    (a, b) =>
+      a.captured_at.localeCompare(b.captured_at) || a.local_sequence_id - b.local_sequence_id,
+  );
 
   const remaining: QueuedTransfer[] = [];
-  let synced = 0;
-  for (const item of newestPerAsset.values()) {
-    const ok = await pushOne(item);
-    if (ok) synced += 1;
-    else remaining.push(item);
+  for (const item of ordered) {
+    const res = await pushOne(item);
+    if (res.kind === "applied") report.applied += 1;
+    else if (res.kind === "conflict") {
+      report.conflicts.push({
+        assetTag: item.asset_tag,
+        attempted: item.to_bin_id,
+        actual: res.actualLocation,
+      });
+    } else {
+      report.failed += 1;
+      remaining.push(item);
+    }
   }
   await writeQueue(remaining);
-  return synced;
+  return report;
 }
