@@ -20,6 +20,7 @@ export type Database = {
           assigned_to: string | null
           bin: string
           category: Database["public"]["Enums"]["asset_category"]
+          company_id: string | null
           created_at: string
           current_location: string
           id: string
@@ -30,6 +31,7 @@ export type Database = {
           owner_id: string | null
           serial_or_vin: string
           site: string
+          status: string
           zone: string
         }
         Insert: {
@@ -37,6 +39,7 @@ export type Database = {
           assigned_to?: string | null
           bin?: string
           category?: Database["public"]["Enums"]["asset_category"]
+          company_id?: string | null
           created_at?: string
           current_location?: string
           id?: string
@@ -47,6 +50,7 @@ export type Database = {
           owner_id?: string | null
           serial_or_vin?: string
           site?: string
+          status?: string
           zone?: string
         }
         Update: {
@@ -54,6 +58,7 @@ export type Database = {
           assigned_to?: string | null
           bin?: string
           category?: Database["public"]["Enums"]["asset_category"]
+          company_id?: string | null
           created_at?: string
           current_location?: string
           id?: string
@@ -64,17 +69,94 @@ export type Database = {
           owner_id?: string | null
           serial_or_vin?: string
           site?: string
+          status?: string
           zone?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "assets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      companies: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          seat_limit: number
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string
+          subscription_tier: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          seat_limit?: number
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string
+          subscription_tier?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          seat_limit?: number
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string
+          subscription_tier?: string
+        }
         Relationships: []
+      }
+      custom_trades: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          recurrence_months: number
+          trade_name: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          recurrence_months?: number
+          trade_name: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          recurrence_months?: number
+          trade_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_trades_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       inspections: {
         Row: {
           asset_id: string
+          company_id: string | null
           created_at: string
           expiration_date: string
           id: string
+          inspected_by: string | null
           inspection_date: string
+          inspection_type: string
           inspector_name: string
           notes: string | null
           owner_id: string | null
@@ -82,10 +164,13 @@ export type Database = {
         }
         Insert: {
           asset_id: string
+          company_id?: string | null
           created_at?: string
           expiration_date: string
           id?: string
+          inspected_by?: string | null
           inspection_date?: string
+          inspection_type?: string
           inspector_name: string
           notes?: string | null
           owner_id?: string | null
@@ -93,10 +178,13 @@ export type Database = {
         }
         Update: {
           asset_id?: string
+          company_id?: string | null
           created_at?: string
           expiration_date?: string
           id?: string
+          inspected_by?: string | null
           inspection_date?: string
+          inspection_type?: string
           inspector_name?: string
           notes?: string | null
           owner_id?: string | null
@@ -110,12 +198,20 @@ export type Database = {
             referencedRelation: "assets"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "inspections_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
         ]
       }
       location_history: {
         Row: {
           asset_id: string
           asset_tag: string
+          company_id: string | null
           created_at: string
           id: string
           moved_by: string
@@ -125,6 +221,7 @@ export type Database = {
         Insert: {
           asset_id: string
           asset_tag?: string
+          company_id?: string | null
           created_at?: string
           id?: string
           moved_by?: string
@@ -134,6 +231,7 @@ export type Database = {
         Update: {
           asset_id?: string
           asset_tag?: string
+          company_id?: string | null
           created_at?: string
           id?: string
           moved_by?: string
@@ -148,34 +246,154 @@ export type Database = {
             referencedRelation: "assets"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "location_history_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personnel_certs: {
+        Row: {
+          cert_name: string
+          cert_number: string | null
+          company_id: string
+          created_at: string
+          expiration_date: string | null
+          id: string
+          issue_date: string
+          personnel_id: string
+          verified_by: string | null
+        }
+        Insert: {
+          cert_name: string
+          cert_number?: string | null
+          company_id: string
+          created_at?: string
+          expiration_date?: string | null
+          id?: string
+          issue_date: string
+          personnel_id: string
+          verified_by?: string | null
+        }
+        Update: {
+          cert_name?: string
+          cert_number?: string | null
+          company_id?: string
+          created_at?: string
+          expiration_date?: string | null
+          id?: string
+          issue_date?: string
+          personnel_id?: string
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personnel_certs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personnel_certs_personnel_id_fkey"
+            columns: ["personnel_id"]
+            isOneToOne: false
+            referencedRelation: "personnel_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personnel_records: {
+        Row: {
+          company_id: string
+          created_at: string
+          employee_id: string
+          first_name: string
+          id: string
+          last_name: string
+          status: string
+          trade_title: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          employee_id: string
+          first_name: string
+          id?: string
+          last_name: string
+          status?: string
+          trade_title: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          employee_id?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          status?: string
+          trade_title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personnel_records_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
         Row: {
+          company_id: string | null
           created_at: string
+          current_session_token: string | null
           email: string | null
           id: string
+          is_super_admin: boolean
           plan: string
+          role: string
           updated_at: string
         }
         Insert: {
+          company_id?: string | null
           created_at?: string
+          current_session_token?: string | null
           email?: string | null
           id: string
+          is_super_admin?: boolean
           plan?: string
+          role?: string
           updated_at?: string
         }
         Update: {
+          company_id?: string | null
           created_at?: string
+          current_session_token?: string | null
           email?: string | null
           id?: string
+          is_super_admin?: boolean
           plan?: string
+          role?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       welder_qualifications: {
         Row: {
+          company_id: string | null
           continuity_date: string
           created_at: string
           expiration_date: string
@@ -187,6 +405,7 @@ export type Database = {
           welder_name: string
         }
         Insert: {
+          company_id?: string | null
           continuity_date: string
           created_at?: string
           expiration_date: string
@@ -198,6 +417,7 @@ export type Database = {
           welder_name: string
         }
         Update: {
+          company_id?: string | null
           continuity_date?: string
           created_at?: string
           expiration_date?: string
@@ -208,14 +428,27 @@ export type Database = {
           welder_id_stamp?: string
           welder_name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "welder_qualifications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      bootstrap_current_user: { Args: never; Returns: string }
+      can_write_compliance: { Args: never; Returns: boolean }
+      current_user_role: { Args: never; Returns: string }
+      get_current_company_id: { Args: never; Returns: string }
+      is_super_admin: { Args: never; Returns: boolean }
+      rotate_session_token: { Args: { _token: string }; Returns: undefined }
     }
     Enums: {
       asset_category: "rigging" | "welder_cert" | "heavy_equipment" | "ppe"
