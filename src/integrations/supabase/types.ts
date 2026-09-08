@@ -211,32 +211,44 @@ export type Database = {
         Row: {
           asset_id: string
           asset_tag: string
+          captured_at: string
           company_id: string | null
           created_at: string
+          expected_from: string
           id: string
+          local_sequence_id: string
           moved_by: string
           moved_from: string
           moved_to: string
+          sync_status: string
         }
         Insert: {
           asset_id: string
           asset_tag?: string
+          captured_at?: string
           company_id?: string | null
           created_at?: string
+          expected_from?: string
           id?: string
+          local_sequence_id?: string
           moved_by?: string
           moved_from?: string
           moved_to: string
+          sync_status?: string
         }
         Update: {
           asset_id?: string
           asset_tag?: string
+          captured_at?: string
           company_id?: string | null
           created_at?: string
+          expected_from?: string
           id?: string
+          local_sequence_id?: string
           moved_by?: string
           moved_from?: string
           moved_to?: string
+          sync_status?: string
         }
         Relationships: [
           {
