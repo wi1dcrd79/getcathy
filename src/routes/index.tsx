@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +14,10 @@ import {
 } from "@/lib/compliance";
 import { StatusBadge } from "@/components/certvault/StatusBadge";
 import { ScanSheet } from "@/components/certvault/ScanSheet";
+import { TransferSheet } from "@/components/certvault/TransferSheet";
+import { UpgradeModal } from "@/components/certvault/UpgradeModal";
+import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
+import { useProfile } from "@/hooks/useProfile";
 
 export const Route = createFileRoute("/")({
   head: () => ({
