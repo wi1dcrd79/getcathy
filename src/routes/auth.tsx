@@ -1,18 +1,20 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { TermsModal } from "@/components/certvault/TermsModal";
+import { TERMS_VERSION } from "@/lib/legal";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign In — CertVault AI Compliance Tracking" },
+      { title: "Sign In — CertVault Industries Compliance Tracking" },
       {
         name: "description",
         content:
-          "Secure sign in for CertVault AI: rigging, equipment and welder certification compliance records for authorized crews only.",
+          "Secure sign in for CertVault Industries: rigging, equipment and welder certification compliance records for authorized crews only.",
       },
-      { property: "og:title", content: "Sign In — CertVault AI" },
+      { property: "og:title", content: "Sign In — CertVault Industries" },
       {
         property: "og:description",
         content: "Authorized access to rigging and welder compliance records.",
@@ -37,6 +39,8 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   useEffect(() => {
     if (!loading && session) navigate({ to: "/" });
@@ -44,6 +48,11 @@ function AuthPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (mode === "signup" && !termsAccepted) {
+      setError(null);
+      setShowTerms(true);
+      return;
+    }
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -56,9 +65,13 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/` },
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: { terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() },
+          },
         });
         if (error) throw error;
+        setTermsAccepted(false);
         setNotice("Account created. Check your email if confirmation is required, then sign in.");
         setMode("signin");
       }
@@ -72,7 +85,7 @@ function AuthPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6">
-        <h1 className="text-2xl font-bold uppercase tracking-wide text-foreground">CertVault AI</h1>
+        <h1 className="text-2xl font-bold uppercase tracking-wide text-foreground">CertVault Industries</h1>
         <p className="mt-1 mb-5 text-xs uppercase tracking-widest text-muted-foreground">
           Authorized personnel only
         </p>
@@ -100,6 +113,26 @@ function AuthPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+          {mode === "signup" && (
+            <div className="rounded-md border border-border bg-background/60 p-3 text-xs text-muted-foreground">
+              {termsAccepted ? (
+                <p className="text-success">
+                  Terms of Service accepted (v{TERMS_VERSION}).{" "}
+                  <button type="button" className="underline" onClick={() => setShowTerms(true)}>
+                    Review again
+                  </button>
+                </p>
+              ) : (
+                <p>
+                  Creating an account requires accepting the{" "}
+                  <button type="button" className="underline text-foreground" onClick={() => setShowTerms(true)}>
+                    Terms of Service
+                  </button>
+                  .
+                </p>
+              )}
+            </div>
+          )}
           {error && <p className="text-sm text-destructive">{error}</p>}
           {notice && <p className="text-sm text-success">{notice}</p>}
           <button
@@ -116,7 +149,24 @@ function AuthPage() {
         >
           {mode === "signin" ? "Need an account? Sign up" : "Have an account? Sign in"}
         </button>
+        <p className="mt-3 text-center text-[11px] uppercase tracking-widest text-muted-foreground">
+          <Link to="/terms" className="underline">
+            Terms of Service
+          </Link>
+        </p>
       </div>
+      <TermsModal
+        open={showTerms}
+        onAccept={() => {
+          setTermsAccepted(true);
+          setShowTerms(false);
+        }}
+        onDecline={() => {
+          setTermsAccepted(false);
+          setShowTerms(false);
+          setError("You must accept the Terms of Service to create an account.");
+        }}
+      />
     </main>
   );
 }

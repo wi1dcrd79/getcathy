@@ -12,13 +12,13 @@ import { enqueueTransfer, flushQueue, readQueue } from "@/lib/offline-queue";
 export const Route = createFileRoute("/scan-transfer")({
   head: () => ({
     meta: [
-      { title: "Yard Scanner — Scan-to-Transfer | CertVault AI" },
+      { title: "Yard Scanner — Scan-to-Transfer | CertVault Industries" },
       {
         name: "description",
         content:
           "High-speed Telxon-style yard scanner: scan an asset, pick Site › Zone › Bin and confirm the move in one tap, online or offline.",
       },
-      { property: "og:title", content: "Yard Scanner — Scan-to-Transfer | CertVault AI" },
+      { property: "og:title", content: "Yard Scanner — Scan-to-Transfer | CertVault Industries" },
       {
         property: "og:description",
         content: "Scan-to-transfer yard inventory with hardware scanner gun support and offline sync.",

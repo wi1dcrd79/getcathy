@@ -22,13 +22,13 @@ import { useProfile } from "@/hooks/useProfile";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CertVault AI — Rigging & Welder Compliance Tracking" },
+      { title: "CertVault Industries — Rigging & Welder Compliance Tracking" },
       {
         name: "description",
         content:
           "Field-first QA/QC dashboard tracking rigging inspections, equipment certifications and welder continuity with OSHA-ready audit binders.",
       },
-      { property: "og:title", content: "CertVault AI — Rigging & Welder Compliance Tracking" },
+      { property: "og:title", content: "CertVault Industries — Rigging & Welder Compliance Tracking" },
       {
         property: "og:description",
         content:
@@ -187,7 +187,7 @@ function Dashboard() {
             <img src="/images/certvault-icon.png" alt="" width={36} height={36} className="rounded-md" />
             <div>
               <h1 className="text-xl font-bold uppercase leading-none">
-                CertVault <span className="text-primary">AI</span>
+                CertVault <span className="text-primary">Industries</span>
               </h1>
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
                 QA/QC · Rigging · Welder Continuity
@@ -370,7 +370,7 @@ function Dashboard() {
         </section>
 
         <p className="mt-6 hidden text-xs text-muted-foreground print:block">
-          CertVault AI compliance summary generated {new Date().toLocaleString()} — {metrics.total} tracked records,{" "}
+          CertVault Industries compliance summary generated {new Date().toLocaleString()} — {metrics.total} tracked records,{" "}
           {metrics.out} out of compliance, {metrics.soon} expiring within 30 days.
         </p>
       </main>

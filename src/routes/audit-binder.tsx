@@ -5,18 +5,19 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchAssets, fetchWelders } from "@/lib/certvault-data";
 import { fetchCerts, fetchPersonnel } from "@/lib/personnel-data";
+import { BRAND_DIVISION, COPYRIGHT_LINE } from "@/lib/legal";
 import { assetStatus, formatDate, welderStatus, CATEGORY_LABEL } from "@/lib/compliance";
 
 export const Route = createFileRoute("/audit-binder")({
   head: () => ({
     meta: [
-      { title: "Compliance Audit Binder | CertVault AI" },
+      { title: "Compliance Audit Binder | CertVault Industries" },
       {
         name: "description",
         content:
           "Paginated, print-ready OSHA and client audit binder listing equipment, serials, bin locations, inspection stamps and welder continuity logs.",
       },
-      { property: "og:title", content: "Compliance Audit Binder | CertVault AI" },
+      { property: "og:title", content: "Compliance Audit Binder | CertVault Industries" },
       {
         property: "og:description",
         content: "Print-ready compliance binder for OSHA and general contractor review.",
@@ -36,7 +37,7 @@ function AuditBinder() {
   }, [loading, session, navigate]);
 
   const { context } = useProfile();
-  const companyName = context?.company?.name ?? "CertVault AI";
+  const companyName = context?.company?.name ?? "CertVault Industries";
 
   const assetsQ = useQuery({ queryKey: ["assets"], queryFn: fetchAssets, enabled: !!session });
   const weldersQ = useQuery({ queryKey: ["welders"], queryFn: fetchWelders, enabled: !!session });
@@ -72,14 +73,15 @@ function AuditBinder() {
 
       <main className="mx-auto max-w-5xl px-4 py-6">
         <div className="watermark" aria-hidden="true">
-          {companyName}
+          {BRAND_DIVISION}
         </div>
 
         <section className="binder-page">
           <div className="binder-head">
             <div>
-              <p className="text-xs uppercase tracking-widest">{companyName}</p>
+              <p className="text-xs font-semibold uppercase tracking-widest">{BRAND_DIVISION}</p>
               <h2 className="text-2xl font-bold uppercase">Compliance Audit Binder</h2>
+              <p className="text-xs uppercase tracking-widest">Prepared for {companyName}</p>
             </div>
             <p className="text-xs">
               Generated {new Date().toLocaleString()} · {assets.length} assets · {welders.length} welders
@@ -197,6 +199,11 @@ function AuditBinder() {
             Reviewed by ______________________________ Date ______________
           </p>
         </section>
+
+        <footer className="binder-footer">
+          <p>{BRAND_DIVISION} · Prepared for {companyName}</p>
+          <p>{COPYRIGHT_LINE}</p>
+        </footer>
       </main>
     </div>
   );

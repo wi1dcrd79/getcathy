@@ -22,13 +22,13 @@ import { formatDate } from "@/lib/compliance";
 export const Route = createFileRoute("/personnel")({
   head: () => ({
     meta: [
-      { title: "Multi-Craft Continuity Matrix | CertVault AI" },
+      { title: "Multi-Craft Continuity Matrix | CertVault Industries" },
       {
         name: "description",
         content:
           "Track welder, boilermaker, plumber, crane and rigging certifications with built-in trade presets and QC sign-off on every continuity reset.",
       },
-      { property: "og:title", content: "Multi-Craft Continuity Matrix | CertVault AI" },
+      { property: "og:title", content: "Multi-Craft Continuity Matrix | CertVault Industries" },
       {
         property: "og:description",
         content: "Craft certifications, custom trade clocks and a pending QC sign-off queue.",

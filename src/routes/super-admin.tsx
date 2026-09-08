@@ -4,19 +4,20 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { SUPER_ADMIN_EMAIL } from "@/lib/legal";
 
 export const Route = createFileRoute("/super-admin")({
   head: () => ({
     meta: [
-      { title: "Company Control — CertVault AI" },
+      { title: "Company Control — CertVault Industries" },
       {
         name: "description",
-        content: "Super-admin console for managing CertVault AI company accounts, plans and crew seats.",
+        content: "Super-admin console for managing CertVault Industries company accounts, plans and crew seats.",
       },
-      { property: "og:title", content: "Company Control — CertVault AI" },
+      { property: "og:title", content: "Company Control — CertVault Industries" },
       {
         property: "og:description",
-        content: "Manage CertVault AI company accounts, subscription tiers and seat counts.",
+        content: "Manage CertVault Industries company accounts, subscription tiers and seat counts.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -46,7 +47,10 @@ async function fetchCompanies(): Promise<CompanyRow[]> {
 function SuperAdmin() {
   const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { isSuperAdmin, isLoading: profileLoading } = useProfile();
+  const { isSuperAdmin: profileSuperAdmin, isLoading: profileLoading } = useProfile();
+  const isSuperAdmin =
+    profileSuperAdmin &&
+    (session?.user?.email ?? "").trim().toLowerCase() === SUPER_ADMIN_EMAIL;
   const qc = useQueryClient();
 
   useEffect(() => {
