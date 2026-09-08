@@ -194,7 +194,21 @@ function Dashboard() {
               </p>
             </div>
           </div>
-          <div className="hidden gap-2 lg:flex">
+          <div className="hidden items-center gap-2 lg:flex">
+            {isSuperAdmin && (
+              <Link
+                to="/super-admin"
+                className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground hover:border-primary"
+              >
+                Companies
+              </Link>
+            )}
+            <button
+              onClick={() => setTransferOpen(true)}
+              className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
+            >
+              Quick Transfer
+            </button>
             <button
               onClick={exportCsv}
               className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
@@ -202,10 +216,18 @@ function Dashboard() {
               Export CSV
             </button>
             <button
-              onClick={() => window.print()}
+              onClick={() => {
+                if (!isPro) {
+                  setUpgradeReason(
+                    "The one-click OSHA / client audit binder is part of Field Yard Pro.",
+                  );
+                  return;
+                }
+                window.print();
+              }}
               className="rounded-md bg-accent px-3 py-2 text-xs font-bold uppercase tracking-widest text-accent-foreground"
             >
-              Generate Audit Binder (PDF)
+              Generate Audit Binder (PDF){!isPro && " 🔒"}
             </button>
           </div>
         </div>
