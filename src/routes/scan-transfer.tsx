@@ -64,11 +64,27 @@ function ScanTransfer() {
     refreshQueue();
     const goOnline = async () => {
       setOnline(true);
-      const n = await flushQueue();
+      const report = await flushQueue();
       await refreshQueue();
-      if (n > 0) {
-        setMsg(`Back online — ${n} queued transfer${n === 1 ? "" : "s"} synced.`);
+      if (report.applied > 0 || report.conflicts.length > 0) {
         assetsQ.refetch();
+      }
+      if (report.applied > 0) {
+        toast.success(
+          `Back online — ${report.applied} queued transfer${report.applied === 1 ? "" : "s"} synced.`,
+        );
+        setMsg(`Back online — ${report.applied} queued transfer${report.applied === 1 ? "" : "s"} synced.`);
+      }
+      for (const c of report.conflicts) {
+        toast.warning(`Sync reconciliation — ${c.assetTag}`, {
+          description: `Someone else moved it to ${c.actual} while you were offline. Your move to ${c.attempted} was logged as a conflict, not applied.`,
+          duration: 12000,
+        });
+      }
+      if (report.conflicts.length > 0) {
+        setErr(
+          `${report.conflicts.length} queued move${report.conflicts.length === 1 ? "" : "s"} conflicted with a newer move by another worker — logged for review.`,
+        );
       }
     };
     const goOffline = () => setOnline(false);
@@ -81,6 +97,7 @@ function ScanTransfer() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   const asset = useMemo(() => assets.find((a) => a.id === assetId) ?? null, [assets, assetId]);
   const uniq = (vals: string[]) => Array.from(new Set(vals.filter(Boolean))).sort();
