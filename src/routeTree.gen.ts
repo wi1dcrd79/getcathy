@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuditBinderRouteImport } from './routes/audit-binder'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as PersonnelRouteImport } from './routes/personnel'
@@ -19,6 +20,11 @@ import { Route as SuperAdminRouteImport } from './routes/super-admin'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditBinderRoute = AuditBinderRouteImport.update({
+  id: '/audit-binder',
+  path: '/audit-binder',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -49,6 +55,7 @@ const SuperAdminRoute = SuperAdminRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
@@ -75,13 +84,26 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/import' | '/personnel' | '/scan-transfer' | '/super-admin'
+    | '/'
+    | '/audit-binder'
+    | '/auth'
+    | '/import'
+    | '/personnel'
+    | '/scan-transfer'
+    | '/super-admin'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/auth' | '/import' | '/personnel' | '/scan-transfer' | '/super-admin'
+    | '/'
+    | '/audit-binder'
+    | '/auth'
+    | '/import'
+    | '/personnel'
+    | '/scan-transfer'
+    | '/super-admin'
   id:
     | '__root__'
     | '/'
+    | '/audit-binder'
     | '/auth'
     | '/import'
     | '/personnel'
@@ -91,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuditBinderRoute: typeof AuditBinderRoute
   AuthRoute: typeof AuthRoute
   ImportRoute: typeof ImportRoute
   PersonnelRoute: typeof PersonnelRoute
@@ -105,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit-binder': {
+      id: '/audit-binder'
+      path: '/audit-binder'
+      fullPath: '/audit-binder'
+      preLoaderRoute: typeof AuditBinderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -147,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuditBinderRoute: AuditBinderRoute,
   AuthRoute: AuthRoute,
   ImportRoute: ImportRoute,
   PersonnelRoute: PersonnelRoute,
