@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +14,10 @@ import {
 } from "@/lib/compliance";
 import { StatusBadge } from "@/components/certvault/StatusBadge";
 import { ScanSheet } from "@/components/certvault/ScanSheet";
+import { TransferSheet } from "@/components/certvault/TransferSheet";
+import { UpgradeModal } from "@/components/certvault/UpgradeModal";
+import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
+import { useProfile } from "@/hooks/useProfile";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,6 +55,8 @@ interface UnifiedRow {
   result: string;
   status: ComplianceStatus | "Active" | "Grace Period" | "Lapsed";
   notes: string;
+  breadcrumb: string;
+  serial: string;
 }
 
 function toAssetRow(a: AssetRecord): UnifiedRow {
@@ -61,14 +67,16 @@ function toAssetRow(a: AssetRecord): UnifiedRow {
     tag: a.asset_tag,
     name: a.name,
     category: CATEGORY_LABEL[a.category],
-    location: a.location,
-    detail: a.assigned_to ?? "Unassigned",
+    location: a.current_location || a.location,
+    detail: a.make_model || a.assigned_to || "Unassigned",
     inspector: insp?.inspector_name ?? "—",
     lastDate: insp?.inspection_date ?? null,
     expiration: insp?.expiration_date ?? null,
     result: insp?.result ?? "—",
     status: insp ? assetStatus(insp.expiration_date, insp.result) : "Out of Compliance",
     notes: insp?.notes ?? "",
+    breadcrumb: a.current_location || a.location || "",
+    serial: a.serial_or_vin ?? "",
   };
 }
 
@@ -87,6 +95,8 @@ function toWelderRow(w: WelderRow): UnifiedRow {
     result: w.process,
     status: welderStatus(w.continuity_date),
     notes: `${w.standard} · continuity logged ${formatDate(w.continuity_date)}`,
+    breadcrumb: "",
+    serial: w.welder_id_stamp,
   };
 }
 
@@ -100,9 +110,12 @@ function Dashboard() {
     if (!authLoading && !session) navigate({ to: "/auth" });
   }, [authLoading, session, navigate]);
 
+  const { companyId, isPro, isSuperAdmin } = useProfile();
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const [scanOpen, setScanOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<"tag" | "name" | "expiration" | "status">("expiration");
 
   const assetsQ = useQuery({ queryKey: ["assets"], queryFn: fetchAssets, enabled: !!session });
@@ -133,7 +146,10 @@ function Dashboard() {
     });
     if (q) {
       list = list.filter((r) =>
-        [r.tag, r.name, r.location, r.detail, r.category].join(" ").toLowerCase().includes(q),
+        [r.tag, r.name, r.location, r.detail, r.category, r.serial, r.breadcrumb]
+          .join(" ")
+          .toLowerCase()
+          .includes(q),
       );
     }
     return [...list].sort((a, b) => {
@@ -178,7 +194,21 @@ function Dashboard() {
               </p>
             </div>
           </div>
-          <div className="hidden gap-2 lg:flex">
+          <div className="hidden items-center gap-2 lg:flex">
+            {isSuperAdmin && (
+              <Link
+                to="/super-admin"
+                className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground hover:border-primary"
+              >
+                Companies
+              </Link>
+            )}
+            <button
+              onClick={() => setTransferOpen(true)}
+              className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
+            >
+              Quick Transfer
+            </button>
             <button
               onClick={exportCsv}
               className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
@@ -186,10 +216,18 @@ function Dashboard() {
               Export CSV
             </button>
             <button
-              onClick={() => window.print()}
+              onClick={() => {
+                if (!isPro) {
+                  setUpgradeReason(
+                    "The one-click OSHA / client audit binder is part of Field Yard Pro.",
+                  );
+                  return;
+                }
+                window.print();
+              }}
               className="rounded-md bg-accent px-3 py-2 text-xs font-bold uppercase tracking-widest text-accent-foreground"
             >
-              Generate Audit Binder (PDF)
+              Generate Audit Binder (PDF){!isPro && " 🔒"}
             </button>
           </div>
         </div>
@@ -250,8 +288,13 @@ function Dashboard() {
                 </div>
                 <StatusBadge status={r.status} />
               </div>
+              {r.breadcrumb ? (
+                <div className="mt-2">
+                  <BreadcrumbChips value={r.breadcrumb} />
+                </div>
+              ) : null}
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                <span>{r.location}</span>
+                <span className="tag-mono">{r.serial || r.location}</span>
                 <span className="text-right">{r.category}</span>
                 <span>{r.detail}</span>
                 <span className="text-right">
@@ -324,10 +367,10 @@ function Dashboard() {
       <nav className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between px-6 py-3">
           <button
-            onClick={() => setFilter("all")}
+            onClick={() => setTransferOpen(true)}
             className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
           >
-            Assets
+            Transfer
           </button>
           <button
             onClick={() => setScanOpen(true)}
@@ -347,11 +390,31 @@ function Dashboard() {
 
       <ScanSheet
         open={scanOpen}
+        companyId={companyId}
         onClose={() => setScanOpen(false)}
+        onLimit={() =>
+          setUpgradeReason(
+            "Free accounts track up to 3 assets. Upgrade to add unlimited yard inventory.",
+          )
+        }
         onSaved={() => {
           assetsQ.refetch();
           weldersQ.refetch();
         }}
+      />
+
+      <TransferSheet
+        open={transferOpen}
+        assets={assetsQ.data ?? []}
+        companyId={companyId}
+        onClose={() => setTransferOpen(false)}
+        onMoved={() => assetsQ.refetch()}
+      />
+
+      <UpgradeModal
+        open={upgradeReason !== null}
+        reason={upgradeReason ?? ""}
+        onClose={() => setUpgradeReason(null)}
       />
     </div>
   );
