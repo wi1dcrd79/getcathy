@@ -146,7 +146,10 @@ function Dashboard() {
     });
     if (q) {
       list = list.filter((r) =>
-        [r.tag, r.name, r.location, r.detail, r.category].join(" ").toLowerCase().includes(q),
+        [r.tag, r.name, r.location, r.detail, r.category, r.serial, r.breadcrumb]
+          .join(" ")
+          .toLowerCase()
+          .includes(q),
       );
     }
     return [...list].sort((a, b) => {
