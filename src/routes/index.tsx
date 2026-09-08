@@ -378,12 +378,12 @@ function Dashboard() {
       {/* Sticky field action bar */}
       <nav className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between px-6 py-3">
-          <button
-            onClick={() => setTransferOpen(true)}
+          <Link
+            to="/scan-transfer"
             className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
           >
-            Transfer
-          </button>
+            Scan Move
+          </Link>
           <button
             onClick={() => setScanOpen(true)}
             className="-mt-8 flex h-20 w-20 flex-col items-center justify-center rounded-full border-4 border-background bg-accent text-accent-foreground shadow-lg"
