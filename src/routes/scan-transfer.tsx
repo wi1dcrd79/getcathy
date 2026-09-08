@@ -246,6 +246,7 @@ function ScanTransfer() {
             <ScannerInput
               autoFocus
               gunMode={gunMode}
+              captureWindow={!assetId}
               value={assetCode}
               placeholder="Fire scanner or type tag…"
               onChange={setAssetCode}
@@ -282,6 +283,7 @@ function ScanTransfer() {
             <span className={label}>2 · Scan destination bin label</span>
             <ScannerInput
               gunMode={gunMode}
+              captureWindow={!!assetId}
               value={destCode}
               placeholder="YARD A|BAY 2|BIN 14"
               onChange={setDestCode}
