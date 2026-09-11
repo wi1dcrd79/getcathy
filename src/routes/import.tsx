@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Papa from "papaparse";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { buildBreadcrumb } from "@/lib/compliance";
 import { UpgradeModal } from "@/components/certvault/UpgradeModal";
 import { PlanLimitError } from "@/lib/certvault-data";
+import { clean, matchCraft, parseDate, sanitizeRows } from "@/lib/import-sanitize";
 
 export const Route = createFileRoute("/import")({
   head: () => ({
@@ -15,12 +16,12 @@ export const Route = createFileRoute("/import")({
       {
         name: "description",
         content:
-          "Upload equipment and personnel spreadsheets, map your columns with a live preview, and load them straight into C.A.T.H.Y.",
+          "Upload equipment and personnel spreadsheets, map your columns, review a validated preview with duplicate flags, then load them into C.A.T.H.Y.",
       },
       { property: "og:title", content: "CSV Bulk Onboarding | C.A.T.H.Y." },
       {
         property: "og:description",
-        content: "Map spreadsheet columns to assets and crew records with a preview before importing.",
+        content: "Sanitised spreadsheet import with date normalisation, craft matching and duplicate detection.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -51,6 +52,9 @@ const TARGETS: Record<Mode, Array<{ key: string; text: string; required?: boolea
     { key: "last_name", text: "Last name", required: true },
     { key: "employee_id", text: "Employee ID", required: true },
     { key: "trade_title", text: "Craft title", required: true },
+    { key: "cert_name", text: "Certification (optional)" },
+    { key: "issue_date", text: "Issue date (optional)" },
+    { key: "expiration_date", text: "Expiration date (optional)" },
   ],
 };
 
@@ -64,6 +68,15 @@ function guess(headers: string[], key: string): string {
     headers.find((h) => norm(h).includes(target) || target.includes(norm(h))) ??
     ""
   );
+}
+
+interface Checked {
+  row: Record<string, string>;
+  values: Record<string, string>;
+  issues: string[];
+  duplicate: boolean;
+  skip: boolean;
+  note: string[];
 }
 
 function ImportPage() {
@@ -82,17 +95,47 @@ function ImportPage() {
   const [result, setResult] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [upgrade, setUpgrade] = useState(false);
+  const [existingTags, setExistingTags] = useState<Set<string>>(new Set());
+  const [existingEmployees, setExistingEmployees] = useState<Set<string>>(new Set());
+  const [dropped, setDropped] = useState(0);
+
+  useEffect(() => {
+    if (!session) return;
+    let alive = true;
+    (async () => {
+      const [a, p] = await Promise.all([
+        supabase.from("assets").select("asset_tag,serial_or_vin"),
+        supabase.from("personnel_records").select("employee_id"),
+      ]);
+      if (!alive) return;
+      const tags = new Set<string>();
+      for (const r of a.data ?? []) {
+        if (r.asset_tag) tags.add(r.asset_tag.trim().toLowerCase());
+        if (r.serial_or_vin) tags.add(r.serial_or_vin.trim().toLowerCase());
+      }
+      setExistingTags(tags);
+      setExistingEmployees(
+        new Set((p.data ?? []).map((r) => (r.employee_id ?? "").trim().toLowerCase()).filter(Boolean)),
+      );
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [session, result]);
 
   const onFile = (file: File) => {
     setErr(null);
     setResult(null);
     Papa.parse<Record<string, string>>(file, {
       header: true,
-      skipEmptyLines: true,
+      skipEmptyLines: "greedy",
+      transformHeader: (h) => clean(h),
       complete: (out) => {
-        const hs = (out.meta.fields ?? []).filter(Boolean);
+        const cleaned = sanitizeRows(out.data as Record<string, unknown>[]);
+        setDropped(out.data.length - cleaned.length);
+        const hs = (out.meta.fields ?? []).map((h) => clean(h)).filter(Boolean);
         setHeaders(hs);
-        setRows(out.data);
+        setRows(cleaned);
         const initial: Record<string, string> = {};
         for (const t of TARGETS[mode]) initial[t.key] = guess(hs, t.key);
         setMap(initial);
@@ -101,7 +144,78 @@ function ImportPage() {
     });
   };
 
-  const value = (row: Record<string, string>, key: string) => (map[key] ? (row[map[key]!] ?? "").trim() : "");
+  const raw = (row: Record<string, string>, key: string) => (map[key] ? clean(row[map[key]!]) : "");
+
+  /** Sanitise + validate every row before anything touches the database. */
+  const checked: Checked[] = useMemo(() => {
+    const seen = new Set<string>();
+    return rows.map((row) => {
+      const values: Record<string, string> = {};
+      const issues: string[] = [];
+      const note: string[] = [];
+      let duplicate = false;
+
+      for (const t of TARGETS[mode]) values[t.key] = raw(row, t.key);
+
+      if (mode === "assets") {
+        if (!values.asset_tag) issues.push("Missing asset tag");
+        if (!values.name) issues.push("Missing description");
+        const key = values.asset_tag!.toLowerCase();
+        const serial = (values.serial_or_vin ?? "").toLowerCase();
+        if (key && (existingTags.has(key) || (serial && existingTags.has(serial)))) {
+          duplicate = true;
+          issues.push("Already in your yard");
+        }
+        if (key && seen.has(key)) {
+          duplicate = true;
+          issues.push("Duplicated in this file");
+        }
+        if (key) seen.add(key);
+        const cat = (values.category ?? "").toLowerCase().replace(/\s+/g, "_");
+        values.category = CATEGORIES.has(cat) ? cat : "rigging";
+        if (cat && !CATEGORIES.has(cat)) note.push(`Category → rigging`);
+      } else {
+        if (!values.first_name) issues.push("Missing first name");
+        if (!values.last_name) issues.push("Missing last name");
+        if (!values.employee_id) issues.push("Missing employee ID");
+        const emp = values.employee_id!.toLowerCase();
+        if (emp && existingEmployees.has(emp)) {
+          duplicate = true;
+          issues.push("Employee already on the roster");
+        }
+        if (emp && seen.has(emp)) {
+          duplicate = true;
+          issues.push("Duplicated in this file");
+        }
+        if (emp) seen.add(emp);
+
+        const craft = matchCraft(values.trade_title ?? "");
+        if (craft.craft !== values.trade_title) note.push(`Craft → ${craft.craft}`);
+        if (!craft.matched && values.trade_title) note.push("Kept as custom trade");
+        values.trade_title = craft.craft;
+
+        for (const dk of ["issue_date", "expiration_date"] as const) {
+          const rawDate = values[dk];
+          if (!rawDate) continue;
+          const parsed = parseDate(rawDate);
+          if (parsed) {
+            if (parsed !== rawDate) note.push(`${dk === "issue_date" ? "Issued" : "Expires"} → ${parsed}`);
+            values[dk] = parsed;
+          } else {
+            issues.push(`Unreadable ${dk.replace("_", " ")}: "${rawDate}"`);
+            values[dk] = "";
+          }
+        }
+      }
+
+      const skip = issues.length > 0;
+      return { row, values, issues, duplicate, skip, note };
+    });
+  }, [rows, map, mode, existingTags, existingEmployees]);
+
+  const good = checked.filter((c) => !c.skip);
+  const bad = checked.length - good.length;
+  const dupes = checked.filter((c) => c.duplicate).length;
 
   const runImport = async () => {
     if (!companyId) {
@@ -111,59 +225,58 @@ function ImportPage() {
     setBusy(true);
     setErr(null);
     let ok = 0;
-    let skipped = 0;
     try {
-      for (const row of rows) {
+      for (const c of good) {
+        const v = c.values;
         if (mode === "assets") {
-          const tag = value(row, "asset_tag");
-          const name = value(row, "name");
-          if (!tag || !name) {
-            skipped += 1;
-            continue;
-          }
-          const site = value(row, "site");
-          const zone = value(row, "zone");
-          const bin = value(row, "bin");
-          const crumb = buildBreadcrumb(site, zone, bin);
-          const catRaw = value(row, "category").toLowerCase().replace(/\s+/g, "_");
+          const crumb = buildBreadcrumb(v.site ?? "", v.zone ?? "", v.bin ?? "");
           const { error } = await supabase.from("assets").insert({
-            asset_tag: tag,
-            name,
-            category: CATEGORIES.has(catRaw) ? catRaw : "rigging",
-            make_model: value(row, "make_model"),
-            serial_or_vin: value(row, "serial_or_vin"),
-            site,
-            zone,
-            bin,
+            asset_tag: v.asset_tag!,
+            name: v.name!,
+            category: v.category!,
+            make_model: v.make_model ?? "",
+            serial_or_vin: v.serial_or_vin ?? "",
+            site: v.site ?? "",
+            zone: v.zone ?? "",
+            bin: v.bin ?? "",
             location: crumb,
             current_location: crumb,
             company_id: companyId,
           } as never);
           if (error) {
             if (error.message.includes("FREE_PLAN_LIMIT")) throw new PlanLimitError();
-            skipped += 1;
-          } else ok += 1;
-        } else {
-          const first = value(row, "first_name");
-          const last = value(row, "last_name");
-          const emp = value(row, "employee_id");
-          if (!first || !last || !emp) {
-            skipped += 1;
-            continue;
+            throw new Error(error.message);
           }
-          const { error } = await supabase.from("personnel_records").insert({
-            first_name: first,
-            last_name: last,
-            employee_id: emp,
-            trade_title: value(row, "trade_title") || "General Labor",
-            company_id: companyId,
-            status: "active",
-          } as never);
-          if (error) skipped += 1;
-          else ok += 1;
+          ok += 1;
+        } else {
+          const { data, error } = await supabase
+            .from("personnel_records")
+            .insert({
+              first_name: v.first_name!,
+              last_name: v.last_name!,
+              employee_id: v.employee_id!,
+              trade_title: v.trade_title || "General Labor",
+              company_id: companyId,
+              status: "active",
+            } as never)
+            .select("id")
+            .single();
+          if (error) throw new Error(error.message);
+          ok += 1;
+          if (v.cert_name && data?.id) {
+            await supabase.from("personnel_certs").insert({
+              personnel_id: data.id,
+              company_id: companyId,
+              cert_name: v.cert_name,
+              issue_date: v.issue_date || new Date().toISOString().slice(0, 10),
+              expiration_date: v.expiration_date || null,
+            } as never);
+          }
         }
       }
-      setResult(`Imported ${ok} record${ok === 1 ? "" : "s"}${skipped ? `, skipped ${skipped}` : ""}.`);
+      setResult(
+        `Imported ${ok} record${ok === 1 ? "" : "s"}${bad ? `, held back ${bad} flagged row${bad === 1 ? "" : "s"}` : ""}.`,
+      );
     } catch (e) {
       if (e instanceof PlanLimitError) setUpgrade(true);
       else setErr(e instanceof Error ? e.message : "The import stopped early.");
@@ -173,17 +286,15 @@ function ImportPage() {
     }
   };
 
-  const preview = rows.slice(0, 5);
-
   return (
     <div className="min-h-screen pb-16">
       <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         <div className="hazard-stripe h-1 w-full opacity-70" />
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <div>
             <h1 className="text-lg font-bold uppercase leading-none">Bulk Onboarding</h1>
             <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
-              CSV import · field mapping
+              CSV import · sanitised preview
             </p>
           </div>
           <Link
@@ -195,7 +306,7 @@ function ImportPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl space-y-5 px-4 py-5">
+      <main className="mx-auto max-w-6xl space-y-5 px-4 py-5">
         <div className="flex gap-2">
           {(
             [
@@ -211,6 +322,7 @@ function ImportPage() {
                 setRows([]);
                 setMap({});
                 setResult(null);
+                setDropped(0);
               }}
               className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-widest ${
                 mode === key
@@ -236,7 +348,8 @@ function ImportPage() {
           />
           {rows.length > 0 && (
             <p className="mt-2 text-xs text-muted-foreground">
-              {rows.length} rows found · {headers.length} columns
+              {rows.length} usable rows · {headers.length} columns
+              {dropped > 0 ? ` · ${dropped} blank row${dropped === 1 ? "" : "s"} ignored` : ""}
             </p>
           )}
         </section>
@@ -269,10 +382,27 @@ function ImportPage() {
               </div>
             </section>
 
-            <section className="panel overflow-x-auto p-0">
+            <div className="flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-widest">
+              <span className="rounded-full border border-success px-3 py-1 text-success">
+                {good.length} ready
+              </span>
+              {dupes > 0 && (
+                <span className="rounded-full border border-warning px-3 py-1 text-warning">
+                  {dupes} duplicate{dupes === 1 ? "" : "s"}
+                </span>
+              )}
+              {bad > 0 && (
+                <span className="rounded-full border border-destructive px-3 py-1 text-destructive">
+                  {bad} held back
+                </span>
+              )}
+            </div>
+
+            <section className="panel max-h-[28rem] overflow-auto p-0">
               <table className="w-full border-collapse text-sm">
-                <thead>
+                <thead className="sticky top-0 bg-surface">
                   <tr className="border-b border-border text-left text-[11px] uppercase tracking-widest text-muted-foreground">
+                    <th className="px-3 py-2">Status</th>
                     {TARGETS[mode].map((t) => (
                       <th key={t.key} className="px-3 py-2">
                         {t.text}
@@ -281,11 +411,25 @@ function ImportPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {preview.map((row, i) => (
-                    <tr key={i} className="border-b border-border/60 last:border-0">
+                  {checked.map((c, i) => (
+                    <tr
+                      key={i}
+                      className={`border-b border-border/60 last:border-0 ${
+                        c.skip ? "bg-destructive/10" : c.note.length ? "bg-warning/5" : ""
+                      }`}
+                    >
+                      <td className="px-3 py-2 align-top text-xs">
+                        {c.skip ? (
+                          <span className="font-bold text-destructive">{c.issues.join(" · ")}</span>
+                        ) : c.note.length ? (
+                          <span className="text-warning">{c.note.join(" · ")}</span>
+                        ) : (
+                          <span className="text-success">Ready</span>
+                        )}
+                      </td>
                       {TARGETS[mode].map((t) => (
-                        <td key={t.key} className="px-3 py-2 text-muted-foreground">
-                          {value(row, t.key) || "—"}
+                        <td key={t.key} className="px-3 py-2 align-top text-muted-foreground">
+                          {c.values[t.key] || "—"}
                         </td>
                       ))}
                     </tr>
@@ -296,10 +440,10 @@ function ImportPage() {
 
             <button
               onClick={runImport}
-              disabled={busy}
+              disabled={busy || good.length === 0}
               className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold uppercase tracking-widest text-accent-foreground disabled:opacity-40"
             >
-              {busy ? "Importing…" : `Import ${rows.length} rows`}
+              {busy ? "Importing…" : `Import ${good.length} clean row${good.length === 1 ? "" : "s"}`}
             </button>
           </>
         )}
