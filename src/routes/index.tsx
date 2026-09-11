@@ -18,6 +18,7 @@ import { TransferSheet } from "@/components/certvault/TransferSheet";
 import { UpgradeModal } from "@/components/certvault/UpgradeModal";
 import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { useProfile } from "@/hooks/useProfile";
+import { WEB_BILLING_URL } from "@/lib/platform";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -184,17 +185,17 @@ function Dashboard() {
   const error = assetsQ.error || weldersQ.error;
 
   return (
-    <div className="min-h-screen pb-28 lg:pb-10">
-      <header className="no-print sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
+    <div className="min-h-screen pb-40 lg:pb-10">
+      <header className="safe-top no-print sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         <div className="hazard-stripe h-1 w-full opacity-70" />
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
             <img src="/images/certvault-icon.png" alt="" width={36} height={36} className="rounded-md" />
-            <div>
-              <h1 className="text-xl font-bold uppercase leading-none">
+            <div className="min-w-0">
+              <h1 className="truncate text-xl font-bold uppercase leading-none">
                 C.A.T.<span className="text-primary">H.Y.</span>
               </h1>
-              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+              <p className="truncate text-[11px] uppercase tracking-widest text-muted-foreground">
                 Compliance, Asset Tracking &amp; Heavy Yards
               </p>
             </div>
@@ -277,7 +278,7 @@ function Dashboard() {
               <button
                 key={key}
                 onClick={() => setFilter(key)}
-                className={`whitespace-nowrap rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-widest ${
+                className={`touch-target inline-flex items-center whitespace-nowrap rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-widest ${
                   filter === key
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-surface text-muted-foreground"
@@ -381,7 +382,7 @@ function Dashboard() {
       </main>
 
       {/* Sticky field action bar */}
-      <nav className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur lg:hidden">
+      <nav className="safe-bottom no-print fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between px-6 py-3">
           {readOnly ? (
             <button
@@ -407,10 +408,21 @@ function Dashboard() {
           </button>
           <button
             onClick={() => setFilter("overdue")}
-            className="text-[11px] font-semibold uppercase tracking-widest text-warning"
+            className="touch-target text-[11px] font-semibold uppercase tracking-widest text-warning"
           >
             Action
           </button>
+        </div>
+        <div className="flex items-center justify-center gap-4 border-t border-border/60 px-6 py-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+          <Link to="/terms" className="underline">
+            Terms
+          </Link>
+          <a href="/terms#privacy" className="underline">
+            Privacy Policy
+          </a>
+          <a href={WEB_BILLING_URL} target="_blank" rel="noopener noreferrer" className="underline">
+            Manage Subscription on Web Console
+          </a>
         </div>
       </nav>
 

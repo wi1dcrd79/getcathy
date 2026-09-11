@@ -190,25 +190,25 @@ function ScanTransfer() {
 
   return (
     <div className="min-h-screen pb-10">
-      <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
+      <header className="safe-top sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         <div className="hazard-stripe h-1 w-full opacity-70" />
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
-          <div>
-            <h1 className="text-lg font-bold uppercase leading-none">Yard Scanner</h1>
-            <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+        <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-bold uppercase leading-none">Yard Scanner</h1>
+            <p className="truncate text-[11px] uppercase tracking-widest text-muted-foreground">
               Scan-to-Transfer · Site › Zone › Bin
             </p>
           </div>
           <Link
             to="/"
-            className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground hover:border-primary"
+            className="touch-target inline-flex shrink-0 items-center rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground hover:border-primary"
           >
             Back
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl space-y-4 px-4 py-5">
+      <main className="safe-bottom mx-auto max-w-3xl space-y-4 px-4 py-5">
         {readOnly && (
           <div className="rounded-lg border border-warning bg-warning/10 p-4 text-xs font-semibold uppercase tracking-widest text-warning">
             Read-only mode — yard moves are paused while the account is past due. Scanning and lookups
@@ -224,7 +224,7 @@ function ScanTransfer() {
           </div>
           <button
             onClick={() => setGunMode((g) => !g)}
-            className={`shrink-0 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-widest ${
+            className={`touch-target shrink-0 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-widest ${
               gunMode
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border text-muted-foreground"
@@ -305,7 +305,7 @@ function ScanTransfer() {
               onScan={matchDestination}
             />
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <div>
               <span className={label}>Site</span>
               <input ref={siteRef} list="sites" value={site} onChange={(e) => setSite(e.target.value)} className={field} />

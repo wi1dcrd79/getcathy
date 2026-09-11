@@ -98,6 +98,42 @@ export const TERMS_SECTIONS: TermsSection[] = [
   },
 ];
 
+export const PRIVACY_SECTIONS: TermsSection[] = [
+  {
+    heading: "What we collect",
+    body: [
+      `${BRAND_DIVISION} collects only what is needed to run compliance record-keeping: your work email and account role, your company name and subscription state, and the operational records your crew enters — assets, serial numbers, locations and yard transfers, inspections and photos, personnel records and certifications.`,
+      "We also record basic technical data such as device type, app version and error diagnostics so the field app stays reliable in the yard.",
+    ],
+  },
+  {
+    heading: "How we use it",
+    body: [
+      "Your data is used solely to provide the Platform to you: showing your records, calculating compliance status, generating audit binders, syncing offline yard moves and supporting your account. We do not sell personal data and we do not use your records for advertising.",
+    ],
+  },
+  {
+    heading: "Who we share it with",
+    body: [
+      "Processing partners only: our cloud hosting and database provider, and Paddle.com as Merchant of Record for payments. Paddle receives billing contact and transaction data; card details are handled by Paddle and never stored by us.",
+      "We disclose data otherwise only when legally required, or when you ask us to.",
+    ],
+  },
+  {
+    heading: "Security and retention",
+    body: [
+      "Access is restricted per company and per user through row-level database security. Inspection photos are stored in a private bucket accessible only to authenticated members of your company. Records are retained for the life of your account; on termination you may request an export within thirty (30) days, after which data may be deleted.",
+    ],
+  },
+  {
+    heading: "Your rights and contact",
+    body: [
+      `You may request access to, correction of, export of, or deletion of your personal data at any time by writing to ${SUPPORT_EMAIL}. Account deletion removes your personal profile data; shared company compliance records may be retained by the company that owns them.`,
+      "Children under 16 are not permitted to use the Platform.",
+    ],
+  },
+];
+
 export interface PlanDisclosure {
   name: string;
   price: string;
