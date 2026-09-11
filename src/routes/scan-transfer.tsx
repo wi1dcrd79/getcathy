@@ -43,7 +43,7 @@ function ScanTransfer() {
     if (!loading && !session) navigate({ to: "/auth" });
   }, [loading, session, navigate]);
 
-  const { companyId } = useProfile();
+  const { companyId, readOnly } = useProfile();
   const assetsQ = useQuery({ queryKey: ["assets"], queryFn: fetchAssets, enabled: !!session });
   const assets = assetsQ.data ?? [];
 
@@ -139,10 +139,10 @@ function ScanTransfer() {
   };
 
   const to = buildBreadcrumb(site, zone, bin);
-  const ready = !!asset && !!to && !busy;
+  const ready = !!asset && !!to && !busy && !readOnly;
 
   const confirm = async () => {
-    if (!asset) return;
+    if (!asset || readOnly) return;
     setBusy(true);
     setErr(null);
     setMsg(null);
@@ -206,6 +206,12 @@ function ScanTransfer() {
       </header>
 
       <main className="mx-auto max-w-3xl space-y-4 px-4 py-5">
+        {readOnly && (
+          <div className="rounded-lg border border-warning bg-warning/10 p-4 text-xs font-semibold uppercase tracking-widest text-warning">
+            Read-only mode — yard moves are paused while the account is past due. Scanning and lookups
+            still work.
+          </div>
+        )}
         <div className="panel flex items-center justify-between gap-3 p-4">
           <div>
             <p className="text-sm font-semibold">Hardware Scanner Gun Mode</p>
@@ -323,7 +329,7 @@ function ScanTransfer() {
           onClick={confirm}
           className="w-full rounded-lg bg-accent px-4 py-4 text-sm font-bold uppercase tracking-widest text-accent-foreground disabled:opacity-40"
         >
-          {busy ? "Moving…" : "Confirm Transfer"}
+          {readOnly ? "Transfers Paused — Past Due" : busy ? "Moving…" : "Confirm Transfer"}
         </button>
       </main>
     </div>
