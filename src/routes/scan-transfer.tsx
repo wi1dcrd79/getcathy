@@ -341,6 +341,19 @@ function ScanTransfer() {
           {readOnly ? "Transfers Paused — Past Due" : busy ? "Moving…" : "Confirm Transfer"}
         </button>
       </main>
+
+      <TagKeypad
+        open={keypadOpen}
+        assets={assets}
+        onClose={() => setKeypadOpen(false)}
+        onSelect={(a) => {
+          setAssetId(a.id);
+          setAssetCode(a.asset_tag);
+          setErr(null);
+          setKeypadOpen(false);
+          setTimeout(() => siteRef.current?.focus(), 50);
+        }}
+      />
     </div>
   );
 }
