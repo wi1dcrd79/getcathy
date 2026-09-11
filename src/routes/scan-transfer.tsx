@@ -262,6 +262,12 @@ function ScanTransfer() {
               onScan={matchAsset}
             />
           </div>
+          <button
+            onClick={() => setKeypadOpen(true)}
+            className="flex min-h-[56px] w-full items-center justify-center gap-2 rounded-lg border-2 border-primary bg-primary/10 px-4 text-sm font-bold uppercase tracking-widest text-primary"
+          >
+            ⌨ Manual PIN / Tag Fallback
+          </button>
           <select
             value={assetId}
             onChange={(e) => {
@@ -302,7 +308,7 @@ function ScanTransfer() {
           <div className="grid grid-cols-3 gap-2">
             <div>
               <span className={label}>Site</span>
-              <input list="sites" value={site} onChange={(e) => setSite(e.target.value)} className={field} />
+              <input ref={siteRef} list="sites" value={site} onChange={(e) => setSite(e.target.value)} className={field} />
               <datalist id="sites">{sites.map((s) => <option key={s} value={s} />)}</datalist>
             </div>
             <div>
