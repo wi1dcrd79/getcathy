@@ -21,12 +21,38 @@ const ACTIVE_STATUSES = new Set(['active', 'trialing', 'past_due']);
 
 async function syncCompanyPlan(companyId: string | undefined, priceId: string, status: string) {
   if (!companyId) return;
+  const supabase = getSupabase();
   const mapping = TIER_BY_PRICE[priceId];
-  const active = ACTIVE_STATUSES.has(status);
-  const patch = active
-    ? { subscription_tier: mapping?.tier ?? 'pro', seat_limit: mapping?.seats ?? 5, subscription_status: status }
-    : { subscription_tier: 'free', seat_limit: 1, subscription_status: status };
-  await getSupabase().from('companies').update(patch).eq('id', companyId);
+
+  if (ACTIVE_STATUSES.has(status) && status !== 'past_due') {
+    // Healthy subscription — restore full limits and clear any grace period.
+    await supabase
+      .from('companies')
+      .update({
+        subscription_tier: mapping?.tier ?? 'pro',
+        seat_limit: mapping?.seats ?? 5,
+        subscription_status: 'active',
+        past_due_since: null,
+      })
+      .eq('id', companyId);
+    return;
+  }
+
+  // Lapsed / canceled / past due: never wipe limits. Enter the 30-day
+  // read-only compliance grace period instead.
+  const { data: current } = await supabase
+    .from('companies')
+    .select('past_due_since')
+    .eq('id', companyId)
+    .maybeSingle();
+
+  await supabase
+    .from('companies')
+    .update({
+      subscription_status: 'past_due',
+      past_due_since: current?.['past_due_since'] ?? new Date().toISOString(),
+    })
+    .eq('id', companyId);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

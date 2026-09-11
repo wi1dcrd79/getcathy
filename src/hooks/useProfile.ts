@@ -17,6 +17,8 @@ export interface CompanyContext {
     subscription_tier: string;
     subscription_status: string;
     seat_limit: number;
+    past_due_since: string | null;
+    grace_days: number;
   } | null;
 }
 
@@ -41,7 +43,7 @@ async function loadContext(): Promise<CompanyContext | null> {
   if (p.company_id) {
     const { data } = await supabase
       .from("companies")
-      .select("id, name, subscription_tier, subscription_status, seat_limit")
+      .select("id, name, subscription_tier, subscription_status, seat_limit, past_due_since, grace_days")
       .eq("id", p.company_id)
       .maybeSingle();
     company = (data as CompanyContext["company"]) ?? null;
@@ -57,12 +59,26 @@ export function useProfile() {
     enabled: !!session,
   });
   const ctx = query.data ?? null;
+  const company = ctx?.company ?? null;
+  const isSuperAdmin = ctx?.profile.is_super_admin ?? false;
+  const isPastDue = !isSuperAdmin && company?.subscription_status === "past_due";
+
+  let graceDaysLeft: number | null = null;
+  if (isPastDue && company?.past_due_since) {
+    const end = new Date(company.past_due_since).getTime() + (company.grace_days ?? 30) * 86400000;
+    graceDaysLeft = Math.max(0, Math.ceil((end - Date.now()) / 86400000));
+  }
+
   return {
     ...query,
     context: ctx,
     companyId: ctx?.profile.company_id ?? null,
-    isPro: (ctx?.company?.subscription_tier ?? "free") !== "free",
-    isSuperAdmin: ctx?.profile.is_super_admin ?? false,
+    isPro: (company?.subscription_tier ?? "free") !== "free",
+    isSuperAdmin,
     role: ctx?.profile.role ?? "craftsman",
+    /** Billing lapsed — reads stay open, writes are blocked. */
+    isPastDue,
+    readOnly: isPastDue,
+    graceDaysLeft,
   };
 }

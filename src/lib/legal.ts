@@ -4,6 +4,7 @@ export const COPYRIGHT_LINE =
   "Copyright © 2026 C.A.T.H.Y. All Rights Reserved. Proprietary and Confidential.";
 export const TERMS_VERSION = "2026-01";
 export const SUPER_ADMIN_EMAIL = "w1dcrd79@gmail.com";
+export const SUPPORT_EMAIL = "w1dcrd79@gmail.com";
 
 export interface TermsSection {
   heading: string;
@@ -63,10 +64,65 @@ export const TERMS_SECTIONS: TermsSection[] = [
     ],
   },
   {
-    heading: "8. Confidentiality and Governing Terms",
+    heading: "8. Pricing and Subscription Billing",
     body: [
-      "The Platform, its non-public features, and pricing are the confidential and proprietary information of C.A.T.H.Y. These Terms, together with any executed order form, are the entire agreement between the parties and supersede prior discussions.",
+      "Field Yard Pro — $279 per month: unlimited equipment and rigging tracking, 5 operational seats, automated continuous audit binders, and hardware barcode scanner support.",
+      "Enterprise Contractor — $699 per month: everything in Field Yard Pro plus multi-yard / multi-site switching, unlimited crew seats, the full personnel continuity engine, and priority audit binder export.",
+      "A Free tier is available at no charge, limited to 3 tracked assets and 1 seat.",
+      "All paid plans are billed monthly in advance in U.S. dollars and renew automatically each month until canceled. Prices are exclusive of any sales tax or VAT, which is calculated and collected at checkout where applicable.",
+      "Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders. Paddle provides all customer service inquiries and handles returns.",
+    ],
+  },
+  {
+    heading: "9. Cancellation, Refunds and Read-Only Grace Period",
+    body: [
+      "You may cancel at any time from your account settings or through the Paddle customer portal. Cancellation stops future renewals; your plan stays active through the end of the billing period you already paid for.",
+      "We offer a 30-day money-back guarantee. If you are not satisfied, request a full refund within 30 days of your order date. Refunds are processed by Paddle — visit paddle.net or contact us at " +
+        SUPPORT_EMAIL +
+        ". Where a plan is canceled or downgraded mid-term, any refund due is handled on a prorated basis for the unused portion of the paid period.",
+      "If a payment fails or a subscription lapses, your account enters a 30-day Read-Only Compliance Grace Period. Your assets, location history, personnel records and printable audit binders remain fully viewable and exportable; only new assets beyond the free limit and new yard transfers are paused until payment is updated. This exists so contractors are never locked out of records during an active OSHA, ASME or AWS audit.",
+    ],
+  },
+  {
+    heading: "10. Support and Operator Contact",
+    body: [
+      `Operational and billing support for the Platform is provided by ${BRAND} at ${SUPPORT_EMAIL}. We aim to respond to all support requests within one business day. Payment, invoice and refund inquiries may also be raised directly with Paddle, the Merchant of Record, at paddle.net.`,
+    ],
+  },
+  {
+    heading: "11. Confidentiality and Governing Terms",
+    body: [
+      "The Platform and its non-public features are the confidential and proprietary information of C.A.T.H.Y. These Terms, together with any executed order form, are the entire agreement between the parties and supersede prior discussions.",
       COPYRIGHT_LINE,
+    ],
+  },
+];
+
+export interface PlanDisclosure {
+  name: string;
+  price: string;
+  features: string[];
+}
+
+export const PLAN_DISCLOSURES: PlanDisclosure[] = [
+  {
+    name: "Field Yard Pro",
+    price: "$279 / month",
+    features: [
+      "Unlimited equipment & rigging tracking",
+      "5 operational seats",
+      "Automated continuous audit binders",
+      "Hardware barcode scanner support",
+    ],
+  },
+  {
+    name: "Enterprise Contractor",
+    price: "$699 / month",
+    features: [
+      "Multi-yard / multi-site switching",
+      "Unlimited crew seats",
+      "Full personnel continuity engine",
+      "Priority audit binder export",
     ],
   },
 ];

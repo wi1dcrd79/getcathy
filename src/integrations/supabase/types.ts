@@ -85,8 +85,10 @@ export type Database = {
       companies: {
         Row: {
           created_at: string
+          grace_days: number
           id: string
           name: string
+          past_due_since: string | null
           seat_limit: number
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -95,8 +97,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          grace_days?: number
           id?: string
           name: string
+          past_due_since?: string | null
           seat_limit?: number
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -105,8 +109,10 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          grace_days?: number
           id?: string
           name?: string
+          past_due_since?: string | null
           seat_limit?: number
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -525,6 +531,8 @@ export type Database = {
     Functions: {
       bootstrap_current_user: { Args: never; Returns: string }
       can_write_compliance: { Args: never; Returns: boolean }
+      company_billing_state: { Args: { _company_id: string }; Returns: string }
+      company_write_locked: { Args: never; Returns: boolean }
       current_user_role: { Args: never; Returns: string }
       get_current_company_id: { Args: never; Returns: string }
       is_super_admin: { Args: never; Returns: boolean }

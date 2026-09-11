@@ -102,6 +102,9 @@ function toWelderRow(w: WelderRow): UnifiedRow {
 
 const BAD = new Set(["Out of Compliance", "Lapsed", "Expiring Soon", "Grace Period"]);
 
+const READ_ONLY_REASON =
+  "Your account is past due. Records stay readable and printable for 30 days, but new assets and yard moves are paused until payment is updated.";
+
 function Dashboard() {
   const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -110,7 +113,9 @@ function Dashboard() {
     if (!authLoading && !session) navigate({ to: "/auth" });
   }, [authLoading, session, navigate]);
 
-  const { companyId, isPro, isSuperAdmin } = useProfile();
+  const { companyId, isPro, isSuperAdmin, readOnly } = useProfile();
+  const [generatedAt, setGeneratedAt] = useState("");
+  useEffect(() => setGeneratedAt(new Date().toLocaleString()), []);
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const [scanOpen, setScanOpen] = useState(false);
@@ -370,7 +375,7 @@ function Dashboard() {
         </section>
 
         <p className="mt-6 hidden text-xs text-muted-foreground print:block">
-          C.A.T.H.Y. compliance summary generated {new Date().toLocaleString()} — {metrics.total} tracked records,{" "}
+          C.A.T.H.Y. compliance summary generated {generatedAt} — {metrics.total} tracked records,{" "}
           {metrics.out} out of compliance, {metrics.soon} expiring within 30 days.
         </p>
       </main>
@@ -378,14 +383,23 @@ function Dashboard() {
       {/* Sticky field action bar */}
       <nav className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between px-6 py-3">
-          <Link
-            to="/scan-transfer"
-            className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
-          >
-            Scan Move
-          </Link>
+          {readOnly ? (
+            <button
+              onClick={() => setUpgradeReason(READ_ONLY_REASON)}
+              className="text-[11px] font-semibold uppercase tracking-widest text-warning"
+            >
+              Scan Move 🔒
+            </button>
+          ) : (
+            <Link
+              to="/scan-transfer"
+              className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
+            >
+              Scan Move
+            </Link>
+          )}
           <button
-            onClick={() => setScanOpen(true)}
+            onClick={() => (readOnly ? setUpgradeReason(READ_ONLY_REASON) : setScanOpen(true))}
             className="-mt-8 flex h-20 w-20 flex-col items-center justify-center rounded-full border-4 border-background bg-accent text-accent-foreground shadow-lg"
           >
             <span className="text-2xl leading-none">▣</span>
