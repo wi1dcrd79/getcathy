@@ -1,12 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchAssets, transferAsset } from "@/lib/certvault-data";
 import { buildBreadcrumb } from "@/lib/compliance";
 import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { ScannerInput } from "@/components/certvault/ScannerInput";
+import { TagKeypad } from "@/components/certvault/TagKeypad";
 import { enqueueTransfer, flushQueue, nextSequenceId, readQueue } from "@/lib/offline-queue";
 import { toast } from "sonner";
 
@@ -59,6 +60,8 @@ function ScanTransfer() {
   const [err, setErr] = useState<string | null>(null);
   const [online, setOnline] = useState(true);
   const [queued, setQueued] = useState(0);
+  const [keypadOpen, setKeypadOpen] = useState(false);
+  const siteRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const refreshQueue = () => readQueue().then((q) => setQueued(q.length));
