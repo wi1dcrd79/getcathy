@@ -3,6 +3,7 @@ import { FREE_ASSET_LIMIT, PADDLE_PRICE_BY_TIER, PLANS, type PlanTier } from "@/
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
+import { useExternalBillingGuard } from "@/lib/platform";
 
 const CHOICES: PlanTier[] = ["pro", "enterprise"];
 
@@ -20,6 +21,7 @@ export function UpgradeModal({
   const { openCheckout, loading } = usePaddleCheckout();
   const { session } = useAuth();
   const { companyId } = useProfile();
+  const { guarded, native, webBillingUrl } = useExternalBillingGuard();
 
   if (!open) return null;
 
