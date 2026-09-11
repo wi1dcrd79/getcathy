@@ -100,7 +100,7 @@ function SuperAdmin() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-border bg-surface/60">
+      <header className="safe-top border-b border-border bg-surface/60">
         <div className="hazard-stripe h-1 w-full opacity-70" />
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <div>

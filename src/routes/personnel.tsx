@@ -142,7 +142,7 @@ function Personnel() {
 
   return (
     <div className="min-h-screen pb-16">
-      <header className="no-print sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
+      <header className="safe-top no-print sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         <div className="hazard-stripe h-1 w-full opacity-70" />
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <div>
