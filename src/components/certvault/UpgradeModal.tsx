@@ -95,13 +95,24 @@ export function UpgradeModal({
               `Free accounts include ${FREE_ASSET_LIMIT} tracked assets. Preview checkouts run in test mode — no real charges.`}
           </p>
 
-          <button
-            onClick={handleCheckout}
-            disabled={loading}
-            className="mt-4 w-full rounded-lg disabled:opacity-60 bg-primary px-4 py-3 text-sm font-bold uppercase tracking-widest text-primary-foreground"
-          >
-            {loading ? "Opening checkout…" : `Upgrade to ${plan.name}`}
-          </button>
+          {guarded ? (
+            <a
+              href={webBillingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 flex w-full items-center justify-center rounded-lg bg-primary px-4 py-3 text-center text-sm font-bold uppercase tracking-widest text-primary-foreground"
+            >
+              Manage Subscription on Web Console
+            </a>
+          ) : (
+            <button
+              onClick={handleCheckout}
+              disabled={loading}
+              className="mt-4 w-full rounded-lg disabled:opacity-60 bg-primary px-4 py-3 text-sm font-bold uppercase tracking-widest text-primary-foreground"
+            >
+              {loading ? "Opening checkout…" : `Upgrade to ${plan.name}`}
+            </button>
+          )}
           <button
             onClick={onClose}
             className="mt-2 w-full rounded-lg border border-border px-4 py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground"

@@ -83,7 +83,7 @@ function AuthPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main className="safe-top safe-bottom flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6">
         <h1 className="text-2xl font-bold uppercase tracking-wide text-foreground">C.A.T.H.Y.</h1>
         <p className="mt-1 mb-5 text-xs uppercase tracking-widest text-muted-foreground">
