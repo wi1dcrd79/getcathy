@@ -77,7 +77,7 @@ export function TransferSheet({
 
   return (
     <div className="no-print fixed inset-0 z-50 flex items-end justify-center bg-background/80 backdrop-blur-sm sm:items-center">
-      <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl border border-border bg-surface p-5 sm:max-w-lg sm:rounded-2xl">
+      <div className="max-h-[92vh] w-full overflow-y-auto safe-bottom rounded-t-2xl border border-border bg-surface p-5 sm:max-w-lg sm:rounded-2xl">
         <div className="mb-4 flex items-start justify-between">
           <div>
             <h2 className="text-xl font-bold uppercase">Quick Transfer</h2>
@@ -133,7 +133,7 @@ export function TransferSheet({
             </p>
           )}
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
               <label className={label}>Site</label>
               <input className={field} list="tx-sites" value={site} onChange={(e) => setSite(e.target.value)} />

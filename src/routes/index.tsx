@@ -185,7 +185,7 @@ function Dashboard() {
   const error = assetsQ.error || weldersQ.error;
 
   return (
-    <div className="min-h-screen pb-28 lg:pb-10">
+    <div className="min-h-screen pb-40 lg:pb-10">
       <header className="safe-top no-print sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         <div className="hazard-stripe h-1 w-full opacity-70" />
         <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3">
