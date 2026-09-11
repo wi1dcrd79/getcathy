@@ -4,6 +4,7 @@ import {
   BRAND_DIVISION,
   COPYRIGHT_LINE,
   PLAN_DISCLOSURES,
+  PRIVACY_SECTIONS,
   SUPPORT_EMAIL,
   TERMS_SECTIONS,
   TERMS_VERSION,
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/terms")({
 
 function TermsPage() {
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-4 py-8">
+    <main className="safe-top safe-bottom mx-auto min-h-screen max-w-3xl px-4 py-8">
       <div className="hazard-stripe mb-6 h-1 w-full opacity-70" />
       <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{BRAND_DIVISION}</p>
       <h1 className="mt-1 text-3xl font-bold uppercase text-foreground">Terms of Service</h1>
