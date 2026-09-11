@@ -149,10 +149,16 @@ function AuthPage() {
         >
           {mode === "signin" ? "Need an account? Sign up" : "Have an account? Sign in"}
         </button>
-        <p className="mt-3 text-center text-[11px] uppercase tracking-widest text-muted-foreground">
+        <p className="mt-3 flex flex-wrap items-center justify-center gap-3 text-center text-[11px] uppercase tracking-widest text-muted-foreground">
           <Link to="/terms" className="underline">
             Terms of Service
           </Link>
+          <a href="/terms#privacy" className="underline">
+            Privacy Policy
+          </a>
+        </p>
+        <p className="mt-3 text-center text-[10px] uppercase tracking-widest text-muted-foreground">
+          C.A.T.H.Y. — Compliance, Asset Tracking &amp; Heavy Yards
         </p>
       </div>
       <TermsModal

@@ -94,6 +94,34 @@ function TermsPage() {
         ))}
       </div>
 
+      <section id="privacy" className="mt-4 scroll-mt-6 rounded-xl border border-border bg-surface p-5">
+        <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{BRAND_DIVISION}</p>
+        <h2 className="mt-1 text-2xl font-bold uppercase text-foreground">Privacy Policy</h2>
+        <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">
+          Version {TERMS_VERSION} · Effective 2026
+        </p>
+        <div className="mt-5 text-sm leading-relaxed text-muted-foreground">
+          {PRIVACY_SECTIONS.map((s) => (
+            <div key={s.heading} className="mb-6">
+              <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-foreground">
+                {s.heading}
+              </h3>
+              {s.body.map((p, i) => (
+                <p key={i} className="mb-3">
+                  {p}
+                </p>
+              ))}
+            </div>
+          ))}
+          <p>
+            Privacy contact:{" "}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="underline">
+              {SUPPORT_EMAIL}
+            </a>
+          </p>
+        </div>
+      </section>
+
       <footer className="mt-10 border-t border-border pt-5 text-xs text-muted-foreground">
         <p>{COPYRIGHT_LINE}</p>
         <p className="mt-2">
