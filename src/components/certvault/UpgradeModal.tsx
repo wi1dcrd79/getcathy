@@ -94,7 +94,11 @@ export function UpgradeModal({
 
           <p className="mt-4 rounded-md border border-border bg-input px-3 py-2 text-xs text-muted-foreground">
             {notice ??
-              `Free accounts include ${FREE_ASSET_LIMIT} tracked assets. Preview checkouts run in test mode — no real charges.`}
+              (guarded
+                ? `Subscriptions for this B2B workspace are purchased and managed on the web console${
+                    native ? " outside the mobile app" : ""
+                  }. Free accounts include ${FREE_ASSET_LIMIT} tracked assets.`
+                : `Free accounts include ${FREE_ASSET_LIMIT} tracked assets. Preview checkouts run in test mode — no real charges.`)}
           </p>
 
           {guarded ? (
