@@ -69,13 +69,19 @@ export function useProfile() {
     graceDaysLeft = Math.max(0, Math.ceil((end - Date.now()) / 86400000));
   }
 
+  const role = ctx?.profile.role ?? "craftsman";
+  const canWriteCompliance =
+    isSuperAdmin || ["company_admin", "safety_director", "qc_inspector"].includes(role);
+
   return {
     ...query,
     context: ctx,
     companyId: ctx?.profile.company_id ?? null,
     isPro: (company?.subscription_tier ?? "free") !== "free",
     isSuperAdmin,
-    role: ctx?.profile.role ?? "craftsman",
+    role,
+    /** Only compliance/admin roles may create or edit crew, crafts and certifications. */
+    canWriteCompliance,
     /** Billing lapsed — reads stay open, writes are blocked. */
     isPastDue,
     readOnly: isPastDue,
