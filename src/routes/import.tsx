@@ -438,13 +438,19 @@ function ImportPage() {
               </table>
             </section>
 
-            <button
-              onClick={runImport}
-              disabled={busy || good.length === 0}
-              className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold uppercase tracking-widest text-accent-foreground disabled:opacity-40"
-            >
-              {busy ? "Importing…" : `Import ${good.length} clean row${good.length === 1 ? "" : "s"}`}
-            </button>
+            {mode === "personnel" && (!canWriteCompliance || readOnly) ? (
+              <p className="rounded-lg border border-border bg-input px-4 py-3 text-sm text-muted-foreground">
+                Only safety, QC and company admins can import crew and certification records.
+              </p>
+            ) : (
+              <button
+                onClick={runImport}
+                disabled={busy || good.length === 0}
+                className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold uppercase tracking-widest text-accent-foreground disabled:opacity-40"
+              >
+                {busy ? "Importing…" : `Import ${good.length} clean row${good.length === 1 ? "" : "s"}`}
+              </button>
+            )}
           </>
         )}
 
