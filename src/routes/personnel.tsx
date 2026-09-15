@@ -187,6 +187,7 @@ function Personnel() {
 
         {tab === "matrix" && (
           <>
+            {canManage && (
             <section className="panel p-4">
               <h2 className="text-sm font-bold uppercase tracking-widest">Add crew member</h2>
               <div className="mt-3 grid gap-3 sm:grid-cols-4">
@@ -228,6 +229,7 @@ function Personnel() {
                 Add crew member
               </button>
             </section>
+            )}
 
             <section className="panel p-4">
               <h2 className="text-sm font-bold uppercase tracking-widest">Log a certification</h2>
@@ -412,29 +414,38 @@ function Personnel() {
             <p className="mt-1 text-xs text-muted-foreground">
               Define your own craft titles and how often their qualifications expire.
             </p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3">
-              <div className="sm:col-span-2">
-                <span className={label}>Craft title</span>
-                <input className={field} value={t.trade_name} onChange={(e) => setT({ ...t, trade_name: e.target.value })} />
-              </div>
-              <div>
-                <span className={label}>Expires every (months)</span>
-                <input
-                  type="number"
-                  min={1}
-                  className={field}
-                  value={t.recurrence_months}
-                  onChange={(e) => setT({ ...t, recurrence_months: Number(e.target.value) || 12 })}
-                />
-              </div>
-            </div>
-            <button
-              onClick={saveTrade}
-              disabled={!t.trade_name}
-              className="mt-3 rounded-md bg-primary px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary-foreground disabled:opacity-40"
-            >
-              Add craft
-            </button>
+            {!canManage && (
+              <p className="mt-3 text-xs text-muted-foreground">
+                Only safety, QC and company admins can add or change crafts.
+              </p>
+            )}
+            {canManage && (
+              <>
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  <div className="sm:col-span-2">
+                    <span className={label}>Craft title</span>
+                    <input className={field} value={t.trade_name} onChange={(e) => setT({ ...t, trade_name: e.target.value })} />
+                  </div>
+                  <div>
+                    <span className={label}>Expires every (months)</span>
+                    <input
+                      type="number"
+                      min={1}
+                      className={field}
+                      value={t.recurrence_months}
+                      onChange={(e) => setT({ ...t, recurrence_months: Number(e.target.value) || 12 })}
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={saveTrade}
+                  disabled={!t.trade_name}
+                  className="mt-3 rounded-md bg-primary px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary-foreground disabled:opacity-40"
+                >
+                  Add craft
+                </button>
+              </>
+            )}
             <ul className="mt-4 space-y-2">
               {trades.map((ct) => (
                 <li key={ct.id} className="flex items-center justify-between rounded-md border border-border bg-input px-3 py-2 text-sm">
