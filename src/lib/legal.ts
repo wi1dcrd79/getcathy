@@ -3,8 +3,8 @@ export const BRAND_DIVISION = "C.A.T.H.Y. — Compliance, Asset Tracking & Heavy
 export const COPYRIGHT_LINE =
   "Copyright © 2026 C.A.T.H.Y. All Rights Reserved. Proprietary and Confidential.";
 export const TERMS_VERSION = "2026-01";
-export const SUPER_ADMIN_EMAIL = "w1dcrd79@gmail.com";
-export const SUPPORT_EMAIL = "w1dcrd79@gmail.com";
+export const SUPER_ADMIN_EMAIL = "wi1dcrd79@gmail.com";
+export const SUPPORT_EMAIL = "wi1dcrd79@gmail.com";
 
 export interface TermsSection {
   heading: string;
