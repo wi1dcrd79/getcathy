@@ -564,7 +564,35 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      company_team_directory: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          id: string | null
+          role: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          role?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       bootstrap_current_user: { Args: never; Returns: string }
