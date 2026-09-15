@@ -90,8 +90,6 @@ export type Database = {
           name: string
           past_due_since: string | null
           seat_limit: number
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
           subscription_status: string
           subscription_tier: string
         }
@@ -102,8 +100,6 @@ export type Database = {
           name: string
           past_due_since?: string | null
           seat_limit?: number
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
           subscription_status?: string
           subscription_tier?: string
         }
@@ -114,12 +110,39 @@ export type Database = {
           name?: string
           past_due_since?: string | null
           seat_limit?: number
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
           subscription_status?: string
           subscription_tier?: string
         }
         Relationships: []
+      }
+      company_billing: {
+        Row: {
+          company_id: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_billing_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       custom_trades: {
         Row: {
