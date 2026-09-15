@@ -86,7 +86,7 @@ function ImportPage() {
     if (!loading && !session) navigate({ to: "/auth" });
   }, [loading, session, navigate]);
 
-  const { companyId } = useProfile();
+  const { companyId, canWriteCompliance, readOnly } = useProfile();
   const [mode, setMode] = useState<Mode>("assets");
   const [headers, setHeaders] = useState<string[]>([]);
   const [rows, setRows] = useState<Record<string, string>[]>([]);
