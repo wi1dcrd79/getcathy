@@ -55,8 +55,9 @@ function Personnel() {
     if (!loading && !session) navigate({ to: "/auth" });
   }, [loading, session, navigate]);
 
-  const { companyId, role } = useProfile();
+  const { companyId, role, canWriteCompliance, readOnly } = useProfile();
   const canSignOff = QC_ROLES.includes(role);
+  const canManage = canWriteCompliance && !readOnly;
 
   const peopleQ = useQuery({ queryKey: ["personnel"], queryFn: fetchPersonnel, enabled: !!session });
   const certsQ = useQuery({ queryKey: ["certs"], queryFn: fetchCerts, enabled: !!session });
