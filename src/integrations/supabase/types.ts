@@ -378,7 +378,6 @@ export type Database = {
         Row: {
           company_id: string | null
           created_at: string
-          current_session_token: string | null
           email: string | null
           id: string
           is_super_admin: boolean
@@ -389,7 +388,6 @@ export type Database = {
         Insert: {
           company_id?: string | null
           created_at?: string
-          current_session_token?: string | null
           email?: string | null
           id: string
           is_super_admin?: boolean
@@ -400,7 +398,6 @@ export type Database = {
         Update: {
           company_id?: string | null
           created_at?: string
-          current_session_token?: string | null
           email?: string | null
           id?: string
           is_super_admin?: boolean
@@ -476,6 +473,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_sessions: {
+        Row: {
+          current_session_token: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          current_session_token?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          current_session_token?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       welder_qualifications: {
         Row: {
