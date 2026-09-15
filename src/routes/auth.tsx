@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { TermsModal } from "@/components/certvault/TermsModal";
@@ -36,6 +37,7 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -103,15 +105,26 @@ function AuthPage() {
           </div>
           <div>
             <label className={label}>Password</label>
-            <input
-              required
-              type="password"
-              minLength={6}
-              autoComplete={mode === "signin" ? "current-password" : "new-password"}
-              className={field}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <input
+                required
+                type={showPassword ? "text" : "password"}
+                minLength={6}
+                autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                className={`${field} pr-14`}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-0 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:text-foreground"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
           {mode === "signup" && (
             <div className="rounded-md border border-border bg-background/60 p-3 text-xs text-muted-foreground">
