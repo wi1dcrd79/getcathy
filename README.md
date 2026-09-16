@@ -101,7 +101,7 @@ run in the same toolchain as the dev server.
 ```
 src/
   routes/          # TanStack file-based routes (/, /auth, /personnel, /scan-transfer, /import, /audit-binder, /super-admin, /terms, ...)
-  components/      # UI components (certvault/ holds C.A.T.H.Y. domain components)
+  components/      # UI components, including C.A.T.H.Y. domain components (in a legacy-named folder)
   lib/             # Domain logic, compliance calculations, legal copy, *.functions.ts server functions
   integrations/    # Auto-generated backend clients — do not edit by hand
   hooks/           # useAuth, useProfile, usePaddleCheckout, ...
