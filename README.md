@@ -1,128 +1,130 @@
-# C.A.T.H.Y
+# C.A.T.H.Y.
 
-Build a production-ready, mobile-first Progressive Web App (PWA) and desktop QA/QC dashboard called "CertVault AI" designed for industrial fabricators, rigging operations, and contractor compliance.
+**C.A.T.H.Y. — Compliance, Asset Tracking & Heavy Yards**
 
-1. DATABASE SCHEMA (Supabase-ready tables):
+A production-ready, mobile-first PWA and desktop QA/QC dashboard for industrial
+fabricators, pipe yards, rigging operations, and contractor compliance. C.A.T.H.Y.
+tracks rigging and heavy equipment, welder certifications and continuity,
+multi-craft personnel records, and yard location movements (site → zone → bin),
+and generates printable audit binders for OSHA / GC review.
 
-- assets:
+> Copyright © 2026 C.A.T.H.Y. All Rights Reserved. Proprietary and Confidential.
+> See `LICENSE` and `COPYRIGHT.txt`.
 
-  * id (uuid, primary key)
+## Tech Stack
 
-  * asset_tag (string, unique barcode/serial identifier, e.g. "SHK-5T-092")
+- **Frontend:** React 19, TypeScript, Vite 8, TanStack Start (SSR + server functions), Tailwind CSS v4, shadcn/ui
+- **Backend & Auth:** Lovable Cloud (Supabase: PostgreSQL, Row Level Security, Auth, Storage)
+- **Payments:** Paddle (Merchant of Record) — sandbox & live
+- **PWA:** vite-plugin-pwa (service worker, installable, offline queueing via IndexedDB)
+- **Native shell:** Capacitor (Android) — app ID `com.cathy.operations`
+- **State & data:** TanStack Query
 
-  * name (string, e.g. "5-Ton Crosby Screw-Pin Anchor Shackle")
+## Prerequisites
 
-  * category (enum: 'rigging', 'welder_cert', 'heavy_equipment', 'ppe')
+- Node.js 20+ (or [Bun](https://bun.sh) — a `bunfig.toml` is included)
+- npm (or bun/pnpm)
 
-  * location (string, e.g. "Bay 3 - Rack B" or "Rig 14")
-
-  * assigned_to (string / user_id, nullable)
-
-  * image_url (text, storage path)
-
-  * created_at (timestamp)
-
-- inspections:
-
-  * id (uuid, primary key)
-
-  * asset_id (foreign key -> assets.id)
-
-  * inspector_name (string)
-
-  * inspection_date (date)
-
-  * expiration_date (date)
-
-  * status (calculated enum: 'Compliant', 'Expiring Soon', 'Out of Compliance')
-
-  * result (enum: 'Pass', 'Fail', 'Needs Service')
-
-  * notes (text)
-
-- welder_qualifications:
-
-  * id (uuid, primary key)
-
-  * welder_name (string)
-
-  * welder_id_stamp (string, e.g. "W-79")
-
-  * process (enum: 'SMAW', 'GTAW', 'GMAW', 'FCAW')
-
-  * standard (string, e.g. "ASME Sec IX / 6G" or "AWS D1.1")
-
-  * continuity_date (date - must be updated every 6 months to stay active)
-
-  * expiration_date (date)
-
-  * status (calculated enum: 'Active', 'Grace Period', 'Lapsed')
-
-2. BUSINESS LOGIC & AUTO-CALCULATIONS:
-
-- Equipment & Rigging Status:
-
-  * If expiration_date > 30 days away -> 'Compliant' (Green badge).
-
-  * If expiration_date between 1 and 30 days -> 'Expiring Soon' (Amber badge).
-
-  * If expiration_date < today OR result == 'Fail' -> 'Out of Compliance' (Red badge).
-
-- Welder Continuity:
-
-  * If last continuity_date is within 6 months -> 'Active'.
-
-  * If between 5 and 6 months without an active weld logged -> 'Grace Period' warning.
-
-  * Over 6 months -> 'Lapsed'.
-
-3. USER INTERFACE & SCREENS:
-
-- Mobile Layout (Field Worker Mode):
-
-  * Sticky bottom action bar with a prominent center "Quick Scan / Log Inspection" button.
-
-  * Quick scan opens device camera or photo upload preview with mock OCR data extraction (simulates reading serial plates, Crosby load ratings, or welder stamps).
-
-  * Filter chips: "All", "Rigging", "Welders", "Overdue / Action Needed".
-
-  * Fast search bar indexing asset tags, stamps, and locations.
-
-- Desktop / Tablet Layout (Safety Manager View):
-
-  * 4 Summary Metric Cards: "Total Tracked Assets", "Active Compliant (Count)", "Expiring in < 30 Days (Count)", "Out of Compliance / Overdue (Count)".
-
-  * Full data table with sorting, search, and export capabilities.
-
-  * "Generate Audit Binder (PDF)" button that formats an official compliance summary ready for OSHA or GC review.
-
-4. UI STYLING & DESIGN:
-
-- Industrial high-contrast dark theme (slate/charcoal #0F172A background, safety warning amber #F59E0B, electric cyan #06B6D4, compliant emerald #10B981).
-
-- Mobile PWA configuration enabled (manifest.json included for "Add to Home Screen").
-
-- Pre-populate with 6 realistic records across rigging shackles, chain slings, a Miller welder, and 2 certified welders.
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://getcathy.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/f32e5ca4-7ae0-4134-8784-a0c93f72246e).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Getting Started
 
 ```sh
 git clone <this-repository-url>
 cd <repository-name>
-npm i
+npm install
 npm run dev
 ```
+
+The dev server starts at `http://localhost:8080`.
+
+> **Note:** The first sign-in auto-provisions a company and profile for the
+> signed-in user (`bootstrap_current_user`). The super-admin account is the
+> configured admin email only.
+
+## Environment Variables
+
+Environment variables live in `.env` at the project root.
+
+### Public / client-side (required)
+
+```sh
+VITE_SUPABASE_PROJECT_ID="<project id>"
+VITE_SUPABASE_URL="<project url>"
+VITE_SUPABASE_PUBLISHABLE_KEY="<publishable (anon) key>"
+```
+
+These are safe to expose to the browser; all data access is enforced by
+row-level security on the backend.
+
+### Server-side (managed)
+
+The server functions read their credentials at call time from the hosting
+environment (Lovable Cloud) — do **not** put these in `.env` or commit them:
+
+- `PADDLE_SANDBOX_API_KEY` / `PADDLE_LIVE_API_KEY` — Paddle API access
+- `PAYMENTS_SANDBOX_WEBHOOK_SECRET` / `PAYMENTS_LIVE_WEBHOOK_SECRET` — Paddle webhook signature verification
+- `LOVABLE_API_KEY` — internal gateway key
+
+Never commit real secrets. Public publishable keys are fine in code; everything
+else belongs in secret storage.
+
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the dev server (Vite, `http://localhost:8080`) |
+| `npm run build` | Production build |
+| `npm run build:dev` | Development-mode build (used for prerender checks) |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | ESLint over the project |
+| `npm run format` | Prettier write |
+
+## Testing
+
+There is no unit-test suite configured yet. To validate changes:
+
+```sh
+# Typecheck (should pass with no output)
+bunx tsgo --noEmit
+
+# Lint
+npm run lint
+
+# Production build check
+npm run build
+```
+
+If you add tests, prefer [Vitest](https://vitest.dev) (`bunx vitest run`) so they
+run in the same toolchain as the dev server.
+
+## Project Layout
+
+```
+src/
+  routes/          # TanStack file-based routes (/, /auth, /personnel, /scan-transfer, /import, /audit-binder, /super-admin, /terms, ...)
+  components/      # UI components (certvault/ holds C.A.T.H.Y. domain components)
+  lib/             # Domain logic, compliance calculations, legal copy, *.functions.ts server functions
+  integrations/    # Auto-generated backend clients — do not edit by hand
+  hooks/           # useAuth, useProfile, usePaddleCheckout, ...
+```
+
+`src/routeTree.gen.ts` and everything under `src/integrations/supabase/` are
+auto-generated — do not edit them manually.
+
+## Mobile / PWA
+
+- `public/manifest.json` — installable PWA metadata (name: "C.A.T.H.Y. Heavy Yard Operations")
+- Service worker registration is production-only (`src/lib/register-sw.ts`)
+- Capacitor config lives in `capacitor.config.ts`; wrap with the standard
+  `npx cap add android` / `npx cap sync` flow after a production build
+- Touch targets are ≥ 48px and safe-area insets are respected for rugged field use
+
+## Sync with Lovable
+
+This repository is connected to Lovable for two-way sync: changes made in the
+Lovable editor push here automatically, and commits pushed from your IDE sync
+back into Lovable.
+
+## License
+
+Proprietary — see `LICENSE`. C.A.T.H.Y. customers retain ownership of the raw
+compliance records they submit; the platform itself is the property of C.A.T.H.Y.
