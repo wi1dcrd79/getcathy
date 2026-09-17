@@ -139,9 +139,14 @@ function SuperAdmin() {
         <p className="mt-2 text-sm text-muted-foreground">
           This console is only available to the platform owner.
         </p>
-        <Link to="/" className="mt-4 inline-block text-sm font-semibold uppercase tracking-widest text-primary">
-          Back to dashboard
-        </Link>
+        <div className="mt-4 flex flex-col items-center gap-2">
+          <Link to="/admin-login" className="text-sm font-semibold uppercase tracking-widest text-primary">
+            Owner sign in
+          </Link>
+          <Link to="/" className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            Back to dashboard
+          </Link>
+        </div>
       </div>
     );
   }
