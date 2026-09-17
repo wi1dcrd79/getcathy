@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuditBinderRouteImport } from './routes/audit-binder'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BillingRouteImport } from './routes/billing'
 import { Route as CompanyAdminRouteImport } from './routes/company-admin'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as PersonnelRouteImport } from './routes/personnel'
@@ -33,6 +34,11 @@ const AuditBinderRoute = AuditBinderRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingRoute = BillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompanyAdminRoute = CompanyAdminRouteImport.update({
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
+  '/billing': typeof BillingRoute
   '/company-admin': typeof CompanyAdminRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
+  '/billing': typeof BillingRoute
   '/company-admin': typeof CompanyAdminRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
+  '/billing': typeof BillingRoute
   '/company-admin': typeof CompanyAdminRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/'
     | '/audit-binder'
     | '/auth'
+    | '/billing'
     | '/company-admin'
     | '/import'
     | '/personnel'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/'
     | '/audit-binder'
     | '/auth'
+    | '/billing'
     | '/company-admin'
     | '/import'
     | '/personnel'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/'
     | '/audit-binder'
     | '/auth'
+    | '/billing'
     | '/company-admin'
     | '/import'
     | '/personnel'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuditBinderRoute: typeof AuditBinderRoute
   AuthRoute: typeof AuthRoute
+  BillingRoute: typeof BillingRoute
   CompanyAdminRoute: typeof CompanyAdminRoute
   ImportRoute: typeof ImportRoute
   PersonnelRoute: typeof PersonnelRoute
@@ -182,6 +195,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing': {
+      id: '/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof BillingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/company-admin': {
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuditBinderRoute: AuditBinderRoute,
   AuthRoute: AuthRoute,
+  BillingRoute: BillingRoute,
   CompanyAdminRoute: CompanyAdminRoute,
   ImportRoute: ImportRoute,
   PersonnelRoute: PersonnelRoute,
