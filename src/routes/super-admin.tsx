@@ -89,6 +89,31 @@ function SuperAdmin() {
     enabled: !!session && isSuperAdmin,
   });
 
+  const subsQ = useQuery({
+    queryKey: ["company-subscriptions"],
+    queryFn: fetchSubscriptions,
+    enabled: !!session && isSuperAdmin,
+    refetchInterval: 30000,
+  });
+
+  // Live refresh when Paddle webhooks write new billing state.
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    const channel = supabase
+      .channel("billing-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "subscriptions" }, () => {
+        qc.invalidateQueries({ queryKey: ["company-subscriptions"] });
+        qc.invalidateQueries({ queryKey: ["companies"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "companies" }, () => {
+        qc.invalidateQueries({ queryKey: ["companies"] });
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isSuperAdmin, qc]);
+
   const update = useMutation({
     mutationFn: async (vars: { id: string; tier?: string; seats?: number }) => {
       const patch: Record<string, unknown> = {};
