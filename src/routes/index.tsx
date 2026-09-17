@@ -219,6 +219,12 @@ function Dashboard() {
               </Link>
             )}
             <Link
+              to="/company-portal"
+              className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
+            >
+              Company Portal
+            </Link>
+            <Link
               to="/account"
               className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
             >
@@ -440,6 +446,9 @@ function Dashboard() {
               Admin
             </Link>
           )}
+          <Link to="/company-portal" className="underline text-primary">
+            Portal
+          </Link>
           <Link to="/account" className="underline text-primary">
             Account
           </Link>
