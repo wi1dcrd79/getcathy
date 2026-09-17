@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { SUPER_ADMIN_EMAIL } from "@/lib/legal";
 import { planFor, seatsForTier, type PlanTier } from "@/lib/plans";
+import { getPaddleEnvironment } from "@/lib/paddle";
 
 export const Route = createFileRoute("/super-admin")({
   head: () => ({
