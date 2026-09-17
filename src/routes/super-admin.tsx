@@ -46,6 +46,30 @@ async function fetchCompanies(): Promise<CompanyRow[]> {
   return (data ?? []) as unknown as CompanyRow[];
 }
 
+interface SubRow {
+  company_id: string | null;
+  status: string;
+  price_id: string;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean | null;
+  created_at: string | null;
+}
+
+/** Latest Paddle subscription per company, for the current payments environment. */
+async function fetchSubscriptions(): Promise<Record<string, SubRow>> {
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("company_id, status, price_id, current_period_end, cancel_at_period_end, created_at")
+    .eq("environment", getPaddleEnvironment())
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  const byCompany: Record<string, SubRow> = {};
+  for (const row of (data ?? []) as unknown as SubRow[]) {
+    if (row.company_id && !byCompany[row.company_id]) byCompany[row.company_id] = row;
+  }
+  return byCompany;
+}
+
 function SuperAdmin() {
   const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
