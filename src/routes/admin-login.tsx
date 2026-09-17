@@ -156,7 +156,7 @@ function AdminLogin() {
           <button
             type="submit"
             disabled={busy}
-            className="min-h-[48px] rounded-lg bg-warning px-4 py-3 text-sm font-bold uppercase tracking-widest text-background disabled:opacity-60"
+            className="min-h-[48px] rounded-lg bg-warning px-4 py-3 text-sm font-bold uppercase tracking-widest text-warning-foreground disabled:opacity-60"
           >
             {busy ? "Verifying…" : "Enter Owner Console"}
           </button>

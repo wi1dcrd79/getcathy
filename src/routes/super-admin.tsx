@@ -80,7 +80,7 @@ function SuperAdmin() {
   const qc = useQueryClient();
 
   useEffect(() => {
-    if (!authLoading && !session) navigate({ to: "/auth" });
+    if (!authLoading && !session) navigate({ to: "/admin-login" });
   }, [authLoading, session, navigate]);
 
   const companiesQ = useQuery({
