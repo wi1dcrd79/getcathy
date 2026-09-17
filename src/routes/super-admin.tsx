@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { SUPER_ADMIN_EMAIL } from "@/lib/legal";
 import { planFor, seatsForTier, type PlanTier } from "@/lib/plans";
+import { getPaddleEnvironment } from "@/lib/paddle";
 
 export const Route = createFileRoute("/super-admin")({
   head: () => ({
@@ -45,6 +46,30 @@ async function fetchCompanies(): Promise<CompanyRow[]> {
   return (data ?? []) as unknown as CompanyRow[];
 }
 
+interface SubRow {
+  company_id: string | null;
+  status: string;
+  price_id: string;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean | null;
+  created_at: string | null;
+}
+
+/** Latest Paddle subscription per company, for the current payments environment. */
+async function fetchSubscriptions(): Promise<Record<string, SubRow>> {
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("company_id, status, price_id, current_period_end, cancel_at_period_end, created_at")
+    .eq("environment", getPaddleEnvironment())
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  const byCompany: Record<string, SubRow> = {};
+  for (const row of (data ?? []) as unknown as SubRow[]) {
+    if (row.company_id && !byCompany[row.company_id]) byCompany[row.company_id] = row;
+  }
+  return byCompany;
+}
+
 function SuperAdmin() {
   const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -63,6 +88,31 @@ function SuperAdmin() {
     queryFn: fetchCompanies,
     enabled: !!session && isSuperAdmin,
   });
+
+  const subsQ = useQuery({
+    queryKey: ["company-subscriptions"],
+    queryFn: fetchSubscriptions,
+    enabled: !!session && isSuperAdmin,
+    refetchInterval: 30000,
+  });
+
+  // Live refresh when Paddle webhooks write new billing state.
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    const channel = supabase
+      .channel("billing-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "subscriptions" }, () => {
+        qc.invalidateQueries({ queryKey: ["company-subscriptions"] });
+        qc.invalidateQueries({ queryKey: ["companies"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "companies" }, () => {
+        qc.invalidateQueries({ queryKey: ["companies"] });
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isSuperAdmin, qc]);
 
   const update = useMutation({
     mutationFn: async (vars: { id: string; tier?: string; seats?: number }) => {
@@ -97,6 +147,7 @@ function SuperAdmin() {
   }
 
   const companies = companiesQ.data ?? [];
+  const subs = subsQ.data ?? {};
 
   return (
     <div className="min-h-screen">
@@ -127,6 +178,25 @@ function SuperAdmin() {
                 <p className="text-xs text-muted-foreground">
                   {c.subscription_status} · {c.seat_limit} seat{c.seat_limit === 1 ? "" : "s"}
                 </p>
+                {(() => {
+                  const sub = subs[c.id];
+                  if (!sub) {
+                    return (
+                      <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">
+                        No paid subscription on file
+                      </p>
+                    );
+                  }
+                  const renews = sub.current_period_end
+                    ? new Date(sub.current_period_end).toLocaleDateString()
+                    : "—";
+                  return (
+                    <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">
+                      Billing: {sub.status}
+                      {sub.cancel_at_period_end ? " · cancels" : " · renews"} {renews}
+                    </p>
+                  );
+                })()}
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <span
