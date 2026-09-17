@@ -219,6 +219,12 @@ function Dashboard() {
               </Link>
             )}
             <Link
+              to="/account"
+              className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
+            >
+              My Account
+            </Link>
+            <Link
               to="/billing"
               className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
             >
@@ -434,6 +440,9 @@ function Dashboard() {
               Admin
             </Link>
           )}
+          <Link to="/account" className="underline text-primary">
+            Account
+          </Link>
           <Link to="/billing" className="underline text-primary">
             My Plan
           </Link>
