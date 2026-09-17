@@ -210,6 +210,14 @@ function Dashboard() {
                 Companies
               </Link>
             )}
+            {showAdminConsole && (
+              <Link
+                to="/company-admin"
+                className="rounded-md border border-primary px-3 py-2 text-xs font-semibold uppercase tracking-widest text-primary hover:bg-primary/10"
+              >
+                Admin Console
+              </Link>
+            )}
             <Link
               to="/personnel"
               className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
