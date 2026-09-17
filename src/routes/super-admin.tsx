@@ -147,6 +147,7 @@ function SuperAdmin() {
   }
 
   const companies = companiesQ.data ?? [];
+  const subs = subsQ.data ?? {};
 
   return (
     <div className="min-h-screen">
