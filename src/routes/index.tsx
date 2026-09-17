@@ -423,6 +423,11 @@ function Dashboard() {
           </button>
         </div>
         <div className="flex items-center justify-center gap-4 border-t border-border/60 px-6 py-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+          {showAdminConsole && (
+            <Link to="/company-admin" className="underline text-primary">
+              Admin
+            </Link>
+          )}
           <Link to="/terms" className="underline">
             Terms
           </Link>
