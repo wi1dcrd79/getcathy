@@ -114,7 +114,8 @@ function Dashboard() {
     if (!authLoading && !session) navigate({ to: "/auth" });
   }, [authLoading, session, navigate]);
 
-  const { companyId, isPro, isSuperAdmin, readOnly } = useProfile();
+  const { companyId, isPro, isSuperAdmin, readOnly, role } = useProfile();
+  const showAdminConsole = isPro && (isSuperAdmin || role === "company_admin");
   const [generatedAt, setGeneratedAt] = useState("");
   useEffect(() => setGeneratedAt(new Date().toLocaleString()), []);
   const [filter, setFilter] = useState<Filter>("all");
