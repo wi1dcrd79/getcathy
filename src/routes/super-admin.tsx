@@ -165,9 +165,14 @@ function SuperAdmin() {
               {companies.length} accounts
             </p>
           </div>
-          <Link to="/" className="text-xs font-semibold uppercase tracking-widest text-primary">
-            Dashboard
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/admin-invoices" className="text-xs font-semibold uppercase tracking-widest text-primary">
+              Invoices
+            </Link>
+            <Link to="/" className="text-xs font-semibold uppercase tracking-widest text-primary">
+              Dashboard
+            </Link>
+          </div>
         </div>
       </header>
 

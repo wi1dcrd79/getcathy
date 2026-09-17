@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
+import { Route as AdminInvoicesRouteImport } from './routes/admin-invoices'
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuditBinderRouteImport } from './routes/audit-binder'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -31,6 +32,11 @@ const IndexRoute = IndexRouteImport.update({
 const AccountRoute = AccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminInvoicesRoute = AdminInvoicesRouteImport.update({
+  id: '/admin-invoices',
+  path: '/admin-invoices',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
@@ -93,6 +99,7 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/admin-invoices': typeof AdminInvoicesRoute
   '/admin-login': typeof AdminLoginRoute
   '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/admin-invoices': typeof AdminInvoicesRoute
   '/admin-login': typeof AdminLoginRoute
   '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/admin-invoices': typeof AdminInvoicesRoute
   '/admin-login': typeof AdminLoginRoute
   '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
+    | '/admin-invoices'
     | '/admin-login'
     | '/audit-binder'
     | '/auth'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/account'
+    | '/admin-invoices'
     | '/admin-login'
     | '/audit-binder'
     | '/auth'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/account'
+    | '/admin-invoices'
     | '/admin-login'
     | '/audit-binder'
     | '/auth'
@@ -187,6 +199,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
+  AdminInvoicesRoute: typeof AdminInvoicesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AuditBinderRoute: typeof AuditBinderRoute
   AuthRoute: typeof AuthRoute
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-invoices': {
+      id: '/admin-invoices'
+      path: '/admin-invoices'
+      fullPath: '/admin-invoices'
+      preLoaderRoute: typeof AdminInvoicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin-login': {
@@ -299,6 +319,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
+  AdminInvoicesRoute: AdminInvoicesRoute,
   AdminLoginRoute: AdminLoginRoute,
   AuditBinderRoute: AuditBinderRoute,
   AuthRoute: AuthRoute,
