@@ -1,0 +1,6 @@
+version: 2
+updates:
+  - package-ecosystem: "npm" # or "pip", "cargo", "gomod", "github-actions", etc.
+    directory: "/"
+    schedule:
+      interval: "weekly"
