@@ -114,7 +114,8 @@ function Dashboard() {
     if (!authLoading && !session) navigate({ to: "/auth" });
   }, [authLoading, session, navigate]);
 
-  const { companyId, isPro, isSuperAdmin, readOnly } = useProfile();
+  const { companyId, isPro, isSuperAdmin, readOnly, role } = useProfile();
+  const showAdminConsole = isPro && (isSuperAdmin || role === "company_admin");
   const [generatedAt, setGeneratedAt] = useState("");
   useEffect(() => setGeneratedAt(new Date().toLocaleString()), []);
   const [filter, setFilter] = useState<Filter>("all");
@@ -207,6 +208,14 @@ function Dashboard() {
                 className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground hover:border-primary"
               >
                 Companies
+              </Link>
+            )}
+            {showAdminConsole && (
+              <Link
+                to="/company-admin"
+                className="rounded-md border border-primary px-3 py-2 text-xs font-semibold uppercase tracking-widest text-primary hover:bg-primary/10"
+              >
+                Admin Console
               </Link>
             )}
             <Link
@@ -414,6 +423,11 @@ function Dashboard() {
           </button>
         </div>
         <div className="flex items-center justify-center gap-4 border-t border-border/60 px-6 py-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+          {showAdminConsole && (
+            <Link to="/company-admin" className="underline text-primary">
+              Admin
+            </Link>
+          )}
           <Link to="/terms" className="underline">
             Terms
           </Link>

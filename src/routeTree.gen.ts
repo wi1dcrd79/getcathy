@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuditBinderRouteImport } from './routes/audit-binder'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CompanyAdminRouteImport } from './routes/company-admin'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as PersonnelRouteImport } from './routes/personnel'
 import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
@@ -32,6 +33,11 @@ const AuditBinderRoute = AuditBinderRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompanyAdminRoute = CompanyAdminRouteImport.update({
+  id: '/company-admin',
+  path: '/company-admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImportRoute = ImportRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
+  '/company-admin': typeof CompanyAdminRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
   '/scan-transfer': typeof ScanTransferRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
+  '/company-admin': typeof CompanyAdminRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
   '/scan-transfer': typeof ScanTransferRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/audit-binder': typeof AuditBinderRoute
   '/auth': typeof AuthRoute
+  '/company-admin': typeof CompanyAdminRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
   '/scan-transfer': typeof ScanTransferRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/'
     | '/audit-binder'
     | '/auth'
+    | '/company-admin'
     | '/import'
     | '/personnel'
     | '/scan-transfer'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/audit-binder'
     | '/auth'
+    | '/company-admin'
     | '/import'
     | '/personnel'
     | '/scan-transfer'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/'
     | '/audit-binder'
     | '/auth'
+    | '/company-admin'
     | '/import'
     | '/personnel'
     | '/scan-transfer'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuditBinderRoute: typeof AuditBinderRoute
   AuthRoute: typeof AuthRoute
+  CompanyAdminRoute: typeof CompanyAdminRoute
   ImportRoute: typeof ImportRoute
   PersonnelRoute: typeof PersonnelRoute
   ScanTransferRoute: typeof ScanTransferRoute
@@ -169,6 +182,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/company-admin': {
+      id: '/company-admin'
+      path: '/company-admin'
+      fullPath: '/company-admin'
+      preLoaderRoute: typeof CompanyAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/import': {
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuditBinderRoute: AuditBinderRoute,
   AuthRoute: AuthRoute,
+  CompanyAdminRoute: CompanyAdminRoute,
   ImportRoute: ImportRoute,
   PersonnelRoute: PersonnelRoute,
   ScanTransferRoute: ScanTransferRoute,
