@@ -178,6 +178,25 @@ function SuperAdmin() {
                 <p className="text-xs text-muted-foreground">
                   {c.subscription_status} · {c.seat_limit} seat{c.seat_limit === 1 ? "" : "s"}
                 </p>
+                {(() => {
+                  const sub = subs[c.id];
+                  if (!sub) {
+                    return (
+                      <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">
+                        No paid subscription on file
+                      </p>
+                    );
+                  }
+                  const renews = sub.current_period_end
+                    ? new Date(sub.current_period_end).toLocaleDateString()
+                    : "—";
+                  return (
+                    <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">
+                      Billing: {sub.status}
+                      {sub.cancel_at_period_end ? " · cancels" : " · renews"} {renews}
+                    </p>
+                  );
+                })()}
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <span
