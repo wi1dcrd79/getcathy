@@ -446,6 +446,9 @@ function Dashboard() {
               Admin
             </Link>
           )}
+          <Link to="/company-portal" className="underline text-primary">
+            Portal
+          </Link>
           <Link to="/account" className="underline text-primary">
             Account
           </Link>
