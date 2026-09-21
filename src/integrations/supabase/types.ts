@@ -438,6 +438,53 @@ export type Database = {
           },
         ]
       }
+      risk_assessments: {
+        Row: {
+          actions: Json
+          asset_tag: string | null
+          company_id: string
+          created_at: string
+          created_by: string
+          id: string
+          notes: string
+          overall_risk: string
+          photo_count: number
+          summary: string
+        }
+        Insert: {
+          actions?: Json
+          asset_tag?: string | null
+          company_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          notes: string
+          overall_risk: string
+          photo_count?: number
+          summary: string
+        }
+        Update: {
+          actions?: Json
+          asset_tag?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          notes?: string
+          overall_risk?: string
+          photo_count?: number
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risk_assessments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null

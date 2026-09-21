@@ -20,6 +20,7 @@ import { Route as CompanyAdminRouteImport } from './routes/company-admin'
 import { Route as CompanyPortalRouteImport } from './routes/company-portal'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as PersonnelRouteImport } from './routes/personnel'
+import { Route as RiskAnalysisRouteImport } from './routes/risk-analysis'
 import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -80,6 +81,11 @@ const PersonnelRoute = PersonnelRouteImport.update({
   path: '/personnel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RiskAnalysisRoute = RiskAnalysisRouteImport.update({
+  id: '/risk-analysis',
+  path: '/risk-analysis',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScanTransferRoute = ScanTransferRouteImport.update({
   id: '/scan-transfer',
   path: '/scan-transfer',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/company-portal': typeof CompanyPortalRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
+  '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/company-portal': typeof CompanyPortalRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
+  '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/company-portal': typeof CompanyPortalRoute
   '/import': typeof ImportRoute
   '/personnel': typeof PersonnelRoute
+  '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/company-portal'
     | '/import'
     | '/personnel'
+    | '/risk-analysis'
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/company-portal'
     | '/import'
     | '/personnel'
+    | '/risk-analysis'
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/company-portal'
     | '/import'
     | '/personnel'
+    | '/risk-analysis'
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
@@ -220,6 +232,7 @@ export interface RootRouteChildren {
   CompanyPortalRoute: typeof CompanyPortalRoute
   ImportRoute: typeof ImportRoute
   PersonnelRoute: typeof PersonnelRoute
+  RiskAnalysisRoute: typeof RiskAnalysisRoute
   ScanTransferRoute: typeof ScanTransferRoute
   SuperAdminRoute: typeof SuperAdminRoute
   TermsRoute: typeof TermsRoute
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonnelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/risk-analysis': {
+      id: '/risk-analysis'
+      path: '/risk-analysis'
+      fullPath: '/risk-analysis'
+      preLoaderRoute: typeof RiskAnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scan-transfer': {
       id: '/scan-transfer'
       path: '/scan-transfer'
@@ -348,6 +368,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompanyPortalRoute: CompanyPortalRoute,
   ImportRoute: ImportRoute,
   PersonnelRoute: PersonnelRoute,
+  RiskAnalysisRoute: RiskAnalysisRoute,
   ScanTransferRoute: ScanTransferRoute,
   SuperAdminRoute: SuperAdminRoute,
   TermsRoute: TermsRoute,
