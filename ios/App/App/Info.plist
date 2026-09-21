@@ -66,5 +66,17 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>UIUserInterfaceStyle</key>
+	<string>Dark</string>
+	<key>NSCameraUsageDescription</key>
+	<string>C.A.T.H.Y. uses the camera to scan asset tags and attach inspection photos to compliance records.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>C.A.T.H.Y. attaches saved photos to equipment inspections and audit records.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>C.A.T.H.Y. saves exported audit documents and inspection photos to your device.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>C.A.T.H.Y. records yard location context when equipment is moved between sites, zones and bins.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
