@@ -3,7 +3,9 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const config: CapacitorConfig = {
   appId: "com.cathy.operations",
   appName: "CATHY",
-  webDir: ".output/public",
+  // Native shells load the live site (see server.url below); this folder is
+  // only a fallback shell so Capacitor has a valid local web directory.
+  webDir: "mobile-shell",
   bundledWebRuntime: false,
   // The platform runs server-side logic (auth, billing, sync), so the native
   // shells load the published production build rather than a static copy.
