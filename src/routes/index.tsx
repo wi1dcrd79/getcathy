@@ -237,11 +237,18 @@ function Dashboard() {
               My Plan
             </Link>
             <Link
+              to="/risk-analysis"
+              className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
+            >
+              AI Risk Review
+            </Link>
+            <Link
               to="/personnel"
               className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
             >
               Crafts
             </Link>
+
             <Link
               to="/import"
               className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
