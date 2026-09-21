@@ -459,9 +459,13 @@ function Dashboard() {
           <Link to="/account" className="underline text-primary">
             Account
           </Link>
+          <Link to="/risk-analysis" className="underline text-primary">
+            AI Risk
+          </Link>
           <Link to="/billing" className="underline text-primary">
             My Plan
           </Link>
+
           <Link to="/terms" className="underline">
             Terms
           </Link>
