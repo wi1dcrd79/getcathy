@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "mobile:sync": "vite build && npx cap sync",
+    "mobile:sync": "npx cap sync",
     "mobile:android": "npx cap open android",
     "mobile:ios": "npx cap open ios"
   },
