@@ -144,6 +144,80 @@ export type Database = {
           },
         ]
       }
+      crash_reports: {
+        Row: {
+          app_build: string
+          company_id: string
+          created_at: string
+          detail: string
+          device_kind: string
+          id: string
+          occurrences: number
+          platform: string
+          problem: string
+          recovery_actions: Json
+          reported_by: string | null
+          reviewer_notes: string | null
+          route: string
+          screen_label: string
+          severity: string
+          status: string
+          updated_at: string
+          viewport: string
+          was_offline: boolean
+        }
+        Insert: {
+          app_build?: string
+          company_id: string
+          created_at?: string
+          detail: string
+          device_kind?: string
+          id?: string
+          occurrences?: number
+          platform?: string
+          problem: string
+          recovery_actions?: Json
+          reported_by?: string | null
+          reviewer_notes?: string | null
+          route: string
+          screen_label: string
+          severity?: string
+          status?: string
+          updated_at?: string
+          viewport?: string
+          was_offline?: boolean
+        }
+        Update: {
+          app_build?: string
+          company_id?: string
+          created_at?: string
+          detail?: string
+          device_kind?: string
+          id?: string
+          occurrences?: number
+          platform?: string
+          problem?: string
+          recovery_actions?: Json
+          reported_by?: string | null
+          reviewer_notes?: string | null
+          route?: string
+          screen_label?: string
+          severity?: string
+          status?: string
+          updated_at?: string
+          viewport?: string
+          was_offline?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crash_reports_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       custom_trades: {
         Row: {
           company_id: string
