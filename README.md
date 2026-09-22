@@ -16,6 +16,7 @@ and generates printable audit binders for OSHA / GC review.
 - **Frontend:** React 19, TypeScript, Vite 8, TanStack Start (SSR + server functions), Tailwind CSS v4, shadcn/ui
 - **Backend & Auth:** Lovable Cloud (Supabase: PostgreSQL, Row Level Security, Auth, Storage)
 - **Payments:** Paddle (Merchant of Record) — sandbox & live
+- **Durable execution:** Inngest — _planned, not yet implemented (Track 1)_
 - **PWA:** vite-plugin-pwa (service worker, installable, offline queueing via IndexedDB)
 - **Native shell:** Capacitor (Android) — app ID `com.cathy.operations`
 - **State & data:** TanStack Query
@@ -63,24 +64,31 @@ environment (Lovable Cloud) — do **not** put these in `.env` or commit them:
 - `PADDLE_SANDBOX_API_KEY` / `PADDLE_LIVE_API_KEY` — Paddle API access
 - `PAYMENTS_SANDBOX_WEBHOOK_SECRET` / `PAYMENTS_LIVE_WEBHOOK_SECRET` — Paddle webhook signature verification
 - `LOVABLE_API_KEY` — internal gateway key
+- _(Planned, Track 1)_ Inngest signing/event keys — connector `std_01m346mp6dev0sxakjbpqqp0by`, wired via `/api/inngest`
 
 Never commit real secrets. Public publishable keys are fine in code; everything
 else belongs in secret storage.
 
 ## Scripts
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Start the dev server (Vite, `http://localhost:8080`) |
-| `npm run build` | Production build |
-| `npm run build:dev` | Development-mode build (used for prerender checks) |
-| `npm run preview` | Preview the production build locally |
-| `npm run lint` | ESLint over the project |
-| `npm run format` | Prettier write |
+| Command             | What it does                                         |
+| ------------------- | ---------------------------------------------------- |
+| `npm run dev`       | Start the dev server (Vite, `http://localhost:8080`) |
+| `npm run build`     | Production build                                     |
+| `npm run build:dev` | Development-mode build (used for prerender checks)   |
+| `npm run preview`   | Preview the production build locally                 |
+| `npm run lint`      | ESLint over the project                              |
+| `npm run format`    | Prettier write                                       |
 
 ## Testing
 
-There is no unit-test suite configured yet. To validate changes:
+There is no unit-test suite configured yet. Compliance-critical paths (cert
+status calculation, audit binder generation, signature tamper-hash
+verification, rollup accuracy, dispatch gate, aging/MTTR) require test
+coverage before being marked done per project guardrails — this is a known
+gap, not a deferred nice-to-have.
+
+To validate changes in the meantime:
 
 ```sh
 # Typecheck (should pass with no output)
@@ -100,7 +108,8 @@ run in the same toolchain as the dev server.
 
 ```
 src/
-  routes/          # TanStack file-based routes (/, /auth, /personnel, /scan-transfer, /import, /audit-binder, /super-admin, /terms, ...)
+  routes/          # TanStack file-based routes (/, /auth, /personnel, /scan-transfer, /import, /audit-binder, /risk-analysis, /company-admin, /super-admin, /terms, ...)
+                    # Planned, not yet in repo: /compliance-reports (Track 6), /api/inngest (Track 1)
   components/      # UI components, including C.A.T.H.Y. domain components (in a legacy-named folder)
   lib/             # Domain logic, compliance calculations, legal copy, *.functions.ts server functions
   integrations/    # Auto-generated backend clients — do not edit by hand
