@@ -144,6 +144,53 @@ export type Database = {
           },
         ]
       }
+      compliance_report_jobs: {
+        Row: {
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          period_end: string | null
+          period_start: string | null
+          requested_by: string | null
+          status: string
+          summary: Json
+        }
+        Insert: {
+          company_id: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          period_end?: string | null
+          period_start?: string | null
+          requested_by?: string | null
+          status?: string
+          summary?: Json
+        }
+        Update: {
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          period_end?: string | null
+          period_start?: string | null
+          requested_by?: string | null
+          status?: string
+          summary?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_report_jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crash_reports: {
         Row: {
           app_build: string
