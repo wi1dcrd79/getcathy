@@ -1,11 +1,12 @@
-import { EventSchemas, Inngest } from "inngest";
+import { Inngest, eventType } from "inngest";
 import { z } from "zod";
 
 /**
  * Typed event catalogue for C.A.T.H.Y. durable execution.
- * telemetry.sync is intentionally absent: it is cron-triggered, not emitted.
+ * `telemetry.sync` is intentionally absent: it is cron-triggered, never emitted.
  */
-export const assetTransferred = z.object({
+
+export const assetTransferredSchema = z.object({
   company_id: z.string().uuid(),
   asset_id: z.string().uuid(),
   asset_tag: z.string(),
@@ -15,7 +16,7 @@ export const assetTransferred = z.object({
   captured_at: z.string(),
 });
 
-export const certExpiring = z.object({
+export const certExpiringSchema = z.object({
   company_id: z.string().uuid(),
   cert_id: z.string().uuid(),
   personnel_id: z.string().uuid().nullable(),
@@ -23,7 +24,7 @@ export const certExpiring = z.object({
   expiration_date: z.string(),
 });
 
-export const auditBinderRequested = z.object({
+export const auditBinderRequestedSchema = z.object({
   company_id: z.string().uuid(),
   requested_by: z.string().uuid().nullable(),
   job_id: z.string().uuid(),
@@ -31,31 +32,34 @@ export const auditBinderRequested = z.object({
   period_end: z.string().nullable(),
 });
 
-export const hazardAnalysisRequested = z.object({
+export const hazardAnalysisRequestedSchema = z.object({
   company_id: z.string().uuid(),
   requested_by: z.string().uuid(),
   asset_tag: z.string().nullable(),
   notes: z.string().min(10),
-  photo_count: z.number().int().min(0).max(8).default(0),
+  photo_count: z.number().int().min(0).max(8),
 });
 
+export const assetTransferred = eventType("asset.transferred", {
+  schema: assetTransferredSchema,
+});
+export const certExpiring = eventType("cert.expiring", { schema: certExpiringSchema });
+export const auditBinderRequested = eventType("audit_binder.requested", {
+  schema: auditBinderRequestedSchema,
+});
+export const hazardAnalysisRequested = eventType("hazard_analysis.requested", {
+  schema: hazardAnalysisRequestedSchema,
+});
+
+/** Runtime validation map used by the gateway emitter. */
 export const eventSchemas = {
-  "asset.transferred": { data: assetTransferred },
-  "cert.expiring": { data: certExpiring },
-  "audit_binder.requested": { data: auditBinderRequested },
-  "hazard_analysis.requested": { data: hazardAnalysisRequested },
+  "asset.transferred": assetTransferredSchema,
+  "cert.expiring": certExpiringSchema,
+  "audit_binder.requested": auditBinderRequestedSchema,
+  "hazard_analysis.requested": hazardAnalysisRequestedSchema,
 } as const;
 
 export type CathyEventName = keyof typeof eventSchemas;
+export type CathyEventData<T extends CathyEventName> = z.infer<(typeof eventSchemas)[T]>;
 
-export type CathyEventData = {
-  "asset.transferred": z.infer<typeof assetTransferred>;
-  "cert.expiring": z.infer<typeof certExpiring>;
-  "audit_binder.requested": z.infer<typeof auditBinderRequested>;
-  "hazard_analysis.requested": z.infer<typeof hazardAnalysisRequested>;
-};
-
-export const inngest = new Inngest({
-  id: "cathy-operations",
-  schemas: new EventSchemas().fromZod(eventSchemas),
-});
+export const inngest = new Inngest({ id: "cathy-operations" });
