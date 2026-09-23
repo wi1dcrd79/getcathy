@@ -144,6 +144,53 @@ export type Database = {
           },
         ]
       }
+      compliance_report_jobs: {
+        Row: {
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          period_end: string | null
+          period_start: string | null
+          requested_by: string | null
+          status: string
+          summary: Json
+        }
+        Insert: {
+          company_id: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          period_end?: string | null
+          period_start?: string | null
+          requested_by?: string | null
+          status?: string
+          summary?: Json
+        }
+        Update: {
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          period_end?: string | null
+          period_start?: string | null
+          requested_by?: string | null
+          status?: string
+          summary?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_report_jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crash_reports: {
         Row: {
           app_build: string
@@ -309,6 +356,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      job_failures: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          attempts: number
+          company_id: string | null
+          crash_report_id: string | null
+          created_at: string
+          error_message: string
+          event_name: string
+          function_id: string
+          id: string
+          payload: Json
+          run_id: string | null
+          status: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          attempts?: number
+          company_id?: string | null
+          crash_report_id?: string | null
+          created_at?: string
+          error_message: string
+          event_name: string
+          function_id: string
+          id?: string
+          payload?: Json
+          run_id?: string | null
+          status?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          attempts?: number
+          company_id?: string | null
+          crash_report_id?: string | null
+          created_at?: string
+          error_message?: string
+          event_name?: string
+          function_id?: string
+          id?: string
+          payload?: Json
+          run_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_failures_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_failures_crash_report_id_fkey"
+            columns: ["crash_report_id"]
+            isOneToOne: false
+            referencedRelation: "crash_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_locks: {
+        Row: {
+          holder: string
+          lock_name: string
+          locked_until: string
+          updated_at: string
+        }
+        Insert: {
+          holder: string
+          lock_name: string
+          locked_until: string
+          updated_at?: string
+        }
+        Update: {
+          holder?: string
+          lock_name?: string
+          locked_until?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       location_history: {
         Row: {
@@ -618,6 +749,47 @@ export type Database = {
           },
         ]
       }
+      telemetry_syncs: {
+        Row: {
+          company_id: string
+          crash_occurrences: number
+          critical_risks: number
+          id: string
+          open_crashes: number
+          open_job_failures: number
+          synced_at: string
+          window_hours: number
+        }
+        Insert: {
+          company_id: string
+          crash_occurrences?: number
+          critical_risks?: number
+          id?: string
+          open_crashes?: number
+          open_job_failures?: number
+          synced_at?: string
+          window_hours?: number
+        }
+        Update: {
+          company_id?: string
+          crash_occurrences?: number
+          critical_risks?: number
+          id?: string
+          open_crashes?: number
+          open_job_failures?: number
+          synced_at?: string
+          window_hours?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telemetry_syncs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_sessions: {
         Row: {
           current_session_token: string | null
@@ -716,6 +888,10 @@ export type Database = {
       }
     }
     Functions: {
+      acquire_job_lock: {
+        Args: { _holder: string; _name: string; _seconds: number }
+        Returns: boolean
+      }
       bootstrap_current_user: { Args: never; Returns: string }
       rotate_session_token: { Args: { _token: string }; Returns: undefined }
     }

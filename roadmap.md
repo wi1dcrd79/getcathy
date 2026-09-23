@@ -21,3 +21,11 @@
 - [ ] Welder continuity Active / Grace / Lapsed
 - [ ] Rigging & machinery inspection statuses
 - [ ] Audit binder PDF (gated behind Pro)
+
+## Track 1 — Inngest & durable execution
+- [x] job_failures (admin dead-letter queue), telemetry_syncs, job_locks, compliance_report_jobs tables
+- [x] Typed event catalogue + gateway emitter
+- [ ] /api/public/inngest serve route
+- [ ] Functions: AI hazard analysis, telemetry sync cron, compliance report compilation
+- [ ] Dead-letter to crash_reports + admin queue
+- [ ] End-to-end test: serve route, event dispatch, function execution, dead-letter logging
