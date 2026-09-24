@@ -62,6 +62,7 @@ export async function recordJobFailure(input: DeadLetterInput): Promise<void> {
     event_name: input.eventName,
     run_id: input.runId ?? null,
     attempts: input.attempts ?? 0,
+    status: "failed",
     error_message: detail,
     payload: input.payload,
     crash_report_id: crashReportId,

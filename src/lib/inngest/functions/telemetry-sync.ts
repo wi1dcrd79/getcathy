@@ -1,20 +1,21 @@
 import { inngest } from "../client";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 const LOCK_NAME = "telemetry_sync";
 const LOCK_LEASE_SECONDS = 300;
 const WINDOW_HOURS = 24;
+const OPEN_FAILURE_STATES = ["failed", "acknowledged", "retrying"];
+
+// Load the service-role client lazily so env is read at request time.
+async function admin() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (await import("@/integrations/supabase/client.server")).supabaseAdmin as any;
+}
 
 export const telemetrySync = inngest.createFunction(
-  { id: "telemetry-sync", concurrency: { limit: 1 }, retries: 3 },
-  { cron: "0 * * * *" },
+  { id: "telemetry-sync", concurrency: { limit: 1 }, retries: 3, triggers: [{ cron: "0 * * * *" }] },
   async ({ step, runId }) => {
     const acquired = await step.run("acquire-lock", async () => {
+      const supabase = await admin();
       const { data, error } = await supabase.rpc("acquire_job_lock", {
         _name: LOCK_NAME,
         _holder: runId,
@@ -27,15 +28,17 @@ export const telemetrySync = inngest.createFunction(
     if (!acquired) return { skipped: true, reason: "lock_held" };
 
     const companies = await step.run("fetch-companies", async () => {
+      const supabase = await admin();
       const { data, error } = await supabase.from("companies").select("id");
       if (error) throw error;
-      return data;
+      return (data ?? []) as Array<{ id: string }>;
     });
 
     const windowStart = new Date(Date.now() - WINDOW_HOURS * 60 * 60 * 1000).toISOString();
 
     for (const company of companies) {
       await step.run(`sync-company-${company.id}`, async () => {
+        const supabase = await admin();
         try {
           const { count: openCrashes, error: crashErr } = await supabase
             .from("crash_reports")
@@ -64,7 +67,7 @@ export const telemetrySync = inngest.createFunction(
             .from("job_failures")
             .select("*", { count: "exact", head: true })
             .eq("company_id", company.id)
-            .eq("status", "open");
+            .in("status", OPEN_FAILURE_STATES);
           if (jobErr) throw jobErr;
 
           const { error: insertErr } = await supabase.from("telemetry_syncs").insert({
@@ -81,7 +84,7 @@ export const telemetrySync = inngest.createFunction(
             company_id: company.id,
             function_id: "telemetry-sync",
             event_name: "telemetry.sync",
-            status: "open",
+            status: "failed",
             payload: { window_hours: WINDOW_HOURS, run_id: runId },
             error_message: err instanceof Error ? err.message : String(err),
           });
@@ -90,5 +93,5 @@ export const telemetrySync = inngest.createFunction(
     }
 
     return { synced_companies: companies.length };
-  }
+  },
 );
