@@ -80,6 +80,83 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "assets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      cert_notifications: {
+        Row: {
+          cert_id: string
+          channel: string
+          company_id: string
+          created_at: string
+          delivery_status: string
+          dispatched_at: string | null
+          id: string
+          notice_payload: Json
+          provider_message_id: string | null
+          recipient_email: string
+          recipient_role: string
+          resolved_at: string | null
+          threshold_days: number
+        }
+        Insert: {
+          cert_id: string
+          channel?: string
+          company_id: string
+          created_at?: string
+          delivery_status?: string
+          dispatched_at?: string | null
+          id?: string
+          notice_payload?: Json
+          provider_message_id?: string | null
+          recipient_email: string
+          recipient_role: string
+          resolved_at?: string | null
+          threshold_days: number
+        }
+        Update: {
+          cert_id?: string
+          channel?: string
+          company_id?: string
+          created_at?: string
+          delivery_status?: string
+          dispatched_at?: string | null
+          id?: string
+          notice_payload?: Json
+          provider_message_id?: string | null
+          recipient_email?: string
+          recipient_role?: string
+          resolved_at?: string | null
+          threshold_days?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cert_notifications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cert_notifications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "fk_cert_notifications_cert"
+            columns: ["cert_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "personnel_certs"
+            referencedColumns: ["id", "company_id"]
+          },
         ]
       }
       companies: {
@@ -142,6 +219,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "company_billing_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
       compliance_report_jobs: {
@@ -187,6 +271,110 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_report_jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      corrective_actions: {
+        Row: {
+          asset_id: string | null
+          assigned_to: string | null
+          company_id: string
+          created_at: string
+          description: string
+          due_date: string
+          id: string
+          priority: string
+          resolved_at: string | null
+          source_id: string
+          source_type: string
+          status: string
+          updated_at: string
+          verified_by: string | null
+          version: number
+        }
+        Insert: {
+          asset_id?: string | null
+          assigned_to?: string | null
+          company_id: string
+          created_at?: string
+          description: string
+          due_date: string
+          id?: string
+          priority: string
+          resolved_at?: string | null
+          source_id: string
+          source_type: string
+          status?: string
+          updated_at?: string
+          verified_by?: string | null
+          version?: number
+        }
+        Update: {
+          asset_id?: string | null
+          assigned_to?: string | null
+          company_id?: string
+          created_at?: string
+          description?: string
+          due_date?: string
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          source_id?: string
+          source_type?: string
+          status?: string
+          updated_at?: string
+          verified_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corrective_actions_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -263,6 +451,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "crash_reports_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
       custom_trades: {
@@ -294,6 +489,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_trades_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -355,6 +557,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "inspections_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
       job_failures: {
@@ -370,6 +579,12 @@ export type Database = {
           function_id: string
           id: string
           payload: Json
+          replay_count: number
+          replayed_at: string | null
+          replayed_by: string | null
+          resolution_reason: string | null
+          resolved_at: string | null
+          resolved_by: string | null
           run_id: string | null
           status: string
         }
@@ -385,6 +600,12 @@ export type Database = {
           function_id: string
           id?: string
           payload?: Json
+          replay_count?: number
+          replayed_at?: string | null
+          replayed_by?: string | null
+          resolution_reason?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           run_id?: string | null
           status?: string
         }
@@ -400,6 +621,12 @@ export type Database = {
           function_id?: string
           id?: string
           payload?: Json
+          replay_count?: number
+          replayed_at?: string | null
+          replayed_by?: string | null
+          resolution_reason?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           run_id?: string | null
           status?: string
         }
@@ -412,10 +639,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "job_failures_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
             foreignKeyName: "job_failures_crash_report_id_fkey"
             columns: ["crash_report_id"]
             isOneToOne: false
             referencedRelation: "crash_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_failures_replayed_by_fkey"
+            columns: ["replayed_by"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_failures_replayed_by_fkey"
+            columns: ["replayed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_failures_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_failures_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -499,6 +761,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "location_history_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
       personnel_certs: {
@@ -553,10 +822,31 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "personnel_certs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
             foreignKeyName: "personnel_certs_personnel_id_fkey"
             columns: ["personnel_id"]
             isOneToOne: false
             referencedRelation: "personnel_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personnel_certs_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personnel_certs_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -565,31 +855,37 @@ export type Database = {
         Row: {
           company_id: string
           created_at: string
+          email: string | null
           employee_id: string
           first_name: string
           id: string
           last_name: string
           status: string
+          supervisor_id: string | null
           trade_title: string
         }
         Insert: {
           company_id: string
           created_at?: string
+          email?: string | null
           employee_id: string
           first_name: string
           id?: string
           last_name: string
           status?: string
+          supervisor_id?: string | null
           trade_title: string
         }
         Update: {
           company_id?: string
           created_at?: string
+          email?: string | null
           employee_id?: string
           first_name?: string
           id?: string
           last_name?: string
           status?: string
+          supervisor_id?: string | null
           trade_title?: string
         }
         Relationships: [
@@ -598,6 +894,27 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personnel_records_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "personnel_records_supervisor_id_fkey"
+            columns: ["supervisor_id"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personnel_records_supervisor_id_fkey"
+            columns: ["supervisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -640,6 +957,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -687,6 +1011,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "risk_assessments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -747,6 +1078,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
       telemetry_syncs: {
@@ -787,6 +1125,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "telemetry_syncs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -853,10 +1198,59 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "welder_qualifications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
     }
     Views: {
+      company_compliance_rollups: {
+        Row: {
+          calculated_at: string | null
+          chronic_asset_count: number | null
+          company_id: string | null
+          inspection_failure_rate_90d: number | null
+          lapsed_certs_count: number | null
+          mttr_p1_hours: number | null
+          mttr_p2_hours: number | null
+          open_p1_count: number | null
+          open_p2_count: number | null
+          open_p3_count: number | null
+          resolution_compliance_ratio_90d: number | null
+        }
+        Insert: {
+          calculated_at?: never
+          chronic_asset_count?: never
+          company_id?: string | null
+          inspection_failure_rate_90d?: never
+          lapsed_certs_count?: never
+          mttr_p1_hours?: never
+          mttr_p2_hours?: never
+          open_p1_count?: never
+          open_p2_count?: never
+          open_p3_count?: never
+          resolution_compliance_ratio_90d?: never
+        }
+        Update: {
+          calculated_at?: never
+          chronic_asset_count?: never
+          company_id?: string | null
+          inspection_failure_rate_90d?: never
+          lapsed_certs_count?: never
+          mttr_p1_hours?: never
+          mttr_p2_hours?: never
+          open_p1_count?: never
+          open_p2_count?: never
+          open_p3_count?: never
+          resolution_compliance_ratio_90d?: never
+        }
+        Relationships: []
+      }
       company_team_directory: {
         Row: {
           company_id: string | null
@@ -884,6 +1278,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
     }
@@ -893,6 +1294,10 @@ export type Database = {
         Returns: boolean
       }
       bootstrap_current_user: { Args: never; Returns: string }
+      replay_notification_failure: {
+        Args: { p_failure_id: string }
+        Returns: Json
+      }
       rotate_session_token: { Args: { _token: string }; Returns: undefined }
     }
     Enums: {
