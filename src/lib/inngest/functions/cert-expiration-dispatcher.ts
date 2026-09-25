@@ -40,9 +40,9 @@ function renderEmail(c: Candidate, days: number, role: string) {
 }
 
 export const certExpirationDispatcher = inngest.createFunction(
-  { id: "cert-expiration-dispatcher", concurrency: { limit: 1 }, retries: 3, triggers: [{ cron: "0 6 * * *" }] },
+  { id: "cert-expiration-dispatcher", concurrency: { limit: 1 }, retries: 0, triggers: [{ cron: "0 6 * * *" }] },
   async ({ step, runId }) => {
-    const results: Record<string, number> = {};
+    const results: Record<string, { sent: number; failed: number }> = {};
 
     for (const days of THRESHOLDS) {
       results[`t${days}`] = await step.run(`process-threshold-${days}`, async () => {
@@ -54,8 +54,8 @@ export const certExpirationDispatcher = inngest.createFunction(
         });
         if (error) throw error;
 
-        const errors: string[] = [];
         let sent = 0;
+        let failed = 0;
 
         for (const c of (data ?? []) as Candidate[]) {
           for (const r of recipientsFor(c)) {
@@ -115,16 +115,14 @@ export const certExpirationDispatcher = inngest.createFunction(
                   cert_notification_id: notificationId,
                 },
               });
-              errors.push(message);
+              failed++;
             }
           }
         }
 
-        // Re-throw after the loop so remaining certs still get processed.
-        if (errors.length) {
-          throw new Error(`${errors.length} send(s) failed at ${days}d: ${errors[0]}`);
-        }
-        return sent;
+        // Individual failures are already recorded in job_failures; do not
+        // re-throw — retries are disabled, so the batch must not retry as a whole.
+        return { sent, failed };
       });
     }
 
