@@ -1294,6 +1294,19 @@ export type Database = {
         Returns: boolean
       }
       bootstrap_current_user: { Args: never; Returns: string }
+      find_certs_crossing_threshold: {
+        Args: { p_threshold_days: number }
+        Returns: {
+          admin_fallback_email: string
+          cert_id: string
+          cert_name: string
+          cert_number: string
+          company_id: string
+          expiration_date: string
+          supervisor_email: string
+          welder_email: string
+        }[]
+      }
       replay_notification_failure: {
         Args: { p_failure_id: string }
         Returns: Json
