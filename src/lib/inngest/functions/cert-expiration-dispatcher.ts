@@ -54,8 +54,8 @@ export const certExpirationDispatcher = inngest.createFunction(
         });
         if (error) throw error;
 
-        const errors: string[] = [];
         let sent = 0;
+        let failed = 0;
 
         for (const c of (data ?? []) as Candidate[]) {
           for (const r of recipientsFor(c)) {
