@@ -115,16 +115,14 @@ export const certExpirationDispatcher = inngest.createFunction(
                   cert_notification_id: notificationId,
                 },
               });
-              errors.push(message);
+              failed++;
             }
           }
         }
 
-        // Re-throw after the loop so remaining certs still get processed.
-        if (errors.length) {
-          throw new Error(`${errors.length} send(s) failed at ${days}d: ${errors[0]}`);
-        }
-        return sent;
+        // Individual failures are already recorded in job_failures; do not
+        // re-throw — retries are disabled, so the batch must not retry as a whole.
+        return { sent, failed };
       });
     }
 
