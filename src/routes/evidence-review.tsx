@@ -117,6 +117,7 @@ function EvidenceReview() {
       const { data: sigs, error } = await supabase
         .from("signatures")
         .select("inspection_id, cert_verification_id, risk_assessment_id, signed_at, synced_at")
+        .eq("company_id", companyId!) // explicit tenant filter; RLS also enforces this
         .order("synced_at", { ascending: false })
         .limit(300);
       if (error) throw new Error(error.message);
@@ -125,7 +126,11 @@ function EvidenceReview() {
         const rows = (sigs ?? []).filter((s) => s[col]);
         if (!rows.length) continue;
         const ids = rows.map((s) => s[col] as string);
-        const { data: recs } = await supabase.from(table).select(SIGNED_COLUMNS[table].join(", ")).in("id", ids);
+        const { data: recs } = await supabase
+          .from(table)
+          .select(SIGNED_COLUMNS[table].join(", "))
+          .eq("company_id", companyId!) // explicit tenant filter; RLS also enforces this
+          .in("id", ids);
         const byId = new Map(((recs ?? []) as unknown as Record<string, unknown>[]).map((r) => [String(r["id"]), r]));
         for (const s of rows) {
           const rec = byId.get(s[col] as string);
