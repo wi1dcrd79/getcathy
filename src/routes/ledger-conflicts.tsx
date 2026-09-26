@@ -135,8 +135,8 @@ function LedgerConflicts() {
 
         {conflicts.map((c) => {
           const meta = (c.asset_ledger?.metadata ?? {}) as Record<string, unknown>;
-          const attemptedTo = typeof meta.to === "string" ? meta.to : null;
-          const attemptedFrom = typeof meta.from === "string" ? meta.from : null;
+          const attemptedTo = typeof meta["to"] === "string" ? (meta["to"] as string) : null;
+          const attemptedFrom = typeof meta["from"] === "string" ? (meta["from"] as string) : null;
           return (
             <section key={c.id} className="panel space-y-3 p-4">
               <div className="flex items-start justify-between gap-3">
