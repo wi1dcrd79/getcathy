@@ -2,7 +2,7 @@ import { get, set } from "idb-keyval";
 
 const KEY = "cathy.signature-outbox.v1";
 
-export type SignatureTarget = "inspection_id" | "risk_assessment_id" | "cert_verification_id";
+export type SignatureTarget = "inspection_id" | "risk_assessment_id" | "cert_verification_id" | "incident_report_id" | "incident_report_resolution_id";
 
 export interface QueuedSignature {
   local_id: string;
