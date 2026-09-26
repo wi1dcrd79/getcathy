@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ShieldCheck, ShieldAlert } from "lucide-react";
+import { ShieldCheck, ShieldAlert, FileDown } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { hashRecord, type SignableTable } from "@/lib/signatures/signed-fields";
+import { toast } from "sonner";
+import { hashRecord, pickSignedColumns, SIGNED_COLUMNS, type SignableTable } from "@/lib/signatures/signed-fields";
 import { getSignerIdentity } from "@/lib/signatures/submit-signature.functions";
+
+const TABLE_LABEL: Record<SignableTable, string> = {
+  inspections: "Inspection",
+  risk_assessments: "Risk assessment",
+  personnel_certs: "Personnel certification",
+};
 
 export interface SignatureVerificationRow {
   id: string;
@@ -30,10 +37,12 @@ export function SignatureVerification({
   table,
   row,
   sig,
+  label,
 }: {
   table: SignableTable;
   row: Record<string, unknown>;
   sig: SignatureVerificationRow;
+  label: string;
 }) {
   // NOTE: hashState is display-only feedback. The real integrity enforcement
   // happened server-side at signing time (hash re-verification + freeze
