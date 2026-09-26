@@ -19,6 +19,7 @@ import { Route as BillingRouteImport } from './routes/billing'
 import { Route as CompanyAdminRouteImport } from './routes/company-admin'
 import { Route as CompanyPortalRouteImport } from './routes/company-portal'
 import { Route as ImportRouteImport } from './routes/import'
+import { Route as LedgerConflictsRouteImport } from './routes/ledger-conflicts'
 import { Route as PersonnelRouteImport } from './routes/personnel'
 import { Route as RiskAnalysisRouteImport } from './routes/risk-analysis'
 import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
@@ -78,6 +79,11 @@ const ImportRoute = ImportRouteImport.update({
   path: '/import',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LedgerConflictsRoute = LedgerConflictsRouteImport.update({
+  id: '/ledger-conflicts',
+  path: '/ledger-conflicts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PersonnelRoute = PersonnelRouteImport.update({
   id: '/personnel',
   path: '/personnel',
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
   '/import': typeof ImportRoute
+  '/ledger-conflicts': typeof LedgerConflictsRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
   '/import': typeof ImportRoute
+  '/ledger-conflicts': typeof LedgerConflictsRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
   '/import': typeof ImportRoute
+  '/ledger-conflicts': typeof LedgerConflictsRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/company-admin'
     | '/company-portal'
     | '/import'
+    | '/ledger-conflicts'
     | '/personnel'
     | '/risk-analysis'
     | '/scan-transfer'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/company-admin'
     | '/company-portal'
     | '/import'
+    | '/ledger-conflicts'
     | '/personnel'
     | '/risk-analysis'
     | '/scan-transfer'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/company-admin'
     | '/company-portal'
     | '/import'
+    | '/ledger-conflicts'
     | '/personnel'
     | '/risk-analysis'
     | '/scan-transfer'
@@ -255,6 +267,7 @@ export interface RootRouteChildren {
   CompanyAdminRoute: typeof CompanyAdminRoute
   CompanyPortalRoute: typeof CompanyPortalRoute
   ImportRoute: typeof ImportRoute
+  LedgerConflictsRoute: typeof LedgerConflictsRoute
   PersonnelRoute: typeof PersonnelRoute
   RiskAnalysisRoute: typeof RiskAnalysisRoute
   ScanTransferRoute: typeof ScanTransferRoute
@@ -337,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ledger-conflicts': {
+      id: '/ledger-conflicts'
+      path: '/ledger-conflicts'
+      fullPath: '/ledger-conflicts'
+      preLoaderRoute: typeof LedgerConflictsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/personnel': {
       id: '/personnel'
       path: '/personnel'
@@ -407,6 +427,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompanyAdminRoute: CompanyAdminRoute,
   CompanyPortalRoute: CompanyPortalRoute,
   ImportRoute: ImportRoute,
+  LedgerConflictsRoute: LedgerConflictsRoute,
   PersonnelRoute: PersonnelRoute,
   RiskAnalysisRoute: RiskAnalysisRoute,
   ScanTransferRoute: ScanTransferRoute,
