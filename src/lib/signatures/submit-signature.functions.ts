@@ -191,10 +191,32 @@ export const submitSignature = createServerFn({ method: "POST" })
       throw new SignatureSubmissionError(409, "This record has already been signed.");
     }
 
-    // 4. Insert via the service role (direct client INSERT is revoked).
+    // 4. Store the signature image server-side (no client write access to the bucket).
+    const signatureId = crypto.randomUUID();
+    let imagePath: string | null = null;
+    const deviceMetadata: Record<string, unknown> = { ...data.device_metadata };
+    if (data.signature_png_base64) {
+      const bytes = Uint8Array.from(atob(data.signature_png_base64), (c) => c.charCodeAt(0));
+      const isPng =
+        bytes.length > 8 &&
+        bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
+      if (!isPng) throw new SignatureSubmissionError(400, "Signature image must be a PNG.");
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      deviceMetadata["image_sha256"] = Array.from(new Uint8Array(digest))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      imagePath = `${data.company_id}/${signatureId}.png`;
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from("signatures")
+        .upload(imagePath, bytes, { contentType: "image/png", upsert: false });
+      if (uploadError) throw new Error(`Failed to store signature image: ${uploadError.message}`);
+    }
+
+    // 5. Insert via the service role (direct client INSERT is revoked).
     const { data: inserted, error: insertError } = await supabaseAdmin
       .from("signatures")
       .insert({
+        id: signatureId,
         company_id: data.company_id,
         audit_binder_id: targetColumn === "audit_binder_id" ? targetId : null,
         inspection_id: targetColumn === "inspection_id" ? targetId : null,
@@ -203,15 +225,17 @@ export const submitSignature = createServerFn({ method: "POST" })
         signer_id: userId,
         signer_role: profile.role, // trigger re-stamps authoritatively
         content_sha256: data.content_sha256,
-        signature_image_path: data.signature_image_path ?? null,
+        signature_image_path: imagePath,
         offline_created_at: data.offline_created_at ?? null,
         signed_at: data.signed_at ?? null,
-        device_metadata: data.device_metadata as Json,
+        device_metadata: deviceMetadata as Json,
       })
       .select("id, synced_at")
       .single();
 
     if (insertError) {
+      // Orphaned image cleanup — the row never landed.
+      if (imagePath) await supabaseAdmin.storage.from("signatures").remove([imagePath]);
       // Unique-violation race: another signer won between the check and insert.
       if (insertError.code === "23505") {
         throw new SignatureSubmissionError(409, "This record has already been signed.");
@@ -220,4 +244,10 @@ export const submitSignature = createServerFn({ method: "POST" })
     }
 
     return { ok: true as const, signature_id: inserted.id, synced_at: inserted.synced_at };
+  } catch (e) {
+    if (e instanceof SignatureSubmissionError) {
+      return { ok: false as const, status: e.status, message: e.message };
+    }
+    throw e;
+  }
   });
