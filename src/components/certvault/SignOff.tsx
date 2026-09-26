@@ -4,16 +4,14 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { SignaturePad } from "./SignaturePad";
+import { SignatureVerification, type SignatureVerificationRow } from "./SignatureVerification";
 import { signRecord } from "@/lib/signatures/sign-record";
 import { canSign, type SignableTable } from "@/lib/signatures/signed-fields";
 
-interface SignatureRow {
+interface SignatureRow extends SignatureVerificationRow {
   inspection_id: string | null;
   risk_assessment_id: string | null;
   cert_verification_id: string | null;
-  signer_role: string;
-  signed_at: string | null;
-  synced_at: string;
 }
 
 const COLUMN: Record<SignableTable, keyof SignatureRow> = {
@@ -28,7 +26,7 @@ export function useCompanySignatures() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("signatures")
-        .select("inspection_id, risk_assessment_id, cert_verification_id, signer_role, signed_at, synced_at");
+        .select("inspection_id, risk_assessment_id, cert_verification_id, signer_id, signer_role, signed_at, offline_created_at, synced_at, content_sha256");
       if (error) throw error;
       return (data ?? []) as SignatureRow[];
     },
@@ -51,6 +49,7 @@ export function SignOff({
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [queued, setQueued] = useState(false);
+  const [showVerify, setShowVerify] = useState(false);
 
   const id = String(row["id"]);
   const sig = sigs.data?.find((s) => s[COLUMN[table]] === id);
@@ -58,8 +57,16 @@ export function SignOff({
   if (sig) {
     const when = new Date(sig.signed_at ?? sig.synced_at).toLocaleDateString();
     return (
-      <span className="inline-flex items-center rounded border border-primary px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
-        Signed & frozen · {sig.signer_role.replace(/_/g, " ")} · {when}
+      <span className="inline-flex flex-col items-start">
+        <button
+          type="button"
+          onClick={() => setShowVerify((v) => !v)}
+          className="inline-flex min-h-8 items-center rounded border border-primary px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-primary"
+          title="Show signature verification details"
+        >
+          Signed & frozen · {sig.signer_role.replace(/_/g, " ")} · {when}
+        </button>
+        {showVerify && <SignatureVerification table={table} row={row} sig={sig} />}
       </span>
     );
   }
