@@ -86,11 +86,17 @@ export const runEvidenceReview = createServerFn({ method: "POST" })
     const refs: Array<{ table: string; id: string; label: string; signature_id: string }> = [];
     for (const r of data.records) {
       const cols = SIGNED_COLUMNS[r.table];
-      const { data: row } = await supabase.from(r.table).select(cols.join(", ")).eq("id", r.id).maybeSingle();
+      const { data: row } = await supabase
+        .from(r.table)
+        .select(cols.join(", "))
+        .eq("id", r.id)
+        .eq("company_id", profile.company_id) // explicit tenant filter; RLS also enforces this
+        .maybeSingle();
       const { data: sig } = await supabase
         .from("signatures")
         .select("id, signer_role, signed_at, synced_at, content_sha256")
         .eq(TARGET_COL[r.table], r.id)
+        .eq("company_id", profile.company_id)
         .maybeSingle();
       if (!row || !sig) throw new Error("One of the selected records is not a signed record in your company.");
       const rec = row as unknown as Record<string, unknown>;
