@@ -166,6 +166,33 @@ async function handleDeliveryDelayed(supabase: any, event: ResendEvent): Promise
   return true;
 }
 
+async function handleFailed(supabase: any, event: ResendEvent): Promise<boolean> {
+  // Resend gave up sending (hard provider-side failure, distinct from a bounce).
+  const emailId = event.data.email_id;
+  if (!emailId) return false;
+  const cert = await findNotification(supabase, emailId);
+  if (!cert || cert.delivery_status === 'delivered' || cert.delivery_status === 'failed') return false;
+
+  const { error } = await supabase
+    .from('cert_notifications')
+    .update({ delivery_status: 'failed', resolved_at: new Date().toISOString() })
+    .eq('id', cert.id);
+  if (error) throw error;
+
+  await supabase.from('job_failures').insert({
+    company_id: cert.company_id,
+    function_id: 'resend-webhook',
+    event_name: 'email.failed',
+    status: 'failed',
+    error_message: 'Email could not be sent (provider reported send failure)'.slice(0, 1000),
+    payload: {
+      cert_notification_id: cert.id,
+      provider_message_id: emailId,
+    },
+  } as never);
+  return true;
+}
+
 export const Route = createFileRoute('/api/public/email/webhook')({
   server: {
     handlers: {
