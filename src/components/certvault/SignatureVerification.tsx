@@ -69,6 +69,87 @@ export function SignatureVerification({
   }, [table, row, sig.content_sha256]);
 
   const signedWhen = sig.signed_at ?? sig.offline_created_at ?? sig.synced_at;
+  const [exporting, setExporting] = useState(false);
+
+  async function exportEvidence() {
+    setExporting(true);
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ unit: "pt", format: "letter" });
+      const margin = 56;
+      const width = doc.internal.pageSize.getWidth() - margin * 2;
+      let y = margin;
+
+      const line = (text: string, opts?: { bold?: boolean; size?: number; gap?: number }) => {
+        doc.setFont("helvetica", opts?.bold ? "bold" : "normal");
+        doc.setFontSize(opts?.size ?? 10);
+        const wrapped = doc.splitTextToSize(text, width) as string[];
+        for (const w of wrapped) {
+          if (y > doc.internal.pageSize.getHeight() - margin) {
+            doc.addPage();
+            y = margin;
+          }
+          doc.text(w, margin, y);
+          y += (opts?.size ?? 10) * 1.4;
+        }
+        y += opts?.gap ?? 2;
+      };
+
+      doc.setFillColor(20, 24, 31);
+      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 72, "F");
+      doc.setTextColor(245, 158, 11);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("C.A.T.H.Y. — Signature Evidence Report", margin, 40);
+      doc.setTextColor(20, 24, 31);
+      y = 100;
+
+      line(`Record: ${TABLE_LABEL[table]} — ${label}`, { bold: true, size: 12, gap: 8 });
+      line(`Generated: ${formatWhen(new Date().toISOString())}`, { gap: 12 });
+
+      line("Signature", { bold: true, size: 11, gap: 4 });
+      line(`Signer: ${signer.data?.email ?? sig.signer_id}`);
+      line(`Authorized role: ${sig.signer_role.replace(/_/g, " ")}`);
+      line(`Signed at: ${formatWhen(signedWhen)}${sig.offline_created_at ? " (captured offline)" : ""}`);
+      line(`Synced at: ${formatWhen(sig.synced_at)}`, { gap: 12 });
+
+      line("Sealed content hash (SHA-256, RFC 8785 canonical)", { bold: true, size: 11, gap: 4 });
+      doc.setFont("courier", "normal");
+      line(sig.content_sha256, { gap: 12 });
+
+      line("Verification result", { bold: true, size: 11, gap: 4 });
+      line(
+        hashState === "match"
+          ? "VERIFIED — the record's current content reproduces the sealed hash; it is unchanged since signing."
+          : hashState === "mismatch"
+            ? "MISMATCH — the record's current content does not reproduce the sealed hash; it changed after signing."
+            : "Hash recomputation was still in progress at export time.",
+        { gap: 12 },
+      );
+
+      line("Signed record content (as sealed)", { bold: true, size: 11, gap: 4 });
+      const sealed = pickSignedColumns(row, SIGNED_COLUMNS[table]);
+      for (const [k, v] of Object.entries(sealed)) {
+        const val = typeof v === "object" && v !== null ? JSON.stringify(v) : String(v ?? "—");
+        line(`${k}: ${val}`);
+      }
+
+      y += 16;
+      line(
+        "This report is a point-in-time export of a signature record. Integrity enforcement is performed " +
+          "server-side at signing time (hash re-verification and record freeze). The verification result above " +
+          "is a recomputation for evidence purposes.",
+        { size: 8, gap: 0 },
+      );
+
+      doc.save(`signature-evidence-${sig.id.slice(0, 8)}.pdf`);
+      toast.success("Evidence report downloaded");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  }
 
   return (
     <div className="mt-2 w-full rounded-md border border-border bg-card p-3 text-left text-xs">
