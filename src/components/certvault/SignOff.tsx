@@ -49,6 +49,7 @@ export function SignOff({
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [queued, setQueued] = useState(false);
+  const [showVerify, setShowVerify] = useState(false);
 
   const id = String(row["id"]);
   const sig = sigs.data?.find((s) => s[COLUMN[table]] === id);
@@ -56,8 +57,16 @@ export function SignOff({
   if (sig) {
     const when = new Date(sig.signed_at ?? sig.synced_at).toLocaleDateString();
     return (
-      <span className="inline-flex items-center rounded border border-primary px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
-        Signed & frozen · {sig.signer_role.replace(/_/g, " ")} · {when}
+      <span className="inline-flex flex-col items-start">
+        <button
+          type="button"
+          onClick={() => setShowVerify((v) => !v)}
+          className="inline-flex min-h-8 items-center rounded border border-primary px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-primary"
+          title="Show signature verification details"
+        >
+          Signed & frozen · {sig.signer_role.replace(/_/g, " ")} · {when}
+        </button>
+        {showVerify && <SignatureVerification table={table} row={row} sig={sig} />}
       </span>
     );
   }
