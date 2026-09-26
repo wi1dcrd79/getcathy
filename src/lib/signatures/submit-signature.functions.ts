@@ -21,7 +21,12 @@ const submitSignatureSchema = z
     cert_verification_id: z.string().uuid().nullish(),
     risk_assessment_id: z.string().uuid().nullish(),
     content_sha256: z.string().regex(sha256Regex, "content_sha256 must be a lowercase hex SHA-256"),
-    signature_image_path: z.string().nullish(),
+    /** Base64 PNG (no data: prefix), capped ~400KB decoded. Uploaded server-side only. */
+    signature_png_base64: z
+      .string()
+      .max(560_000, "Signature image too large")
+      .regex(/^[A-Za-z0-9+/=]+$/, "Invalid base64")
+      .nullish(),
     offline_created_at: z.string().nullish(),
     signed_at: z.string().nullish(),
     device_metadata: z.record(z.string(), z.unknown()).default({}),
