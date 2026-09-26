@@ -180,6 +180,14 @@ function ScanTransfer() {
           captured_at: ts,
           local_sequence_id: await nextSequenceId(),
         });
+        await enqueueLedgerAction({
+          company_id: companyId ?? "",
+          asset_id: asset.id,
+          action_type: "TRANSFER",
+          metadata: { from, to, site, zone, bin },
+          current_ledger_event_id:
+            (asset as { current_ledger_event_id?: string | null }).current_ledger_event_id ?? null,
+        });
         setQueued(n);
         setMsg(`Offline — ${asset.asset_tag} → ${to} queued and will sync automatically.`);
         toast.info(`Queued offline — ${asset.asset_tag} → ${to}`);
