@@ -30,6 +30,8 @@ const Input = z.object({
     .array(z.object({ table: z.enum(["inspections", "personnel_certs", "risk_assessments"]), id: z.string().uuid() }))
     .min(1)
     .max(25),
+  /** raw = full signed field values leave the DB for comparison; summary = labels, dates, cert numbers and hashes only */
+  detailLevel: z.enum(["raw", "summary"]).default("raw"),
 });
 
 const Finding = z.object({
@@ -102,15 +104,27 @@ export const runEvidenceReview = createServerFn({ method: "POST" })
       const rec = row as unknown as Record<string, unknown>;
       const label = recordLabel(r.table, rec);
       refs.push({ table: r.table, id: r.id, label, signature_id: sig.id });
-      blocks.push(
-        [
-          `RECORD: ${label}`,
-          `type: ${r.table}`,
-          `signed by role: ${sig.signer_role}; server sync time: ${sig.synced_at}`,
-          `sealed sha256: ${sig.content_sha256}`,
-          `sealed content: ${JSON.stringify(pickSignedColumns(rec, cols))}`,
-        ].join("\n"),
-      );
+      const lines = [
+        `RECORD: ${label}`,
+        `type: ${r.table}`,
+        `signed by role: ${sig.signer_role}; server sync time: ${sig.synced_at}`,
+        `sealed sha256: ${sig.content_sha256}`,
+      ];
+      if (data.detailLevel === "raw") {
+        lines.push(`sealed content: ${JSON.stringify(pickSignedColumns(rec, cols))}`);
+      } else {
+        // Summary mode: keep worker names, notes and free-text findings inside the DB.
+        const summary: Record<string, unknown> = {};
+        for (const c of cols) {
+          const v = rec[c];
+          if (v == null) continue;
+          if (c.endsWith("_date") || c.endsWith("_at") || c === "cert_number" || c === "result" || c === "inspection_type" || c === "overall_risk" || c === "asset_tag" || c === "cert_name") {
+            summary[c] = v;
+          }
+        }
+        lines.push(`summary fields only: ${JSON.stringify(summary)}`);
+      }
+      blocks.push(lines.join("\n"));
     }
 
     const key = process.env["LOVABLE_API_KEY"];
