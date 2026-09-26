@@ -162,12 +162,11 @@ export const submitSignature = createServerFn({ method: "POST" })
       if (error || !record) {
         throw new SignatureSubmissionError(400, `Target ${table} record not found.`);
       }
-      if ((record as Record<string, unknown>)["company_id"] !== data.company_id) {
+      const row = record as unknown as Record<string, unknown>;
+      if (row["company_id"] !== data.company_id) {
         throw new SignatureSubmissionError(403, "Cross-tenant signature submission rejected.");
       }
-      const serverHash = await canonicalSha256(
-        pickColumns(record as Record<string, unknown>, columns),
-      );
+      const serverHash = await canonicalSha256(pickColumns(row, columns));
       if (serverHash !== data.content_sha256) {
         throw new SignatureSubmissionError(
           400,
@@ -198,7 +197,7 @@ export const submitSignature = createServerFn({ method: "POST" })
         signature_image_path: data.signature_image_path ?? null,
         offline_created_at: data.offline_created_at ?? null,
         signed_at: data.signed_at ?? null,
-        device_metadata: data.device_metadata,
+        device_metadata: data.device_metadata as Json,
       })
       .select("id, synced_at")
       .single();
