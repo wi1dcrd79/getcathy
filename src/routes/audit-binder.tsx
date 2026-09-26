@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { SignOff } from "@/components/certvault/SignOff";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchAssets, fetchWelders } from "@/lib/certvault-data";
@@ -99,6 +100,7 @@ function AuditBinder() {
                 <th>Last inspection</th>
                 <th>Expires</th>
                 <th>Status</th>
+                <th>Sign-off</th>
               </tr>
             </thead>
             <tbody>
@@ -122,6 +124,17 @@ function AuditBinder() {
                     {a.inspection
                       ? assetStatus(a.inspection.expiration_date, a.inspection.result)
                       : "Out of Compliance"}
+                  </td>
+                  <td>
+                    {a.inspection ? (
+                      <SignOff
+                        table="inspections"
+                        row={a.inspection as unknown as Record<string, unknown>}
+                        label={`Inspection ${a.asset_tag}`}
+                      />
+                    ) : (
+                      "—"
+                    )}
                   </td>
                 </tr>
               ))}
