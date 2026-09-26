@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ShieldCheck, ShieldAlert } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
 import { hashRecord, type SignableTable } from "@/lib/signatures/signed-fields";
+import { getSignerIdentity } from "@/lib/signatures/submit-signature.functions";
 
 export interface SignatureVerificationRow {
+  id: string;
   signer_id: string;
   signer_role: string;
   signed_at: string | null;
@@ -33,18 +35,17 @@ export function SignatureVerification({
   row: Record<string, unknown>;
   sig: SignatureVerificationRow;
 }) {
+  // NOTE: hashState is display-only feedback. The real integrity enforcement
+  // happened server-side at signing time (hash re-verification + freeze
+  // triggers). Never wire logic or gates off this client-side result.
   const [hashState, setHashState] = useState<"checking" | "match" | "mismatch">("checking");
 
+  // profiles RLS only exposes the caller's own row (or admin-tier), so the
+  // signer email is resolved server-side after a same-company check.
+  const fetchSigner = useServerFn(getSignerIdentity);
   const signer = useQuery({
-    queryKey: ["signer-profile", sig.signer_id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("email")
-        .eq("id", sig.signer_id)
-        .maybeSingle();
-      return data?.email ?? null;
-    },
+    queryKey: ["signer-profile", sig.id],
+    queryFn: () => fetchSigner({ data: { signature_id: sig.id } }),
     staleTime: 5 * 60 * 1000,
   });
 
