@@ -104,6 +104,7 @@ function EvidenceReview() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [result, setResult] = useState<EvidenceResult | null>(null);
+  const [detailLevel, setDetailLevel] = useState<"raw" | "summary">("raw");
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -204,7 +205,7 @@ function EvidenceReview() {
     if (!records.length) return setErr("Select at least one signed record to compare against.");
     setBusy(true);
     try {
-      const res = await runEvidenceReview({ data: { title: title.trim(), documents: docs, records } });
+      const res = await runEvidenceReview({ data: { title: title.trim(), documents: docs, records, detailLevel } });
       setResult(res);
       if (res.saveError) setErr(`Review finished but could not be saved: ${res.saveError}`);
       qc.invalidateQueries({ queryKey: ["evidence-reviews", companyId] });
@@ -295,6 +296,31 @@ function EvidenceReview() {
                 </label>
               ))}
             </div>
+          </div>
+
+          <div>
+            <span className={label}>What the AI may see</span>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={`${btn} ${detailLevel === "raw" ? "border-primary text-primary" : ""}`}
+                onClick={() => setDetailLevel("raw")}
+              >
+                Full record content
+              </button>
+              <button
+                type="button"
+                className={`${btn} ${detailLevel === "summary" ? "border-primary text-primary" : ""}`}
+                onClick={() => setDetailLevel("summary")}
+              >
+                Summary only
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {detailLevel === "raw"
+                ? "Full signed field values (names, notes, findings) are sent to the AI for the most accurate comparison."
+                : "Only labels, dates, cert numbers and fingerprints leave the database — names and free-text findings stay inside. Mismatch detection is weaker."}
+            </p>
           </div>
 
           {err && <p className="text-sm text-destructive">{err}</p>}
