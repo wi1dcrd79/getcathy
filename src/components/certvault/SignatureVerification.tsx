@@ -68,7 +68,7 @@ export function SignatureVerification({
       </p>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5">
         <dt className="text-muted-foreground">Signer</dt>
-        <dd className="font-medium text-foreground">{signer.data ?? sig.signer_id.slice(0, 8) + "…"}</dd>
+        <dd className="font-medium text-foreground">{signer.data?.email ?? sig.signer_id.slice(0, 8) + "…"}</dd>
         <dt className="text-muted-foreground">Authorized role</dt>
         <dd className="font-medium text-foreground">{sig.signer_role.replace(/_/g, " ")}</dd>
         <dt className="text-muted-foreground">Signed at</dt>
