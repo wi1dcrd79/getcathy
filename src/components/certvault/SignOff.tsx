@@ -67,7 +67,7 @@ export function SignOff({
         >
           Signed & frozen · {sig.signer_role.replace(/_/g, " ")} · {when}
         </button>
-        {showVerify && <SignatureVerification table={table} row={row} sig={sig} />}
+        {showVerify && <SignatureVerification table={table} row={row} sig={sig} label={label} />}
       </span>
     );
   }

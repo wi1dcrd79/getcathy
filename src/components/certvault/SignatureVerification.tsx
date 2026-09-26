@@ -153,9 +153,20 @@ export function SignatureVerification({
 
   return (
     <div className="mt-2 w-full rounded-md border border-border bg-card p-3 text-left text-xs">
-      <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-        Signature verification
-      </p>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          Signature verification
+        </p>
+        <button
+          type="button"
+          onClick={exportEvidence}
+          disabled={exporting || hashState === "checking"}
+          className="no-print inline-flex min-h-8 items-center gap-1 rounded border border-border px-2 text-[10px] font-bold uppercase tracking-widest text-foreground disabled:opacity-50"
+        >
+          <FileDown className="h-3.5 w-3.5" />
+          {exporting ? "Exporting…" : "Export evidence"}
+        </button>
+      </div>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5">
         <dt className="text-muted-foreground">Signer</dt>
         <dd className="font-medium text-foreground">{signer.data?.email ?? sig.signer_id.slice(0, 8) + "…"}</dd>
