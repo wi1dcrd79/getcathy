@@ -163,12 +163,20 @@ function CompanyAdmin() {
               {company?.name ?? "Your company"} · {planFor(company?.subscription_tier).name}
             </p>
           </div>
-          <Link
-            to="/"
-            className="inline-flex min-h-[48px] items-center rounded-md border border-border px-3 text-xs font-semibold uppercase tracking-widest text-primary"
-          >
-            Dashboard
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/ledger-conflicts"
+              className="inline-flex min-h-[48px] items-center rounded-md border border-border px-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground hover:border-primary"
+            >
+              Sync Conflicts
+            </Link>
+            <Link
+              to="/"
+              className="inline-flex min-h-[48px] items-center rounded-md border border-border px-3 text-xs font-semibold uppercase tracking-widest text-primary"
+            >
+              Dashboard
+            </Link>
+          </div>
         </div>
       </header>
 

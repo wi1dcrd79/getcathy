@@ -14,6 +14,82 @@ export type Database = {
   }
   public: {
     Tables: {
+      asset_ledger: {
+        Row: {
+          action_type: string
+          actor_id: string | null
+          asset_id: string
+          company_id: string
+          created_at: string
+          expected_prior_event_id: string | null
+          id: string
+          metadata: Json
+        }
+        Insert: {
+          action_type: string
+          actor_id?: string | null
+          asset_id: string
+          company_id: string
+          created_at?: string
+          expected_prior_event_id?: string | null
+          id: string
+          metadata?: Json
+        }
+        Update: {
+          action_type?: string
+          actor_id?: string | null
+          asset_id?: string
+          company_id?: string
+          created_at?: string
+          expected_prior_event_id?: string | null
+          id?: string
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_ledger_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_ledger_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_ledger_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_ledger_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_ledger_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "asset_ledger_expected_prior_event_id_fkey"
+            columns: ["expected_prior_event_id"]
+            isOneToOne: false
+            referencedRelation: "asset_ledger"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assets: {
         Row: {
           asset_tag: string
@@ -22,6 +98,7 @@ export type Database = {
           category: Database["public"]["Enums"]["asset_category"]
           company_id: string | null
           created_at: string
+          current_ledger_event_id: string | null
           current_location: string
           id: string
           image_url: string | null
@@ -41,6 +118,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["asset_category"]
           company_id?: string | null
           created_at?: string
+          current_ledger_event_id?: string | null
           current_location?: string
           id?: string
           image_url?: string | null
@@ -60,6 +138,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["asset_category"]
           company_id?: string | null
           created_at?: string
+          current_ledger_event_id?: string | null
           current_location?: string
           id?: string
           image_url?: string | null
@@ -86,6 +165,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "company_compliance_rollups"
             referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "assets_current_ledger_event_id_fkey"
+            columns: ["current_ledger_event_id"]
+            isOneToOne: false
+            referencedRelation: "asset_ledger"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -702,6 +788,99 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ledger_conflicts: {
+        Row: {
+          asset_id: string
+          company_id: string
+          competing_actor_id: string | null
+          conflicting_event_id: string | null
+          created_at: string
+          id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+        }
+        Insert: {
+          asset_id: string
+          company_id: string
+          competing_actor_id?: string | null
+          conflicting_event_id?: string | null
+          created_at?: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Update: {
+          asset_id?: string
+          company_id?: string
+          competing_actor_id?: string | null
+          conflicting_event_id?: string | null
+          created_at?: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_conflicts_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_conflicts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_conflicts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "ledger_conflicts_competing_actor_id_fkey"
+            columns: ["competing_actor_id"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_conflicts_competing_actor_id_fkey"
+            columns: ["competing_actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_conflicts_conflicting_event_id_fkey"
+            columns: ["conflicting_event_id"]
+            isOneToOne: false
+            referencedRelation: "asset_ledger"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_conflicts_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_conflicts_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       location_history: {
         Row: {

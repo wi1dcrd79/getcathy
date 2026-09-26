@@ -29,3 +29,14 @@
 - [ ] Functions: AI hazard analysis, telemetry sync cron, compliance report compilation
 - [ ] Dead-letter to crash_reports + admin queue
 - [ ] End-to-end test: serve route, event dispatch, function execution, dead-letter logging
+
+## Track 4 — Offline asset ledger & conflict detection
+- [x] asset_ledger table (client-generated UUIDs, chained expected_prior_event_id, company-scoped RLS)
+- [x] assets.current_ledger_event_id pointer column
+- [x] ledger_conflicts exception table + manager resolve flow
+- [x] IndexedDB outbox with intra-device chaining
+- [x] Atomic server-side batch sync (unconditional ledger insert, conditional pointer update, cascading conflicts)
+- [x] Manager review dashboard for ledger_conflicts (/ledger-conflicts, linked from Admin Console)
+
+## Pending ops
+- [ ] Resend: link "Luis's Resend" connection + add RESEND_WEBHOOK_SECRET, then end-to-end cert-email test
