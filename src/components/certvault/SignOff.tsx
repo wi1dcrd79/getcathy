@@ -9,6 +9,7 @@ import { signRecord } from "@/lib/signatures/sign-record";
 import { canSign, type SignableTable } from "@/lib/signatures/signed-fields";
 
 interface SignatureRow extends SignatureVerificationRow {
+  id: string;
   inspection_id: string | null;
   risk_assessment_id: string | null;
   cert_verification_id: string | null;
@@ -26,7 +27,7 @@ export function useCompanySignatures() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("signatures")
-        .select("inspection_id, risk_assessment_id, cert_verification_id, signer_id, signer_role, signed_at, offline_created_at, synced_at, content_sha256");
+        .select("id, inspection_id, risk_assessment_id, cert_verification_id, signer_id, signer_role, signed_at, offline_created_at, synced_at, content_sha256");
       if (error) throw error;
       return (data ?? []) as SignatureRow[];
     },

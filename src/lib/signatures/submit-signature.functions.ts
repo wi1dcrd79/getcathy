@@ -207,3 +207,32 @@ export const submitSignature = createServerFn({ method: "POST" })
     throw e;
   }
   });
+
+const signerIdentitySchema = z.object({ signature_id: z.string().uuid() });
+
+/**
+ * Resolve a signer's display identity for the verification panel.
+ * RLS on profiles only exposes own row (or admin-tier), so a same-company
+ * viewer would get null — this verifies the signature belongs to the caller's
+ * company via the RLS-scoped client, then looks up the email with the admin client.
+ */
+export const getSignerIdentity = createServerFn({ method: "GET" })
+  .inputValidator((data) => signerIdentitySchema.parse(data))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }) => {
+    const { data: sig, error } = await context.supabase
+      .from("signatures")
+      .select("id, signer_id")
+      .eq("id", data.signature_id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!sig) throw new Response("Not found", { status: 404 });
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("email")
+      .eq("id", sig.signer_id)
+      .maybeSingle();
+    return { email: profile?.email ?? null };
+  });
