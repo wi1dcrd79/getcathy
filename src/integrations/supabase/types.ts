@@ -656,6 +656,60 @@ export type Database = {
           },
         ]
       }
+      evidence_reviews: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string
+          document_names: Json
+          findings: Json
+          id: string
+          overall_status: string
+          record_refs: Json
+          summary: string
+          title: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by: string
+          document_names?: Json
+          findings?: Json
+          id?: string
+          overall_status: string
+          record_refs?: Json
+          summary: string
+          title: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          document_names?: Json
+          findings?: Json
+          id?: string
+          overall_status?: string
+          record_refs?: Json
+          summary?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_reviews_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_reviews_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
       inspections: {
         Row: {
           asset_id: string
