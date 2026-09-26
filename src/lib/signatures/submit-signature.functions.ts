@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 import { canonicalSha256 } from "./canonicalize";
+import { SIGNED_COLUMNS, pickSignedColumns as pickColumns } from "./signed-fields";
 
 const AUTHORIZED_SIGNER_ROLES = [
   "company_admin",
@@ -47,52 +48,6 @@ export class SignatureSubmissionError extends Error {
     super(message);
     this.name = "SignatureSubmissionError";
   }
-}
-
-/**
- * Columns that define the signed content of each record type. The server
- * recomputes the RFC 8785 canonical hash over these fields and requires it to
- * match the client-supplied content_sha256.
- */
-const SIGNED_COLUMNS = {
-  inspections: [
-    "id",
-    "asset_id",
-    "inspector_name",
-    "inspection_date",
-    "expiration_date",
-    "result",
-    "notes",
-    "inspection_type",
-    "company_id",
-  ],
-  risk_assessments: [
-    "id",
-    "company_id",
-    "created_by",
-    "asset_tag",
-    "notes",
-    "photo_count",
-    "overall_risk",
-    "summary",
-    "actions",
-  ],
-  personnel_certs: [
-    "id",
-    "company_id",
-    "personnel_id",
-    "cert_name",
-    "cert_number",
-    "issue_date",
-    "expiration_date",
-    "approval_status",
-  ],
-} as const;
-
-function pickColumns(row: Record<string, unknown>, columns: readonly string[]) {
-  const out: Record<string, unknown> = {};
-  for (const col of columns) out[col] = row[col] ?? null;
-  return out;
 }
 
 export const submitSignature = createServerFn({ method: "POST" })
