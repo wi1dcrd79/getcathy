@@ -18,6 +18,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as CompanyAdminRouteImport } from './routes/company-admin'
 import { Route as CompanyPortalRouteImport } from './routes/company-portal'
+import { Route as EvidenceReviewRouteImport } from './routes/evidence-review'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as LedgerConflictsRouteImport } from './routes/ledger-conflicts'
 import { Route as PersonnelRouteImport } from './routes/personnel'
@@ -72,6 +73,11 @@ const CompanyAdminRoute = CompanyAdminRouteImport.update({
 const CompanyPortalRoute = CompanyPortalRouteImport.update({
   id: '/company-portal',
   path: '/company-portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvidenceReviewRoute = EvidenceReviewRouteImport.update({
+  id: '/evidence-review',
+  path: '/evidence-review',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImportRoute = ImportRouteImport.update({
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/billing': typeof BillingRoute
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
+  '/evidence-review': typeof EvidenceReviewRoute
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
   '/personnel': typeof PersonnelRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/billing': typeof BillingRoute
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
+  '/evidence-review': typeof EvidenceReviewRoute
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
   '/personnel': typeof PersonnelRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/billing': typeof BillingRoute
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
+  '/evidence-review': typeof EvidenceReviewRoute
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
   '/personnel': typeof PersonnelRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/company-admin'
     | '/company-portal'
+    | '/evidence-review'
     | '/import'
     | '/ledger-conflicts'
     | '/personnel'
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/company-admin'
     | '/company-portal'
+    | '/evidence-review'
     | '/import'
     | '/ledger-conflicts'
     | '/personnel'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/company-admin'
     | '/company-portal'
+    | '/evidence-review'
     | '/import'
     | '/ledger-conflicts'
     | '/personnel'
@@ -266,6 +278,7 @@ export interface RootRouteChildren {
   BillingRoute: typeof BillingRoute
   CompanyAdminRoute: typeof CompanyAdminRoute
   CompanyPortalRoute: typeof CompanyPortalRoute
+  EvidenceReviewRoute: typeof EvidenceReviewRoute
   ImportRoute: typeof ImportRoute
   LedgerConflictsRoute: typeof LedgerConflictsRoute
   PersonnelRoute: typeof PersonnelRoute
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       path: '/company-portal'
       fullPath: '/company-portal'
       preLoaderRoute: typeof CompanyPortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evidence-review': {
+      id: '/evidence-review'
+      path: '/evidence-review'
+      fullPath: '/evidence-review'
+      preLoaderRoute: typeof EvidenceReviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/import': {
@@ -426,6 +446,7 @@ const rootRouteChildren: RootRouteChildren = {
   BillingRoute: BillingRoute,
   CompanyAdminRoute: CompanyAdminRoute,
   CompanyPortalRoute: CompanyPortalRoute,
+  EvidenceReviewRoute: EvidenceReviewRoute,
   ImportRoute: ImportRoute,
   LedgerConflictsRoute: LedgerConflictsRoute,
   PersonnelRoute: PersonnelRoute,

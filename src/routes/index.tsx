@@ -243,6 +243,12 @@ function Dashboard() {
               AI Risk Review
             </Link>
             <Link
+              to="/evidence-review"
+              className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
+            >
+              AI Evidence Review
+            </Link>
+            <Link
               to="/personnel"
               className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
             >
