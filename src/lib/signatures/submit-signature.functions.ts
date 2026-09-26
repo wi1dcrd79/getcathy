@@ -21,6 +21,8 @@ const submitSignatureSchema = z
     inspection_id: z.string().uuid().nullish(),
     cert_verification_id: z.string().uuid().nullish(),
     risk_assessment_id: z.string().uuid().nullish(),
+    incident_report_id: z.string().uuid().nullish(),
+    incident_report_resolution_id: z.string().uuid().nullish(),
     content_sha256: z.string().regex(sha256Regex, "content_sha256 must be a lowercase hex SHA-256"),
     /** Base64 PNG (no data: prefix), capped ~400KB decoded. Uploaded server-side only. */
     signature_png_base64: z
@@ -34,7 +36,7 @@ const submitSignatureSchema = z
   })
   .refine(
     (d) =>
-      [d.audit_binder_id, d.inspection_id, d.cert_verification_id, d.risk_assessment_id].filter(
+      [d.audit_binder_id, d.inspection_id, d.cert_verification_id, d.risk_assessment_id, d.incident_report_id, d.incident_report_resolution_id].filter(
         (v) => v != null,
       ).length === 1,
     { message: "Exactly one signature target must be provided" },
@@ -80,7 +82,7 @@ export const submitSignature = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // 2. Resolve the target record and verify the content hash.
-    let targetColumn: "audit_binder_id" | "inspection_id" | "cert_verification_id" | "risk_assessment_id";
+    let targetColumn: "audit_binder_id" | "inspection_id" | "cert_verification_id" | "risk_assessment_id" | "incident_report_id" | "incident_report_resolution_id";
     let targetId: string;
 
     if (data.audit_binder_id) {
@@ -100,22 +102,50 @@ export const submitSignature = createServerFn({ method: "POST" })
           "Signature content hash does not match the compiled audit binder.",
         );
       }
+    } else if (data.incident_report_resolution_id) {
+      // Resolution signature: incident_report must exist and be "under_investigation"
+      targetColumn = "incident_report_resolution_id";
+      targetId = data.incident_report_resolution_id;
+      const { data: incident, error } = await supabaseAdmin
+        .from("incident_reports")
+        .select("id, company_id, status, resolution_notes")
+        .eq("id", targetId)
+        .single();
+      if (error || !incident || incident.company_id !== data.company_id) {
+        throw new SignatureSubmissionError(400, "Incident report not found in this company.");
+      }
+      if (incident.status !== "under_investigation") {
+        throw new SignatureSubmissionError(400, "Incident must be under investigation to sign resolution.");
+      }
+      // Hash the resolution_notes only for this signature type
+      const columns = ["id", "company_id", "resolution_notes"];
+      const serverHash = await canonicalSha256(pickColumns(incident, columns));
+      if (serverHash !== data.content_sha256) {
+        throw new SignatureSubmissionError(
+          400,
+          "Resolution signature content hash does not match incident resolution notes.",
+        );
+      }
     } else {
       const table =
         data.inspection_id != null
           ? "inspections"
           : data.risk_assessment_id != null
             ? "risk_assessments"
-            : "personnel_certs";
+            : data.incident_report_id != null
+              ? "incident_reports"
+              : "personnel_certs";
       targetColumn =
         data.inspection_id != null
           ? "inspection_id"
           : data.risk_assessment_id != null
             ? "risk_assessment_id"
-            : "cert_verification_id";
-      targetId = (data.inspection_id ?? data.risk_assessment_id ?? data.cert_verification_id)!;
+            : data.incident_report_id != null
+              ? "incident_report_id"
+              : "cert_verification_id";
+      targetId = (data.inspection_id ?? data.risk_assessment_id ?? data.incident_report_id ?? data.cert_verification_id)!;
 
-      const columns = SIGNED_COLUMNS[table];
+      const columns = SIGNED_COLUMNS[table as "inspections" | "risk_assessments" | "incident_reports" | "personnel_certs"];
       const { data: record, error } = await supabaseAdmin
         .from(table)
         .select(columns.join(", "))
@@ -178,6 +208,8 @@ export const submitSignature = createServerFn({ method: "POST" })
         inspection_id: targetColumn === "inspection_id" ? targetId : null,
         cert_verification_id: targetColumn === "cert_verification_id" ? targetId : null,
         risk_assessment_id: targetColumn === "risk_assessment_id" ? targetId : null,
+        incident_report_id: targetColumn === "incident_report_id" ? targetId : null,
+        incident_report_resolution_id: targetColumn === "incident_report_resolution_id" ? targetId : null,
         signer_id: userId,
         signer_role: profile.role, // trigger re-stamps authoritatively
         content_sha256: data.content_sha256,
@@ -197,6 +229,29 @@ export const submitSignature = createServerFn({ method: "POST" })
         throw new SignatureSubmissionError(409, "This record has already been signed.");
       }
       throw new Error(`Failed to record signature: ${insertError.message}`);
+    }
+
+    // 6. For incident resolution signatures, emit safety alert event if critical/high severity.
+    if (targetColumn === "incident_report_resolution_id") {
+      const { data: incident } = await supabaseAdmin
+        .from("incident_reports")
+        .select("severity")
+        .eq("id", targetId)
+        .single();
+      if (incident && ["critical", "high"].includes(incident.severity)) {
+        const { emitEvent } = await import("@/lib/inngest/emit.server");
+        try {
+          await emitEvent("incident.resolved", {
+            company_id: data.company_id,
+            incident_id: targetId,
+            severity: incident.severity as "critical" | "high",
+            resolved_by: userId,
+          });
+        } catch (e) {
+          console.error(`[inngest] Failed to emit incident.resolved event: ${e}`);
+          // Non-fatal: the signature is already recorded
+        }
+      }
     }
 
     return { ok: true as const, signature_id: inserted.id, synced_at: inserted.synced_at };
