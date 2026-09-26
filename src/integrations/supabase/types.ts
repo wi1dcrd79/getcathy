@@ -175,6 +175,77 @@ export type Database = {
           },
         ]
       }
+      audit_binders: {
+        Row: {
+          company_id: string
+          compiled_at: string | null
+          content_sha256: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          pdf_storage_path: string | null
+          status: string
+          title: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          company_id: string
+          compiled_at?: string | null
+          content_sha256?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          pdf_storage_path?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          company_id?: string
+          compiled_at?: string | null
+          content_sha256?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          pdf_storage_path?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_binders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_binders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "audit_binders_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_binders_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cert_notifications: {
         Row: {
           cert_id: string
@@ -1197,6 +1268,117 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "company_compliance_rollups"
             referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      signatures: {
+        Row: {
+          audit_binder_id: string | null
+          cert_verification_id: string | null
+          company_id: string
+          content_sha256: string
+          device_metadata: Json
+          id: string
+          inspection_id: string | null
+          ip_address: unknown
+          offline_created_at: string | null
+          risk_assessment_id: string | null
+          signature_image_path: string | null
+          signed_at: string | null
+          signer_id: string
+          signer_role: string
+          synced_at: string
+        }
+        Insert: {
+          audit_binder_id?: string | null
+          cert_verification_id?: string | null
+          company_id: string
+          content_sha256: string
+          device_metadata?: Json
+          id?: string
+          inspection_id?: string | null
+          ip_address?: unknown
+          offline_created_at?: string | null
+          risk_assessment_id?: string | null
+          signature_image_path?: string | null
+          signed_at?: string | null
+          signer_id: string
+          signer_role: string
+          synced_at?: string
+        }
+        Update: {
+          audit_binder_id?: string | null
+          cert_verification_id?: string | null
+          company_id?: string
+          content_sha256?: string
+          device_metadata?: Json
+          id?: string
+          inspection_id?: string | null
+          ip_address?: unknown
+          offline_created_at?: string | null
+          risk_assessment_id?: string | null
+          signature_image_path?: string | null
+          signed_at?: string | null
+          signer_id?: string
+          signer_role?: string
+          synced_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signatures_audit_binder_id_fkey"
+            columns: ["audit_binder_id"]
+            isOneToOne: true
+            referencedRelation: "audit_binders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signatures_cert_verification_id_fkey"
+            columns: ["cert_verification_id"]
+            isOneToOne: true
+            referencedRelation: "personnel_certs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signatures_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signatures_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "signatures_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: true
+            referencedRelation: "inspections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signatures_risk_assessment_id_fkey"
+            columns: ["risk_assessment_id"]
+            isOneToOne: true
+            referencedRelation: "risk_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signatures_signer_id_fkey"
+            columns: ["signer_id"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signatures_signer_id_fkey"
+            columns: ["signer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
