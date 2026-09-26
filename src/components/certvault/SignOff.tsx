@@ -4,16 +4,14 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { SignaturePad } from "./SignaturePad";
+import { SignatureVerification, type SignatureVerificationRow } from "./SignatureVerification";
 import { signRecord } from "@/lib/signatures/sign-record";
 import { canSign, type SignableTable } from "@/lib/signatures/signed-fields";
 
-interface SignatureRow {
+interface SignatureRow extends SignatureVerificationRow {
   inspection_id: string | null;
   risk_assessment_id: string | null;
   cert_verification_id: string | null;
-  signer_role: string;
-  signed_at: string | null;
-  synced_at: string;
 }
 
 const COLUMN: Record<SignableTable, keyof SignatureRow> = {
@@ -28,7 +26,7 @@ export function useCompanySignatures() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("signatures")
-        .select("inspection_id, risk_assessment_id, cert_verification_id, signer_role, signed_at, synced_at");
+        .select("inspection_id, risk_assessment_id, cert_verification_id, signer_id, signer_role, signed_at, offline_created_at, synced_at, content_sha256");
       if (error) throw error;
       return (data ?? []) as SignatureRow[];
     },
