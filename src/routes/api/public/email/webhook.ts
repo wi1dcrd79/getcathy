@@ -230,6 +230,9 @@ export const Route = createFileRoute('/api/public/email/webhook')({
             case 'email.delivery_delayed':
               await handleDeliveryDelayed(supabase, event);
               break;
+            case 'email.failed':
+              await handleFailed(supabase, event);
+              break;
             default:
               console.log(`[resend-webhook] unhandled event: ${event.type}`);
           }
