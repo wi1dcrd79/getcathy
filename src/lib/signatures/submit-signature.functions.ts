@@ -191,7 +191,10 @@ export const submitSignature = createServerFn({ method: "POST" })
       .from("signatures")
       .insert({
         company_id: data.company_id,
-        [targetColumn]: targetId,
+        audit_binder_id: targetColumn === "audit_binder_id" ? targetId : null,
+        inspection_id: targetColumn === "inspection_id" ? targetId : null,
+        cert_verification_id: targetColumn === "cert_verification_id" ? targetId : null,
+        risk_assessment_id: targetColumn === "risk_assessment_id" ? targetId : null,
         signer_id: userId,
         signer_role: profile.role, // trigger re-stamps authoritatively
         content_sha256: data.content_sha256,
