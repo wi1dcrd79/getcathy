@@ -28,16 +28,16 @@ async function adminClient() {
  * Svix signature verification (Resend signs its webhooks with Svix).
  * signedContent = `${svix-id}.${svix-timestamp}.${rawBody}`;
  * signature = base64(HMAC-SHA256(base64(secret without "whsec_" prefix), signedContent)).
- * Returns true when the secret is unset (dev/test) or the signature matches.
+ * Fail-closed: an unconfigured secret rejects the request — the endpoint never
+ * accepts unsigned traffic.
  */
 function verifySvixSignature(
   rawBody: string,
   headers: Headers,
   secret: string | undefined,
 ): { ok: boolean; reason?: string } {
-  if (!secret) {
-    console.warn('[resend-webhook] RESEND_WEBHOOK_SECRET is not configured — skipping signature verification');
-    return { ok: true };
+  if (!secret || secret.trim() === '') {
+    return { ok: false, reason: 'RESEND_WEBHOOK_SECRET is not configured' };
   }
 
   const id = headers.get('svix-id');
