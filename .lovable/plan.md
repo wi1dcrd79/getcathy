@@ -17,7 +17,7 @@ Build the field-facing signing experience on top of the verified `submitSignatur
 
 1. **Hash at capture time** — when you tap Sign, the app snapshots the record's signed fields and computes the RFC 8785 canonical hash with the shared `canonicalize.ts` module — the same algorithm the server uses to verify.
 2. **Queue when offline** — signature image + payload go into an IndexedDB outbox (`cathy.signature-outbox.v1`), following the existing transfer-queue pattern. An online listener flushes it in order.
-3. **Submit when online** — the signature image is uploaded to private storage under the company folder, then `submitSignature` is called. Server re-verifies role, tenant, and hash before writing.
+3. **Submit when online** — `submitSignature` receives the image plus payload, re-verifies role, tenant, and hash, then stores the image in a dedicated locked-down bucket and writes the signature row.
 4. **Outcome handling** — success marks the record signed; 409 (already signed) and 400 (record changed) surface as clear messages and remove the item from the queue; network failures stay queued for retry.
 
 ## Technical details
