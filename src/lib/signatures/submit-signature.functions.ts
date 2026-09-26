@@ -99,6 +99,7 @@ export const submitSignature = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => submitSignatureSchema.parse(data))
   .handler(async ({ data, context }) => {
+  try {
     const { supabase, userId } = context;
 
     // 1. Verify the caller's profile, tenant alignment, and authorized role.
