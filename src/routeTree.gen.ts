@@ -25,6 +25,7 @@ import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ApiInngestRouteImport } from './routes/api/inngest'
+import { Route as ApiPublicEmailWebhookRouteImport } from './routes/api/public/email/webhook'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -107,6 +108,11 @@ const ApiInngestRoute = ApiInngestRouteImport.update({
   path: '/api/inngest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicEmailWebhookRoute = ApiPublicEmailWebhookRouteImport.update({
+  id: '/api/public/email/webhook',
+  path: '/api/public/email/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
   '/api/inngest': typeof ApiInngestRoute
+  '/api/public/email/webhook': typeof ApiPublicEmailWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
   '/api/inngest': typeof ApiInngestRoute
+  '/api/public/email/webhook': typeof ApiPublicEmailWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
   '/api/inngest': typeof ApiInngestRoute
+  '/api/public/email/webhook': typeof ApiPublicEmailWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/terms'
     | '/api/inngest'
+    | '/api/public/email/webhook'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/terms'
     | '/api/inngest'
+    | '/api/public/email/webhook'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/terms'
     | '/api/inngest'
+    | '/api/public/email/webhook'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -249,6 +261,7 @@ export interface RootRouteChildren {
   SuperAdminRoute: typeof SuperAdminRoute
   TermsRoute: typeof TermsRoute
   ApiInngestRoute: typeof ApiInngestRoute
+  ApiPublicEmailWebhookRoute: typeof ApiPublicEmailWebhookRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -366,6 +379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInngestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/email/webhook': {
+      id: '/api/public/email/webhook'
+      path: '/api/public/email/webhook'
+      fullPath: '/api/public/email/webhook'
+      preLoaderRoute: typeof ApiPublicEmailWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -393,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperAdminRoute: SuperAdminRoute,
   TermsRoute: TermsRoute,
   ApiInngestRoute: ApiInngestRoute,
+  ApiPublicEmailWebhookRoute: ApiPublicEmailWebhookRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
