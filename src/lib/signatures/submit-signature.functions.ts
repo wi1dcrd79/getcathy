@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 import { canonicalSha256 } from "./canonicalize";
+import { SIGNED_COLUMNS, pickSignedColumns as pickColumns } from "./signed-fields";
 
 const AUTHORIZED_SIGNER_ROLES = [
   "company_admin",
@@ -21,7 +22,12 @@ const submitSignatureSchema = z
     cert_verification_id: z.string().uuid().nullish(),
     risk_assessment_id: z.string().uuid().nullish(),
     content_sha256: z.string().regex(sha256Regex, "content_sha256 must be a lowercase hex SHA-256"),
-    signature_image_path: z.string().nullish(),
+    /** Base64 PNG (no data: prefix), capped ~400KB decoded. Uploaded server-side only. */
+    signature_png_base64: z
+      .string()
+      .max(560_000, "Signature image too large")
+      .regex(/^[A-Za-z0-9+/=]+$/, "Invalid base64")
+      .nullish(),
     offline_created_at: z.string().nullish(),
     signed_at: z.string().nullish(),
     device_metadata: z.record(z.string(), z.unknown()).default({}),
@@ -44,56 +50,11 @@ export class SignatureSubmissionError extends Error {
   }
 }
 
-/**
- * Columns that define the signed content of each record type. The server
- * recomputes the RFC 8785 canonical hash over these fields and requires it to
- * match the client-supplied content_sha256.
- */
-const SIGNED_COLUMNS = {
-  inspections: [
-    "id",
-    "asset_id",
-    "inspector_name",
-    "inspection_date",
-    "expiration_date",
-    "result",
-    "notes",
-    "inspection_type",
-    "company_id",
-  ],
-  risk_assessments: [
-    "id",
-    "company_id",
-    "created_by",
-    "asset_tag",
-    "notes",
-    "photo_count",
-    "overall_risk",
-    "summary",
-    "actions",
-  ],
-  personnel_certs: [
-    "id",
-    "company_id",
-    "personnel_id",
-    "cert_name",
-    "cert_number",
-    "issue_date",
-    "expiration_date",
-    "approval_status",
-  ],
-} as const;
-
-function pickColumns(row: Record<string, unknown>, columns: readonly string[]) {
-  const out: Record<string, unknown> = {};
-  for (const col of columns) out[col] = row[col] ?? null;
-  return out;
-}
-
 export const submitSignature = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => submitSignatureSchema.parse(data))
   .handler(async ({ data, context }) => {
+  try {
     const { supabase, userId } = context;
 
     // 1. Verify the caller's profile, tenant alignment, and authorized role.
@@ -186,10 +147,32 @@ export const submitSignature = createServerFn({ method: "POST" })
       throw new SignatureSubmissionError(409, "This record has already been signed.");
     }
 
-    // 4. Insert via the service role (direct client INSERT is revoked).
+    // 4. Store the signature image server-side (no client write access to the bucket).
+    const signatureId = crypto.randomUUID();
+    let imagePath: string | null = null;
+    const deviceMetadata: Record<string, unknown> = { ...data.device_metadata };
+    if (data.signature_png_base64) {
+      const bytes = Uint8Array.from(atob(data.signature_png_base64), (c) => c.charCodeAt(0));
+      const isPng =
+        bytes.length > 8 &&
+        bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
+      if (!isPng) throw new SignatureSubmissionError(400, "Signature image must be a PNG.");
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      deviceMetadata["image_sha256"] = Array.from(new Uint8Array(digest))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      imagePath = `${data.company_id}/${signatureId}.png`;
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from("signatures")
+        .upload(imagePath, bytes, { contentType: "image/png", upsert: false });
+      if (uploadError) throw new Error(`Failed to store signature image: ${uploadError.message}`);
+    }
+
+    // 5. Insert via the service role (direct client INSERT is revoked).
     const { data: inserted, error: insertError } = await supabaseAdmin
       .from("signatures")
       .insert({
+        id: signatureId,
         company_id: data.company_id,
         audit_binder_id: targetColumn === "audit_binder_id" ? targetId : null,
         inspection_id: targetColumn === "inspection_id" ? targetId : null,
@@ -198,15 +181,17 @@ export const submitSignature = createServerFn({ method: "POST" })
         signer_id: userId,
         signer_role: profile.role, // trigger re-stamps authoritatively
         content_sha256: data.content_sha256,
-        signature_image_path: data.signature_image_path ?? null,
+        signature_image_path: imagePath,
         offline_created_at: data.offline_created_at ?? null,
         signed_at: data.signed_at ?? null,
-        device_metadata: data.device_metadata as Json,
+        device_metadata: deviceMetadata as Json,
       })
       .select("id, synced_at")
       .single();
 
     if (insertError) {
+      // Orphaned image cleanup — the row never landed.
+      if (imagePath) await supabaseAdmin.storage.from("signatures").remove([imagePath]);
       // Unique-violation race: another signer won between the check and insert.
       if (insertError.code === "23505") {
         throw new SignatureSubmissionError(409, "This record has already been signed.");
@@ -215,4 +200,10 @@ export const submitSignature = createServerFn({ method: "POST" })
     }
 
     return { ok: true as const, signature_id: inserted.id, synced_at: inserted.synced_at };
+  } catch (e) {
+    if (e instanceof SignatureSubmissionError) {
+      return { ok: false as const, status: e.status, message: e.message };
+    }
+    throw e;
+  }
   });

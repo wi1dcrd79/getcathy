@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { SignOff } from "@/components/certvault/SignOff";
 import { analyzeRisk, type RiskAction, type RiskResult } from "@/lib/risk-analysis.functions";
 
 export const Route = createFileRoute("/risk-analysis")({
@@ -108,7 +109,7 @@ function RiskAnalysis() {
     queryFn: async (): Promise<SavedRow[]> => {
       const { data, error } = await supabase
         .from("risk_assessments")
-        .select("id, asset_tag, overall_risk, summary, actions, photo_count, created_at")
+        .select("id, company_id, created_by, notes, asset_tag, overall_risk, summary, actions, photo_count, created_at")
         .order("created_at", { ascending: false })
         .limit(20);
       if (error) throw new Error(error.message);
@@ -347,6 +348,13 @@ function RiskAnalysis() {
                   {(row.actions ?? []).length} corrective action
                   {(row.actions ?? []).length === 1 ? "" : "s"}
                 </p>
+                <div className="mt-2">
+                  <SignOff
+                    table="risk_assessments"
+                    row={row as unknown as Record<string, unknown>}
+                    label={`Risk review ${row.asset_tag || "unassigned"}`}
+                  />
+                </div>
               </li>
             ))}
           </ul>

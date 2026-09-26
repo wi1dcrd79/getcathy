@@ -37,7 +37,8 @@
 - [x] Parent immutability freezes (binders, inspections, risk assessments, personnel certs)
 - [x] Option 1 lockdown: direct client INSERT revoked; inserts only via verified server function
 - [x] submitSignature server fn with RFC 8785 canonical hash verification (400/403/409 semantics)
-- [ ] Signature capture UI (canvas pad >=48px) + offline signature queue
+- [x] Signature capture UI (canvas pad >=48px) + offline signature queue (inspections, certs, risk reviews)
+- [x] Dedicated private `signatures` bucket; images written server-side only, no client write policies
 - [ ] Binder compile pipeline (PDF generation + content_sha256 stamping)
 
 ## Track 4 — Offline asset ledger & conflict detection
