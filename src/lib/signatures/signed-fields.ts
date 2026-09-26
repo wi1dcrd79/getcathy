@@ -38,6 +38,15 @@ export const SIGNED_COLUMNS = {
     "expiration_date",
     "approval_status",
   ],
+  incident_reports: [
+    "id",
+    "company_id",
+    "incident_type",
+    "severity",
+    "description",
+    "occurred_at",
+    "reported_by",
+  ],
 } as const;
 
 export type SignableTable = keyof typeof SIGNED_COLUMNS;
