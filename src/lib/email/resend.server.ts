@@ -1,4 +1,4 @@
-const RESEND_URL = "https://api.resend.com/emails";
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 const DEFAULT_FROM = "C.A.T.H.Y. Certs <certs@notifications.getcathy.app>";
 
 export async function sendCertEmail(input: {
@@ -6,13 +6,20 @@ export async function sendCertEmail(input: {
   subject: string;
   html: string;
 }): Promise<{ id: string }> {
-  const apiKey = process.env["RESEND_API_KEY"];
-  if (!apiKey) throw new Error("RESEND_API_KEY is not configured");
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  const connectionKey = process.env["RESEND_API_KEY"];
+  if (!lovableKey || !connectionKey) {
+    throw new Error("Resend connector is not linked to this project");
+  }
   const from = process.env["RESEND_FROM_EMAIL"] || DEFAULT_FROM;
 
-  const res = await fetch(RESEND_URL, {
+  const res = await fetch(`${GATEWAY_URL}/emails`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${lovableKey}`,
+      "X-Connection-Api-Key": connectionKey,
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ from, to: [input.to], subject: input.subject, html: input.html }),
   });
   if (!res.ok) {
