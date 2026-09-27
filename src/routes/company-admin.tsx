@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { planFor } from "@/lib/plans";
+import { useServerFn } from "@tanstack/react-start";
+import { createCrewMember, CREW_ROLES } from "@/lib/crew.functions";
 
 export const Route = createFileRoute("/company-admin")({
   head: () => ({
@@ -31,10 +33,69 @@ const ASSIGNABLE_ROLES = [
   { value: "company_admin", label: "Company Admin" },
   { value: "safety_director", label: "Safety Director" },
   { value: "qc_inspector", label: "QC Inspector" },
+  { value: "field_supervisor", label: "Field Supervisor" },
   { value: "operator", label: "Operator" },
   { value: "field_tech", label: "Field Tech" },
+  { value: "craftsman", label: "Craftsman" },
   { value: "viewer", label: "Viewer" },
 ];
+
+function AddCrew({ onDone }: { onDone: () => void }) {
+  const run = useServerFn(createCrewMember);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const input = "min-h-[48px] rounded-md border border-border bg-input px-3 text-sm text-foreground";
+  return (
+    <form
+      className="mt-4 grid gap-2 rounded-md border border-dashed border-border p-3 sm:grid-cols-[1fr_1fr_auto_auto]"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+        const fd = new FormData(form);
+        setBusy(true);
+        setMsg(null);
+        try {
+          const r = await run({
+            data: {
+              email: String(fd.get("email") ?? ""),
+              password: String(fd.get("password") ?? ""),
+              role: String(fd.get("role")) as (typeof CREW_ROLES)[number],
+            },
+          });
+          if (r.ok) {
+            setMsg({ ok: true, text: "Crew member added. Share the temporary password with them." });
+            form.reset();
+            onDone();
+          } else setMsg({ ok: false, text: r.message });
+        } catch {
+          setMsg({ ok: false, text: "Check the email and use a password of at least 10 characters." });
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground sm:col-span-4">Add crew member</p>
+      <input name="email" type="email" required placeholder="Work email" className={input} />
+      <input name="password" type="text" required minLength={10} placeholder="Temporary password" className={input} />
+      <select name="role" defaultValue="field_tech" className={input}>
+        {ASSIGNABLE_ROLES.map((r) => (
+          <option key={r.value} value={r.value}>
+            {r.label}
+          </option>
+        ))}
+      </select>
+      <button
+        disabled={busy}
+        className="min-h-[48px] rounded-md bg-primary px-4 text-[11px] font-bold uppercase tracking-widest text-primary-foreground disabled:opacity-50"
+      >
+        {busy ? "Adding…" : "Add"}
+      </button>
+      {msg && (
+        <p className={`text-sm sm:col-span-4 ${msg.ok ? "text-success" : "text-destructive"}`}>{msg.text}</p>
+      )}
+    </form>
+  );
+}
 
 interface TeamMember {
   id: string;
@@ -261,8 +322,9 @@ function CompanyAdmin() {
             )}
           </ul>
           {setRole.error && <p className="mt-2 text-sm text-destructive">Could not change that role.</p>}
+          <AddCrew onDone={() => qc.invalidateQueries({ queryKey: ["company-team", companyId] })} />
           <p className="mt-3 text-xs text-muted-foreground">
-            Crew join by signing up with their work email; you assign their role here. You cannot change your own role.
+            Only company admins can add crew or change roles. You cannot change your own role.
           </p>
         </section>
 
