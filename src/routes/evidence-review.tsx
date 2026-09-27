@@ -127,8 +127,8 @@ function EvidenceReview() {
         const rows = (sigs ?? []).filter((s) => s[col]);
         if (!rows.length) continue;
         const ids = rows.map((s) => s[col] as string);
-        const { data: recs } = await supabase
-          .from(table)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: recs } = await (supabase.from(table as any) as any)
           .select(SIGNED_COLUMNS[table].join(", "))
           .eq("company_id", companyId!) // explicit tenant filter; RLS also enforces this
           .in("id", ids);
