@@ -16,6 +16,7 @@ interface SignatureRow extends SignatureVerificationRow {
 }
 
 const COLUMN: Record<SignableTable, keyof SignatureRow> = {
+  incident_reports: "incident_report_id" as keyof SignatureRow,
   inspections: "inspection_id",
   risk_assessments: "risk_assessment_id",
   personnel_certs: "cert_verification_id",

@@ -7,6 +7,7 @@ import { hashRecord, pickSignedColumns, SIGNED_COLUMNS, type SignableTable } fro
 import { getSignerIdentity } from "@/lib/signatures/submit-signature.functions";
 
 const TABLE_LABEL: Record<SignableTable, string> = {
+  incident_reports: "Incident report",
   inspections: "Inspection",
   risk_assessments: "Risk assessment",
   personnel_certs: "Personnel certification",

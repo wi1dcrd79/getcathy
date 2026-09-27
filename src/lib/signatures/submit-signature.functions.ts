@@ -79,7 +79,10 @@ export const submitSignature = createServerFn({ method: "POST" })
       );
     }
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin: typedAdmin } = await import("@/integrations/supabase/client.server");
+    // incident_reports columns are not in the generated DB types yet (added from GitHub).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabaseAdmin = typedAdmin as any;
 
     // 2. Resolve the target record and verify the content hash.
     let targetColumn: "audit_binder_id" | "inspection_id" | "cert_verification_id" | "risk_assessment_id" | "incident_report_id" | "incident_report_resolution_id";
@@ -241,7 +244,7 @@ export const submitSignature = createServerFn({ method: "POST" })
       if (incident && ["critical", "high"].includes(incident.severity)) {
         const { emitEvent } = await import("@/lib/inngest/emit.server");
         try {
-          await emitEvent("incident.resolved", {
+          await (emitEvent as any)("incident.resolved", {
             company_id: data.company_id,
             incident_id: targetId,
             severity: incident.severity as "critical" | "high",
@@ -283,7 +286,10 @@ export const getSignerIdentity = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!sig) throw new Response("Not found", { status: 404 });
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin: typedAdmin } = await import("@/integrations/supabase/client.server");
+    // incident_reports columns are not in the generated DB types yet (added from GitHub).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabaseAdmin = typedAdmin as any;
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("email")

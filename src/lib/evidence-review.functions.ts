@@ -8,6 +8,7 @@ import { SIGNED_COLUMNS, pickSignedColumns, type SignableTable } from "./signatu
 const REVIEWER_ROLES = ["company_admin", "safety_director", "qc_inspector"];
 
 const TARGET_COL: Record<SignableTable, "inspection_id" | "cert_verification_id" | "risk_assessment_id"> = {
+  incident_reports: "incident_report_id" as "inspection_id",
   inspections: "inspection_id",
   personnel_certs: "cert_verification_id",
   risk_assessments: "risk_assessment_id",
