@@ -207,12 +207,9 @@ export const submitSignature = createServerFn({ method: "POST" })
       .insert({
         id: signatureId,
         company_id: data.company_id,
-        audit_binder_id: targetColumn === "audit_binder_id" ? targetId : null,
-        inspection_id: targetColumn === "inspection_id" ? targetId : null,
-        cert_verification_id: targetColumn === "cert_verification_id" ? targetId : null,
-        risk_assessment_id: targetColumn === "risk_assessment_id" ? targetId : null,
-        incident_report_id: targetColumn === "incident_report_id" ? targetId : null,
-        incident_report_resolution_id: targetColumn === "incident_report_resolution_id" ? targetId : null,
+        // Only the target column is sent: incident report columns aren't in the DB yet,
+        // and sending them (even as null) makes the insert fail.
+        [targetColumn]: targetId,
         signer_id: userId,
         signer_role: profile.role, // trigger re-stamps authoritatively
         content_sha256: data.content_sha256,
