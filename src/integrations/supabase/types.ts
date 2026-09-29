@@ -188,7 +188,7 @@ export type Database = {
           tool_name: string
         }
         Insert: {
-          approving_user_id: string
+          approving_user_id?: string
           assistant_id: string
           company_id?: string | null
           created_at?: string
@@ -1811,16 +1811,6 @@ export type Database = {
           supervisor_email: string
           welder_email: string
         }[]
-      }
-      log_assistant_action: {
-        Args: {
-          p_assistant_id: string
-          p_detail?: string
-          p_input: Json
-          p_result: string
-          p_tool: string
-        }
-        Returns: undefined
       }
       replay_notification_failure: {
         Args: { p_failure_id: string }
