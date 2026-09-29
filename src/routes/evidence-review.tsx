@@ -377,6 +377,21 @@ function EvidenceReview() {
         </section>
       )}
 
+      {result && (
+        <section className="rounded-md border border-border bg-card p-3">
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Records compared · Yard Map status</h2>
+          <ul className="mt-2 space-y-1 text-sm">
+            {(signed.data ?? [])
+              .filter((o) => picked.has(o.key))
+              .map((o) => (
+                <li key={o.key} className="flex flex-wrap items-center justify-between gap-2">
+                  <span>{o.label}</span>
+                  <YardChip s={o.yard} />
+                </li>
+              ))}
+          </ul>
+        </section>
+      )}
       {result && <ResultView title={title} r={result} />}
 
       <section className="space-y-3">
