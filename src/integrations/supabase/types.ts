@@ -175,6 +175,90 @@ export type Database = {
           },
         ]
       }
+      assistant_actions: {
+        Row: {
+          approving_user_id: string
+          assistant_id: string
+          company_id: string | null
+          created_at: string
+          detail: string | null
+          id: string
+          input: Json
+          result: string
+          tool_name: string
+        }
+        Insert: {
+          approving_user_id?: string
+          assistant_id: string
+          company_id?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          input?: Json
+          result: string
+          tool_name: string
+        }
+        Update: {
+          approving_user_id?: string
+          assistant_id?: string
+          company_id?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          input?: Json
+          result?: string
+          tool_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assistant_actions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assistant_actions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      assistant_grants: {
+        Row: {
+          client_id: string
+          client_name: string | null
+          created_at: string
+          granted_at: string
+          id: string
+          revoked_at: string | null
+          scope: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          client_name?: string | null
+          created_at?: string
+          granted_at?: string
+          id?: string
+          revoked_at?: string | null
+          scope: string
+          user_id?: string
+        }
+        Update: {
+          client_id?: string
+          client_name?: string | null
+          created_at?: string
+          granted_at?: string
+          id?: string
+          revoked_at?: string | null
+          scope?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_binders: {
         Row: {
           company_id: string
@@ -727,6 +811,7 @@ export type Database = {
           notes: string | null
           owner_id: string | null
           result: Database["public"]["Enums"]["inspection_result"]
+          status: string
         }
         Insert: {
           asset_id: string
@@ -741,6 +826,7 @@ export type Database = {
           notes?: string | null
           owner_id?: string | null
           result?: Database["public"]["Enums"]["inspection_result"]
+          status?: string
         }
         Update: {
           asset_id?: string
@@ -755,6 +841,7 @@ export type Database = {
           notes?: string | null
           owner_id?: string | null
           result?: Database["public"]["Enums"]["inspection_result"]
+          status?: string
         }
         Relationships: [
           {

@@ -29,7 +29,7 @@ export const compileAuditBinder = createServerFn({ method: "POST" })
       supabase
         .from("inspections")
         .select("id, asset_id, inspection_type, inspection_date, expiration_date, result")
-        .eq("company_id", cid)
+        .eq("company_id", cid).eq("status" as never, "final" as never)
         .order("inspection_date", { ascending: false }),
       supabase
         .from("personnel_certs")
