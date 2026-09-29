@@ -249,6 +249,12 @@ function Dashboard() {
               AI Evidence Review
             </Link>
             <Link
+              to="/yard"
+              className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
+            >
+              Yard Map
+            </Link>
+            <Link
               to="/personnel"
               className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
             >
