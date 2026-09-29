@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { SignOff } from "@/components/certvault/SignOff";
+import { BinderApproval } from "@/components/certvault/BinderApproval";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchAssets, fetchWelders } from "@/lib/certvault-data";
@@ -73,6 +74,7 @@ function AuditBinder() {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-6">
+        <BinderApproval />
         <div className="watermark" aria-hidden="true">
           {BRAND_DIVISION}
         </div>
