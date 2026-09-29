@@ -105,7 +105,7 @@ function YardPage() {
         supabase
           .from("inspections")
           .select("asset_id, inspection_date, expiration_date, result")
-          .eq("company_id", companyId!)
+          .eq("company_id", companyId!).eq("status" as never, "final" as never)
           .order("inspection_date", { ascending: false }),
         supabase
           .from("corrective_actions")

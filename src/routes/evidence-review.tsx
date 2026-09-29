@@ -169,7 +169,7 @@ function EvidenceReview() {
           supabase
             .from("inspections")
             .select("asset_id, result, expiration_date")
-            .eq("company_id", companyId!)
+            .eq("company_id", companyId!).eq("status" as never, "final" as never)
             .in("asset_id", assetIds)
             .order("inspection_date", { ascending: false }),
         ]);
