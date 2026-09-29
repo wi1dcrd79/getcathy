@@ -93,11 +93,14 @@ export const submitSignature = createServerFn({ method: "POST" })
       targetId = data.audit_binder_id;
       const { data: binder, error } = await supabaseAdmin
         .from("audit_binders")
-        .select("id, company_id, content_sha256")
+        .select("id, company_id, content_sha256, status")
         .eq("id", targetId)
         .single();
       if (error || !binder || binder.company_id !== data.company_id) {
         throw new SignatureSubmissionError(400, "Audit binder not found in this company.");
+      }
+      if (binder.status !== "compiled") {
+        throw new SignatureSubmissionError(409, `This binder is ${binder.status} and can't be signed.`);
       }
       if (!binder.content_sha256 || binder.content_sha256 !== data.content_sha256) {
         throw new SignatureSubmissionError(
