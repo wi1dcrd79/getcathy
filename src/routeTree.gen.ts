@@ -27,6 +27,7 @@ import { Route as RiskAnalysisRouteImport } from './routes/risk-analysis'
 import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as YardRouteImport } from './routes/yard'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as ApiInngestRouteImport } from './routes/api/inngest'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -123,6 +124,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const YardRoute = YardRouteImport.update({
+  id: '/yard',
+  path: '/yard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
   Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
     id: '/.well-known/oauth-protected-resource',
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
+  '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/inngest': typeof ApiInngestRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -195,6 +202,7 @@ export interface FileRoutesByTo {
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
+  '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/inngest': typeof ApiInngestRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -221,6 +229,7 @@ export interface FileRoutesById {
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
+  '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/inngest': typeof ApiInngestRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -248,6 +257,7 @@ export interface FileRouteTypes {
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
+    | '/yard'
     | '/.well-known/oauth-protected-resource'
     | '/api/inngest'
     | '/.lovable/oauth/consent'
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
+    | '/yard'
     | '/.well-known/oauth-protected-resource'
     | '/api/inngest'
     | '/.lovable/oauth/consent'
@@ -298,6 +309,7 @@ export interface FileRouteTypes {
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
+    | '/yard'
     | '/.well-known/oauth-protected-resource'
     | '/api/inngest'
     | '/.lovable/oauth/consent'
@@ -324,6 +336,7 @@ export interface RootRouteChildren {
   ScanTransferRoute: typeof ScanTransferRoute
   SuperAdminRoute: typeof SuperAdminRoute
   TermsRoute: typeof TermsRoute
+  YardRoute: typeof YardRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiInngestRoute: typeof ApiInngestRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -459,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/yard': {
+      id: '/yard'
+      path: '/yard'
+      fullPath: '/yard'
+      preLoaderRoute: typeof YardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.well-known/oauth-protected-resource': {
       id: '/.well-known/oauth-protected-resource'
       path: '/.well-known/oauth-protected-resource'
@@ -516,6 +536,7 @@ const rootRouteChildren: RootRouteChildren = {
   ScanTransferRoute: ScanTransferRoute,
   SuperAdminRoute: SuperAdminRoute,
   TermsRoute: TermsRoute,
+  YardRoute: YardRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiInngestRoute: ApiInngestRoute,
