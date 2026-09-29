@@ -50,6 +50,21 @@ interface SignedOption {
   id: string;
   label: string;
   signedAt: string;
+  assetId?: string | undefined;
+  yard?: string | undefined;
+}
+
+function YardChip({ s }: { s?: string | undefined }) {
+  if (!s) return null;
+  const c =
+    s === "Active"
+      ? "border-success/40 text-success"
+      : s === "Expired"
+        ? "border-warning/40 text-warning"
+        : s === "Out of compliance"
+          ? "border-destructive/40 text-destructive"
+          : "border-border text-muted-foreground";
+  return <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${c}`}>{s}</span>;
 }
 interface SavedReview {
   id: string;
@@ -142,7 +157,33 @@ function EvidenceReview() {
             id: s[col] as string,
             label: recordLabel(table, rec),
             signedAt: s.synced_at,
+            assetId: table === "inspections" ? (rec["asset_id"] as string) : undefined,
           });
+        }
+      }
+      // Yard Map status for inspected equipment, shown next to each record.
+      const assetIds = [...new Set(out.map((o) => o.assetId).filter(Boolean))] as string[];
+      if (assetIds.length) {
+        const [a, i] = await Promise.all([
+          supabase.from("assets").select("id, status").eq("company_id", companyId!).in("id", assetIds),
+          supabase
+            .from("inspections")
+            .select("asset_id, result, expiration_date")
+            .eq("company_id", companyId!)
+            .in("asset_id", assetIds)
+            .order("inspection_date", { ascending: false }),
+        ]);
+        const latest = new Map<string, { result: string; expiration_date: string }>();
+        for (const x of i.data ?? []) if (!latest.has(x.asset_id)) latest.set(x.asset_id, x);
+        const status = new Map((a.data ?? []).map((x) => [x.id, x.status]));
+        const today = new Date().toISOString().slice(0, 10);
+        for (const o of out) {
+          if (!o.assetId) continue;
+          const s = status.get(o.assetId);
+          const l = latest.get(o.assetId);
+          if (s === "out_of_compliance") o.yard = l && l.result !== "Fail" && l.expiration_date < today ? "Expired" : "Out of compliance";
+          else if (s && /^(active|available|in_service)$/i.test(s)) o.yard = "Active";
+          else if (s) o.yard = s.replace(/_/g, " ");
         }
       }
       return out.sort((a, b) => b.signedAt.localeCompare(a.signedAt));
@@ -292,6 +333,7 @@ function EvidenceReview() {
                 <label key={o.key} className="flex min-h-12 cursor-pointer items-center gap-3 border-b border-border px-3 text-sm last:border-b-0 hover:bg-muted">
                   <input type="checkbox" className="h-5 w-5" checked={picked.has(o.key)} onChange={() => toggle(o.key)} />
                   <span className="flex-1">{o.label}</span>
+                  <YardChip s={o.yard} />
                   <span className="text-xs text-muted-foreground">{new Date(o.signedAt).toLocaleDateString()}</span>
                 </label>
               ))}
@@ -335,6 +377,21 @@ function EvidenceReview() {
         </section>
       )}
 
+      {result && (
+        <section className="rounded-md border border-border bg-card p-3">
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Records compared · Yard Map status</h2>
+          <ul className="mt-2 space-y-1 text-sm">
+            {(signed.data ?? [])
+              .filter((o) => picked.has(o.key))
+              .map((o) => (
+                <li key={o.key} className="flex flex-wrap items-center justify-between gap-2">
+                  <span>{o.label}</span>
+                  <YardChip s={o.yard} />
+                </li>
+              ))}
+          </ul>
+        </section>
+      )}
       {result && <ResultView title={title} r={result} />}
 
       <section className="space-y-3">

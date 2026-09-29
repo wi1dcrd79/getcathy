@@ -109,7 +109,7 @@ function YardPage() {
           .order("inspection_date", { ascending: false }),
         supabase
           .from("corrective_actions")
-          .select("asset_id, status")
+          .select("id, asset_id, status, description, due_date, assigned_to, priority")
           .eq("company_id", companyId!)
           .in("status", ["open", "in_progress"]),
         supabase
@@ -132,7 +132,10 @@ function YardPage() {
           openActions: acts.get(x.id) ?? 0,
         };
       });
-      return { rows, moves: (m.data ?? []) as Move[] };
+      const mine = (c.data ?? []).filter(
+        (x) => x.assigned_to === session!.user.id && x.description.startsWith("Re-inspection required"),
+      );
+      return { rows, moves: (m.data ?? []) as Move[], mine };
     },
   });
 
@@ -198,6 +201,21 @@ function YardPage() {
 
         {q.data && (
           <>
+            {q.data.mine.length > 0 && (
+              <section className="panel border-destructive/50 p-4">
+                <h2 className="text-[11px] font-bold uppercase tracking-widest text-destructive">
+                  Re-inspections assigned to you ({q.data.mine.length})
+                </h2>
+                <ul className="mt-2 space-y-1 text-sm">
+                  {q.data.mine.map((x) => (
+                    <li key={x.id} className="flex flex-wrap justify-between gap-2">
+                      <span>{x.description.replace("Re-inspection required: ", "")}</span>
+                      <span className="text-xs text-muted-foreground">Due {new Date(x.due_date).toLocaleDateString()}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
             <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <Stat label="Equipment" value={all.total} />
               <Stat label="Out of compliance" value={all.lapsed} tone="destructive" />
