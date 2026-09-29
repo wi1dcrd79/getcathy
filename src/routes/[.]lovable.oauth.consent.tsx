@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AssistantGrants } from "@/components/certvault/AssistantGrants";
 
 type OAuthResult = { data: any; error: { message: string } | null };
 type OAuthApi = {
