@@ -184,6 +184,7 @@ export type Database = {
           created_by: string | null
           id: string
           pdf_storage_path: string | null
+          snapshot: Json | null
           status: string
           title: string
           updated_at: string
@@ -197,6 +198,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           pdf_storage_path?: string | null
+          snapshot?: Json | null
           status?: string
           title?: string
           updated_at?: string
@@ -210,6 +212,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           pdf_storage_path?: string | null
+          snapshot?: Json | null
           status?: string
           title?: string
           updated_at?: string
