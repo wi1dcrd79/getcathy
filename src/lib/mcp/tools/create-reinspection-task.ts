@@ -24,7 +24,7 @@ export default defineTool({
       const { data: dup } = await sb.from("corrective_actions").select("id")
         .eq("asset_id", asset.id).eq("source_type", "inspection")
         .in("status", ["open", "in_progress", "ready_for_review"]).like("description", "Re-inspection required%").limit(1);
-      if (dup && dup.length) throw new Refusal(`an open re-inspection task already exists for ${asset.asset_tag} (${dup[0].id}).`);
+      if (dup && dup.length) throw new Refusal(`an open re-inspection task already exists for ${asset.asset_tag} (${dup[0]?.id}).`);
       const due = input.due_date ? new Date(input.due_date).toISOString() : new Date(Date.now() + 3 * 864e5).toISOString();
       const { data, error } = await sb.from("corrective_actions").insert({
         company_id: companyId, source_type: "inspection", source_id: insp.id, asset_id: asset.id, priority: "P1",
