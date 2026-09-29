@@ -261,7 +261,7 @@ function YardPage() {
                       ) : (
                         <Link
                           to="/yard"
-                          search={level === "site" ? { site: name } : { site, zone: name }}
+                          search={level === "site" ? { site: name } : { site: site!, zone: name }}
                           className="block min-h-[48px] rounded-md border border-border p-3 hover:border-primary"
                         >
                           {inner}
@@ -297,7 +297,7 @@ function YardPage() {
   );
 }
 
-function Stat({ label, value, tone }: { label: string; value: number; tone?: "warning" | "destructive" }) {
+function Stat({ label, value, tone }: { label: string; value: number; tone?: "warning" | "destructive" | undefined }) {
   const c = tone === "destructive" ? "text-destructive" : tone === "warning" ? "text-warning" : "text-foreground";
   return (
     <div className="panel p-3">
@@ -307,7 +307,7 @@ function Stat({ label, value, tone }: { label: string; value: number; tone?: "wa
   );
 }
 
-function Chip({ children, tone }: { children: React.ReactNode; tone?: "success" | "warning" | "destructive" }) {
+function Chip({ children, tone }: { children: React.ReactNode; tone?: "success" | "warning" | "destructive" | undefined }) {
   const c =
     tone === "success"
       ? "border-success/40 text-success"
