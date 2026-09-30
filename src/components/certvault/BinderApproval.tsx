@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
-import { SignaturePad } from "./SignaturePad";
+import { SignatureCaptureDialog } from "@/components/signatures/SignatureCaptureDialog";
 import { compileAuditBinder } from "@/lib/audit-binder.functions";
 import { submitSignature } from "@/lib/signatures/submit-signature.functions";
 import { canSign } from "@/lib/signatures/signed-fields";
@@ -135,9 +135,11 @@ export function BinderApproval() {
         )}
       </div>
       {open && b && (
-        <SignaturePad
-          title={`Approve audit binder v${b.version}`}
-          subtitle="This signs the whole binder. Its sealed fingerprint, your role and the time are recorded, and the version is frozen."
+        <SignatureCaptureDialog
+          recordKind="Audit Binder"
+          label={`Audit binder v${b.version}`}
+          role={role}
+          computeHash={async () => b.content_sha256 ?? Promise.reject(new Error("no hash"))}
           busy={busy}
           onConfirm={approve}
           onCancel={() => setOpen(false)}
