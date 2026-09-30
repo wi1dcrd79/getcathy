@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
-import { SignaturePad } from "./SignaturePad";
+import { SignatureCaptureDialog, type RecordKind } from "@/components/signatures/SignatureCaptureDialog";
 import { SignatureVerification, type SignatureVerificationRow } from "./SignatureVerification";
 import { signRecord } from "@/lib/signatures/sign-record";
-import { canSign, type SignableTable } from "@/lib/signatures/signed-fields";
+import { canSign, hashRecord, type SignableTable } from "@/lib/signatures/signed-fields";
 
 interface SignatureRow extends SignatureVerificationRow {
   id: string;
@@ -20,6 +20,13 @@ const COLUMN: Record<SignableTable, keyof SignatureRow> = {
   inspections: "inspection_id",
   risk_assessments: "risk_assessment_id",
   personnel_certs: "cert_verification_id",
+};
+
+const KIND: Record<SignableTable, RecordKind> = {
+  incident_reports: "Inspection",
+  inspections: "Inspection",
+  risk_assessments: "JHA / Risk Assessment",
+  personnel_certs: "Personnel Cert",
 };
 
 export function useCompanySignatures() {
@@ -53,6 +60,7 @@ export function SignOff({
   const [queued, setQueued] = useState(false);
   const [showVerify, setShowVerify] = useState(false);
 
+  const computeHash = useCallback(() => hashRecord(table, row), [table, row]);
   const id = String(row["id"]);
   const sig = sigs.data?.find((s) => s[COLUMN[table]] === id);
 
@@ -119,9 +127,11 @@ export function SignOff({
         Sign off
       </button>
       {open && (
-        <SignaturePad
-          title={`Sign off: ${label}`}
-          subtitle="Your role, the time and a fingerprint of this record are sealed with your signature."
+        <SignatureCaptureDialog
+          recordKind={KIND[table]}
+          label={label}
+          role={role}
+          computeHash={computeHash}
           busy={busy}
           onConfirm={onConfirm}
           onCancel={() => setOpen(false)}
