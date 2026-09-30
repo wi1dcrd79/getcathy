@@ -96,29 +96,40 @@ export interface SignatureFlushReport {
   pending: number;
 }
 
-/** Submit queued signatures in capture order. Rejections are dropped and reported. */
+/**
+ * Submit queued signatures in capture order. 200 → removed; 409 → kept as
+ * "conflict" (someone signed first); other rejections → kept as "failed";
+ * network errors → stay "queued" with their offline timestamp intact.
+ */
 export async function flushSignatureQueue(): Promise<SignatureFlushReport> {
   const q = await readSignatureQueue();
   const report: SignatureFlushReport = { signed: 0, rejected: [], pending: 0 };
-  if (q.length === 0) return report;
-  const remaining: QueuedSignature[] = [];
-  const ordered = [...q].sort((a, b) => a.offline_created_at.localeCompare(b.offline_created_at));
+  const todo = q.filter((x) => x.status === "queued" || x.status === "syncing");
+  if (todo.length === 0) return report;
+  const byId = new Map(q.map((x) => [x.local_id, x]));
+  for (const x of todo) byId.set(x.local_id, { ...x, status: "syncing" });
+  await writeSignatureQueue([...byId.values()]);
+
+  const ordered = [...todo].sort((a, b) => a.offline_created_at.localeCompare(b.offline_created_at));
   for (const item of ordered) {
     const out = await send(item);
-    if (out === "network") remaining.push(item);
-    else if (out.kind === "signed") report.signed += 1;
-    else if (out.kind === "rejected") {
+    if (out === "network") {
+      byId.set(item.local_id, { ...item, status: "queued" });
+      report.pending += 1;
+    } else if (out.kind === "signed") {
+      byId.delete(item.local_id);
+      report.signed += 1;
+    } else if (out.kind === "rejected") {
       const message =
         out.status === 409
           ? "Someone else signed this record first."
           : out.status === 400
             ? "The record changed after you signed it — review and sign again."
             : out.message;
+      byId.set(item.local_id, { ...item, status: out.status === 409 ? "conflict" : "failed", error: message });
       report.rejected.push({ label: item.label, message });
     }
   }
-  report.pending = remaining.length;
-  await writeSignatureQueue(remaining);
-  window.dispatchEvent(new Event("cathy:signature-queue"));
+  await writeSignatureQueue([...byId.values()]);
   return report;
 }
