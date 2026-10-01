@@ -25,9 +25,11 @@ export function SignatureSync() {
     running.current = true;
     try {
       const r = await flushSignatureQueue();
-      if (r.signed) toast.success(`${r.signed} queued signature${r.signed > 1 ? "s" : ""} submitted`);
+      if (r.signed)
+        toast.success(`${r.signed} queued signature${r.signed > 1 ? "s" : ""} submitted`);
       for (const x of r.rejected) toast.error(`${x.label}: ${x.message}`);
-      if (r.signed || r.rejected.length) await queryClient.invalidateQueries({ queryKey: ["signatures"] });
+      if (r.signed || r.rejected.length)
+        await queryClient.invalidateQueries({ queryKey: ["signatures"] });
     } finally {
       running.current = false;
     }

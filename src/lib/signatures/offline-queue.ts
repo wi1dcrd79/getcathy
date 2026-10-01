@@ -2,7 +2,12 @@ import { get, set } from "idb-keyval";
 
 const KEY = "cathy.signature-outbox.v1";
 
-export type SignatureTarget = "inspection_id" | "risk_assessment_id" | "cert_verification_id" | "incident_report_id" | "incident_report_resolution_id";
+export type SignatureTarget =
+  | "inspection_id"
+  | "risk_assessment_id"
+  | "cert_verification_id"
+  | "incident_report_id"
+  | "incident_report_resolution_id";
 
 /** "needs_resign" = legacy item with no recorded signer; never auto-submitted. */
 export type OutboxStatus = "queued" | "syncing" | "conflict" | "failed" | "needs_resign";
@@ -58,10 +63,17 @@ export async function writeSignatureQueue(items: QueuedSignature[]) {
  */
 export async function enqueueSignature(item: QueuedSignature): Promise<QueuedSignature> {
   const q = await readSignatureQueue();
-  const same = (x: QueuedSignature) => x.target === item.target && x.target_id === item.target_id && x.signer_id === item.signer_id;
+  const same = (x: QueuedSignature) =>
+    x.target === item.target && x.target_id === item.target_id && x.signer_id === item.signer_id;
   const active = q.find((x) => same(x) && (x.status === "queued" || x.status === "syncing"));
   if (active) return active;
-  const fresh: QueuedSignature = { ...item, status: "queued", attempts: 0, error: undefined, error_status: undefined };
+  const fresh: QueuedSignature = {
+    ...item,
+    status: "queued",
+    attempts: 0,
+    error: undefined,
+    error_status: undefined,
+  };
   await writeSignatureQueue([...q.filter((x) => !same(x)), fresh]);
   return fresh;
 }
@@ -69,7 +81,9 @@ export async function enqueueSignature(item: QueuedSignature): Promise<QueuedSig
 /** Remove an item (and its stored image data). Only the capturing user may dismiss. */
 export async function dismissSignature(localId: string, currentUserId: string) {
   const q = await readSignatureQueue();
-  await writeSignatureQueue(q.filter((x) => !(x.local_id === localId && (x.signer_id === currentUserId || !x.signer_id))));
+  await writeSignatureQueue(
+    q.filter((x) => !(x.local_id === localId && (x.signer_id === currentUserId || !x.signer_id))),
+  );
 }
 
 /** Blind retry is only safe for server errors (>=500) or network/unknown failures — never 400/403/409. */

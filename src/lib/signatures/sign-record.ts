@@ -25,9 +25,7 @@ export const TABLE_BY_TARGET: Partial<Record<SignatureTarget, SignableTable>> = 
 };
 
 export type SignOutcome =
-  | { kind: "signed" }
-  | { kind: "queued" }
-  | { kind: "rejected"; status: number; message: string };
+  { kind: "signed" } | { kind: "queued" } | { kind: "rejected"; status: number; message: string };
 
 type SendResult = SignOutcome | { kind: "network"; message?: string };
 
@@ -62,7 +60,8 @@ async function send(item: QueuedSignature): Promise<SendResult> {
     return { kind: "rejected", status: res.status, message: res.message };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Signature failed";
-    if (!navigator.onLine || /fetch|network|timeout/i.test(msg)) return { kind: "network", message: msg };
+    if (!navigator.onLine || /fetch|network|timeout/i.test(msg))
+      return { kind: "network", message: msg };
     // Unexpected server error (e.g. storage upload failure) — safe to retry.
     return { kind: "rejected", status: 500, message: msg };
   }
@@ -117,7 +116,14 @@ export async function signRecord(args: {
 
 async function clearTarget(item: QueuedSignature) {
   const q = await readSignatureQueue();
-  const next = q.filter((x) => !(x.target === item.target && x.target_id === item.target_id && x.signer_id === item.signer_id));
+  const next = q.filter(
+    (x) =>
+      !(
+        x.target === item.target &&
+        x.target_id === item.target_id &&
+        x.signer_id === item.signer_id
+      ),
+  );
   if (next.length !== q.length) await writeSignatureQueue(next);
 }
 
@@ -148,12 +154,23 @@ export async function flushSignatureQueue(onlyLocalId?: string): Promise<Signatu
   for (const x of todo) byId.set(x.local_id, { ...x, status: "syncing" });
   await writeSignatureQueue([...byId.values()]);
 
-  const ordered = [...todo].sort((a, b) => a.offline_created_at.localeCompare(b.offline_created_at));
+  const ordered = [...todo].sort((a, b) =>
+    a.offline_created_at.localeCompare(b.offline_created_at),
+  );
   for (const item of ordered) {
-    const tried = { ...item, attempts: (item.attempts ?? 0) + 1, last_attempt_at: new Date().toISOString() };
+    const tried = {
+      ...item,
+      attempts: (item.attempts ?? 0) + 1,
+      last_attempt_at: new Date().toISOString(),
+    };
     const out = await send(item);
     if (out.kind === "network") {
-      byId.set(item.local_id, { ...tried, status: "queued", error: out.message, error_status: undefined });
+      byId.set(item.local_id, {
+        ...tried,
+        status: "queued",
+        error: out.message,
+        error_status: undefined,
+      });
       report.pending += 1;
     } else if (out.kind === "signed") {
       byId.delete(item.local_id);
@@ -179,16 +196,23 @@ export async function retrySignature(localId: string): Promise<SignatureFlushRep
   const q = await readSignatureQueue();
   const item = q.find((x) => x.local_id === localId);
   if (!item || item.signer_id !== uid || !isRetryable(item)) return null;
-  await writeSignatureQueue(q.map((x) => (x.local_id === localId ? { ...x, status: "queued" } : x)));
+  await writeSignatureQueue(
+    q.map((x) => (x.local_id === localId ? { ...x, status: "queued" } : x)),
+  );
   return flushSignatureQueue(localId);
 }
 
 /** Replace a stale item (e.g. 400 hash mismatch) with a fresh capture of the current record. */
-export async function resignItem(localId: string, row: Record<string, unknown>, pngBase64: string): Promise<SignOutcome> {
+export async function resignItem(
+  localId: string,
+  row: Record<string, unknown>,
+  pngBase64: string,
+): Promise<SignOutcome> {
   const q = await readSignatureQueue();
   const old = q.find((x) => x.local_id === localId);
   const table = old ? TABLE_BY_TARGET[old.target] : undefined;
-  if (!old || !table) return { kind: "rejected", status: 400, message: "This record type can't be re-signed here." };
+  if (!old || !table)
+    return { kind: "rejected", status: 400, message: "This record type can't be re-signed here." };
   await writeSignatureQueue(q.filter((x) => x.local_id !== localId));
   return signRecord({ table, row, companyId: old.company_id, label: old.label, pngBase64 });
 }

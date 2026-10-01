@@ -36,9 +36,14 @@ const submitSignatureSchema = z
   })
   .refine(
     (d) =>
-      [d.audit_binder_id, d.inspection_id, d.cert_verification_id, d.risk_assessment_id, d.incident_report_id, d.incident_report_resolution_id].filter(
-        (v) => v != null,
-      ).length === 1,
+      [
+        d.audit_binder_id,
+        d.inspection_id,
+        d.cert_verification_id,
+        d.risk_assessment_id,
+        d.incident_report_id,
+        d.incident_report_resolution_id,
+      ].filter((v) => v != null).length === 1,
     { message: "Exactly one signature target must be provided" },
   );
 
@@ -56,214 +61,237 @@ export const submitSignature = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => submitSignatureSchema.parse(data))
   .handler(async ({ data, context }) => {
-  try {
-    const { supabase, userId } = context;
+    try {
+      const { supabase, userId } = context;
 
-    // 1. Verify the caller's profile, tenant alignment, and authorized role.
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, company_id, role")
-      .eq("id", userId)
-      .single();
-
-    if (profileError || !profile) {
-      throw new SignatureSubmissionError(403, "Signer profile not found.");
-    }
-    if (profile.company_id !== data.company_id) {
-      throw new SignatureSubmissionError(403, "Cross-tenant signature submission rejected.");
-    }
-    if (!AUTHORIZED_SIGNER_ROLES.includes(profile.role as (typeof AUTHORIZED_SIGNER_ROLES)[number])) {
-      throw new SignatureSubmissionError(
-        403,
-        `Role ${profile.role} is not authorized to execute digital sign-offs.`,
-      );
-    }
-
-    const { supabaseAdmin: typedAdmin } = await import("@/integrations/supabase/client.server");
-    // incident_reports columns are not in the generated DB types yet (added from GitHub).
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabaseAdmin = typedAdmin as any;
-
-    // 2. Resolve the target record and verify the content hash.
-    let targetColumn: "audit_binder_id" | "inspection_id" | "cert_verification_id" | "risk_assessment_id" | "incident_report_id" | "incident_report_resolution_id";
-    let targetId: string;
-
-    if (data.audit_binder_id) {
-      targetColumn = "audit_binder_id";
-      targetId = data.audit_binder_id;
-      const { data: binder, error } = await supabaseAdmin
-        .from("audit_binders")
-        .select("id, company_id, content_sha256, status")
-        .eq("id", targetId)
+      // 1. Verify the caller's profile, tenant alignment, and authorized role.
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, company_id, role")
+        .eq("id", userId)
         .single();
-      if (error || !binder || binder.company_id !== data.company_id) {
-        throw new SignatureSubmissionError(400, "Audit binder not found in this company.");
-      }
-      if (binder.status !== "compiled") {
-        throw new SignatureSubmissionError(409, `This binder is ${binder.status} and can't be signed.`);
-      }
-      if (!binder.content_sha256 || binder.content_sha256 !== data.content_sha256) {
-        throw new SignatureSubmissionError(
-          400,
-          "Signature content hash does not match the compiled audit binder.",
-        );
-      }
-    } else if (data.incident_report_resolution_id) {
-      // Resolution signature: incident_report must exist and be "under_investigation"
-      targetColumn = "incident_report_resolution_id";
-      targetId = data.incident_report_resolution_id;
-      const { data: incident, error } = await supabaseAdmin
-        .from("incident_reports")
-        .select("id, company_id, status, resolution_notes")
-        .eq("id", targetId)
-        .single();
-      if (error || !incident || incident.company_id !== data.company_id) {
-        throw new SignatureSubmissionError(400, "Incident report not found in this company.");
-      }
-      if (incident.status !== "under_investigation") {
-        throw new SignatureSubmissionError(400, "Incident must be under investigation to sign resolution.");
-      }
-      // Hash the resolution_notes only for this signature type
-      const columns = ["id", "company_id", "resolution_notes"];
-      const serverHash = await canonicalSha256(pickColumns(incident, columns));
-      if (serverHash !== data.content_sha256) {
-        throw new SignatureSubmissionError(
-          400,
-          "Resolution signature content hash does not match incident resolution notes.",
-        );
-      }
-    } else {
-      const table =
-        data.inspection_id != null
-          ? "inspections"
-          : data.risk_assessment_id != null
-            ? "risk_assessments"
-            : data.incident_report_id != null
-              ? "incident_reports"
-              : "personnel_certs";
-      targetColumn =
-        data.inspection_id != null
-          ? "inspection_id"
-          : data.risk_assessment_id != null
-            ? "risk_assessment_id"
-            : data.incident_report_id != null
-              ? "incident_report_id"
-              : "cert_verification_id";
-      targetId = (data.inspection_id ?? data.risk_assessment_id ?? data.incident_report_id ?? data.cert_verification_id)!;
 
-      const columns = SIGNED_COLUMNS[table as "inspections" | "risk_assessments" | "incident_reports" | "personnel_certs"];
-      const { data: record, error } = await supabaseAdmin
-        .from(table)
-        .select(columns.join(", "))
-        .eq("id", targetId)
-        .single();
-      if (error || !record) {
-        throw new SignatureSubmissionError(400, `Target ${table} record not found.`);
+      if (profileError || !profile) {
+        throw new SignatureSubmissionError(403, "Signer profile not found.");
       }
-      const row = record as unknown as Record<string, unknown>;
-      if (row["company_id"] !== data.company_id) {
+      if (profile.company_id !== data.company_id) {
         throw new SignatureSubmissionError(403, "Cross-tenant signature submission rejected.");
       }
-      const serverHash = await canonicalSha256(pickColumns(row, columns));
-      if (serverHash !== data.content_sha256) {
+      if (
+        !AUTHORIZED_SIGNER_ROLES.includes(profile.role as (typeof AUTHORIZED_SIGNER_ROLES)[number])
+      ) {
         throw new SignatureSubmissionError(
-          400,
-          "Signature content hash does not match the current record contents.",
+          403,
+          `Role ${profile.role} is not authorized to execute digital sign-offs.`,
         );
       }
-    }
 
-    // 3. First-signature-wins: reject if the target is already signed.
-    const { data: existing } = await supabaseAdmin
-      .from("signatures")
-      .select("id")
-      .eq(targetColumn, targetId)
-      .maybeSingle();
-    if (existing) {
-      throw new SignatureSubmissionError(409, "This record has already been signed.");
-    }
+      const { supabaseAdmin: typedAdmin } = await import("@/integrations/supabase/client.server");
+      // incident_reports columns are not in the generated DB types yet (added from GitHub).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const supabaseAdmin = typedAdmin as any;
 
-    // 4. Store the signature image server-side (no client write access to the bucket).
-    const signatureId = crypto.randomUUID();
-    let imagePath: string | null = null;
-    const deviceMetadata: Record<string, unknown> = { ...data.device_metadata };
-    if (data.signature_png_base64) {
-      const bytes = Uint8Array.from(atob(data.signature_png_base64), (c) => c.charCodeAt(0));
-      const isPng =
-        bytes.length > 8 &&
-        bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
-      if (!isPng) throw new SignatureSubmissionError(400, "Signature image must be a PNG.");
-      const digest = await crypto.subtle.digest("SHA-256", bytes);
-      deviceMetadata["image_sha256"] = Array.from(new Uint8Array(digest))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      imagePath = `${data.company_id}/${signatureId}.png`;
-      const { error: uploadError } = await supabaseAdmin.storage
-        .from("signatures")
-        .upload(imagePath, bytes, { contentType: "image/png", upsert: false });
-      if (uploadError) throw new Error(`Failed to store signature image: ${uploadError.message}`);
-    }
+      // 2. Resolve the target record and verify the content hash.
+      let targetColumn:
+        | "audit_binder_id"
+        | "inspection_id"
+        | "cert_verification_id"
+        | "risk_assessment_id"
+        | "incident_report_id"
+        | "incident_report_resolution_id";
+      let targetId: string;
 
-    // 5. Insert via the service role (direct client INSERT is revoked).
-    const { data: inserted, error: insertError } = await supabaseAdmin
-      .from("signatures")
-      .insert({
-        id: signatureId,
-        company_id: data.company_id,
-        // Only the target column is sent: incident report columns aren't in the DB yet,
-        // and sending them (even as null) makes the insert fail.
-        [targetColumn]: targetId,
-        signer_id: userId,
-        signer_role: profile.role, // trigger re-stamps authoritatively
-        content_sha256: data.content_sha256,
-        signature_image_path: imagePath,
-        offline_created_at: data.offline_created_at ?? null,
-        signed_at: data.signed_at ?? null,
-        device_metadata: deviceMetadata as Json,
-      })
-      .select("id, synced_at")
-      .single();
+      if (data.audit_binder_id) {
+        targetColumn = "audit_binder_id";
+        targetId = data.audit_binder_id;
+        const { data: binder, error } = await supabaseAdmin
+          .from("audit_binders")
+          .select("id, company_id, content_sha256, status")
+          .eq("id", targetId)
+          .single();
+        if (error || !binder || binder.company_id !== data.company_id) {
+          throw new SignatureSubmissionError(400, "Audit binder not found in this company.");
+        }
+        if (binder.status !== "compiled") {
+          throw new SignatureSubmissionError(
+            409,
+            `This binder is ${binder.status} and can't be signed.`,
+          );
+        }
+        if (!binder.content_sha256 || binder.content_sha256 !== data.content_sha256) {
+          throw new SignatureSubmissionError(
+            400,
+            "Signature content hash does not match the compiled audit binder.",
+          );
+        }
+      } else if (data.incident_report_resolution_id) {
+        // Resolution signature: incident_report must exist and be "under_investigation"
+        targetColumn = "incident_report_resolution_id";
+        targetId = data.incident_report_resolution_id;
+        const { data: incident, error } = await supabaseAdmin
+          .from("incident_reports")
+          .select("id, company_id, status, resolution_notes")
+          .eq("id", targetId)
+          .single();
+        if (error || !incident || incident.company_id !== data.company_id) {
+          throw new SignatureSubmissionError(400, "Incident report not found in this company.");
+        }
+        if (incident.status !== "under_investigation") {
+          throw new SignatureSubmissionError(
+            400,
+            "Incident must be under investigation to sign resolution.",
+          );
+        }
+        // Hash the resolution_notes only for this signature type
+        const columns = ["id", "company_id", "resolution_notes"];
+        const serverHash = await canonicalSha256(pickColumns(incident, columns));
+        if (serverHash !== data.content_sha256) {
+          throw new SignatureSubmissionError(
+            400,
+            "Resolution signature content hash does not match incident resolution notes.",
+          );
+        }
+      } else {
+        const table =
+          data.inspection_id != null
+            ? "inspections"
+            : data.risk_assessment_id != null
+              ? "risk_assessments"
+              : data.incident_report_id != null
+                ? "incident_reports"
+                : "personnel_certs";
+        targetColumn =
+          data.inspection_id != null
+            ? "inspection_id"
+            : data.risk_assessment_id != null
+              ? "risk_assessment_id"
+              : data.incident_report_id != null
+                ? "incident_report_id"
+                : "cert_verification_id";
+        targetId = (data.inspection_id ??
+          data.risk_assessment_id ??
+          data.incident_report_id ??
+          data.cert_verification_id)!;
 
-    if (insertError) {
-      // Orphaned image cleanup — the row never landed.
-      if (imagePath) await supabaseAdmin.storage.from("signatures").remove([imagePath]);
-      // Unique-violation race: another signer won between the check and insert.
-      if (insertError.code === "23505") {
-        throw new SignatureSubmissionError(409, "This record has already been signed.");
-      }
-      throw new Error(`Failed to record signature: ${insertError.message}`);
-    }
-
-    // 6. For incident resolution signatures, emit safety alert event if critical/high severity.
-    if (targetColumn === "incident_report_resolution_id") {
-      const { data: incident } = await supabaseAdmin
-        .from("incident_reports")
-        .select("severity")
-        .eq("id", targetId)
-        .single();
-      if (incident && ["critical", "high"].includes(incident.severity)) {
-        const { emitEvent } = await import("@/lib/inngest/emit.server");
-        try {
-          await (emitEvent as any)("incident.resolved", {
-            company_id: data.company_id,
-            incident_id: targetId,
-            severity: incident.severity as "critical" | "high",
-            resolved_by: userId,
-          });
-        } catch (e) {
-          console.error(`[inngest] Failed to emit incident.resolved event: ${e}`);
-          // Non-fatal: the signature is already recorded
+        const columns =
+          SIGNED_COLUMNS[
+            table as "inspections" | "risk_assessments" | "incident_reports" | "personnel_certs"
+          ];
+        const { data: record, error } = await supabaseAdmin
+          .from(table)
+          .select(columns.join(", "))
+          .eq("id", targetId)
+          .single();
+        if (error || !record) {
+          throw new SignatureSubmissionError(400, `Target ${table} record not found.`);
+        }
+        const row = record as unknown as Record<string, unknown>;
+        if (row["company_id"] !== data.company_id) {
+          throw new SignatureSubmissionError(403, "Cross-tenant signature submission rejected.");
+        }
+        const serverHash = await canonicalSha256(pickColumns(row, columns));
+        if (serverHash !== data.content_sha256) {
+          throw new SignatureSubmissionError(
+            400,
+            "Signature content hash does not match the current record contents.",
+          );
         }
       }
-    }
 
-    return { ok: true as const, signature_id: inserted.id, synced_at: inserted.synced_at };
-  } catch (e) {
-    if (e instanceof SignatureSubmissionError) {
-      return { ok: false as const, status: e.status, message: e.message };
+      // 3. First-signature-wins: reject if the target is already signed.
+      const { data: existing } = await supabaseAdmin
+        .from("signatures")
+        .select("id")
+        .eq(targetColumn, targetId)
+        .maybeSingle();
+      if (existing) {
+        throw new SignatureSubmissionError(409, "This record has already been signed.");
+      }
+
+      // 4. Store the signature image server-side (no client write access to the bucket).
+      const signatureId = crypto.randomUUID();
+      let imagePath: string | null = null;
+      const deviceMetadata: Record<string, unknown> = { ...data.device_metadata };
+      if (data.signature_png_base64) {
+        const bytes = Uint8Array.from(atob(data.signature_png_base64), (c) => c.charCodeAt(0));
+        const isPng =
+          bytes.length > 8 &&
+          bytes[0] === 0x89 &&
+          bytes[1] === 0x50 &&
+          bytes[2] === 0x4e &&
+          bytes[3] === 0x47;
+        if (!isPng) throw new SignatureSubmissionError(400, "Signature image must be a PNG.");
+        const digest = await crypto.subtle.digest("SHA-256", bytes);
+        deviceMetadata["image_sha256"] = Array.from(new Uint8Array(digest))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+        imagePath = `${data.company_id}/${signatureId}.png`;
+        const { error: uploadError } = await supabaseAdmin.storage
+          .from("signatures")
+          .upload(imagePath, bytes, { contentType: "image/png", upsert: false });
+        if (uploadError) throw new Error(`Failed to store signature image: ${uploadError.message}`);
+      }
+
+      // 5. Insert via the service role (direct client INSERT is revoked).
+      const { data: inserted, error: insertError } = await supabaseAdmin
+        .from("signatures")
+        .insert({
+          id: signatureId,
+          company_id: data.company_id,
+          // Only the target column is sent: incident report columns aren't in the DB yet,
+          // and sending them (even as null) makes the insert fail.
+          [targetColumn]: targetId,
+          signer_id: userId,
+          signer_role: profile.role, // trigger re-stamps authoritatively
+          content_sha256: data.content_sha256,
+          signature_image_path: imagePath,
+          offline_created_at: data.offline_created_at ?? null,
+          signed_at: data.signed_at ?? null,
+          device_metadata: deviceMetadata as Json,
+        })
+        .select("id, synced_at")
+        .single();
+
+      if (insertError) {
+        // Orphaned image cleanup — the row never landed.
+        if (imagePath) await supabaseAdmin.storage.from("signatures").remove([imagePath]);
+        // Unique-violation race: another signer won between the check and insert.
+        if (insertError.code === "23505") {
+          throw new SignatureSubmissionError(409, "This record has already been signed.");
+        }
+        throw new Error(`Failed to record signature: ${insertError.message}`);
+      }
+
+      // 6. For incident resolution signatures, emit safety alert event if critical/high severity.
+      if (targetColumn === "incident_report_resolution_id") {
+        const { data: incident } = await supabaseAdmin
+          .from("incident_reports")
+          .select("severity")
+          .eq("id", targetId)
+          .single();
+        if (incident && ["critical", "high"].includes(incident.severity)) {
+          const { emitEvent } = await import("@/lib/inngest/emit.server");
+          try {
+            await (emitEvent as any)("incident.resolved", {
+              company_id: data.company_id,
+              incident_id: targetId,
+              severity: incident.severity as "critical" | "high",
+              resolved_by: userId,
+            });
+          } catch (e) {
+            console.error(`[inngest] Failed to emit incident.resolved event: ${e}`);
+            // Non-fatal: the signature is already recorded
+          }
+        }
+      }
+
+      return { ok: true as const, signature_id: inserted.id, synced_at: inserted.synced_at };
+    } catch (e) {
+      if (e instanceof SignatureSubmissionError) {
+        return { ok: false as const, status: e.status, message: e.message };
+      }
+      throw e;
     }
-    throw e;
-  }
   });
 
 const signerIdentitySchema = z.object({ signature_id: z.string().uuid() });
