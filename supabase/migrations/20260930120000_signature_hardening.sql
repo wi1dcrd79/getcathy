@@ -78,7 +78,7 @@ BEGIN
   NEW.signer_role := v_role;
   NEW.synced_at := now();
   NEW.signed_at := LEAST(COALESCE(NEW.signed_at, now()), now());
-  NEW.offline_created_at := LEAST(NEW.offline_created_at, now());
+  IF NEW.offline_created_at IS NOT NULL THEN NEW.offline_created_at := LEAST(NEW.offline_created_at, now()); END IF;
   RETURN NEW;
 END $$;
 
