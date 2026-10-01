@@ -90,9 +90,9 @@ function Outbox() {
 
   async function startResign(item: QueuedSignature) {
     const table = TABLE_BY_TARGET[item.target];
-    if (!table) return toast.error("This record type can't be re-signed here.");
+    if (!table) { toast.error("This record type can't be re-signed here."); return; }
     const { data, error } = await supabase.from(table as "inspections").select("*").eq("id", item.target_id).maybeSingle();
-    if (error || !data) return toast.error("Couldn't load the current record. Try again online.");
+    if (error || !data) { toast.error("Couldn't load the current record. Try again online."); return; }
     setResign({ item, row: data as unknown as Record<string, unknown> });
   }
 

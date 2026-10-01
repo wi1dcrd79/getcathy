@@ -22,9 +22,9 @@ export interface QueuedSignature {
   signed_at: string;
   device_metadata: Record<string, unknown>;
   status?: OutboxStatus;
-  error?: string;
+  error?: string | undefined;
   /** HTTP status from the last server rejection; undefined = network/unknown. */
-  error_status?: number;
+  error_status?: number | undefined;
   attempts?: number;
   last_attempt_at?: string;
 }
