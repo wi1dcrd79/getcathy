@@ -25,7 +25,15 @@ export const TABLE_BY_TARGET: Partial<Record<SignatureTarget, SignableTable>> = 
 };
 
 export type SignOutcome =
-  { kind: "signed" } | { kind: "queued" } | { kind: "rejected"; status: number; message: string };
+  | { kind: "signed" }
+  | { kind: "queued" }
+  | {
+      kind: "rejected";
+      status: number;
+      message: string;
+      code?: string | undefined;
+      existing?: QueuedSignature["existing"];
+    };
 
 type SendResult = SignOutcome | { kind: "network"; message?: string };
 
@@ -57,7 +65,17 @@ async function send(item: QueuedSignature): Promise<SendResult> {
       },
     });
     if (res.ok) return { kind: "signed" };
-    return { kind: "rejected", status: res.status, message: res.message };
+    // Lost response: our own signature over the same content already landed.
+    const ex = res.existing;
+    if (res.code === "ALREADY_SIGNED" && ex?.signed_by_me && ex.content_sha256_matches)
+      return { kind: "signed" };
+    return {
+      kind: "rejected",
+      status: res.status,
+      message: res.message,
+      code: res.code,
+      existing: ex,
+    };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Signature failed";
     if (!navigator.onLine || /fetch|network|timeout/i.test(msg))
@@ -176,12 +194,14 @@ export async function flushSignatureQueue(onlyLocalId?: string): Promise<Signatu
       byId.delete(item.local_id);
       report.signed += 1;
     } else if (out.kind === "rejected") {
-      const firstSigner = out.status === 409 && /already been signed/i.test(out.message);
+      const firstSigner = out.code === "ALREADY_SIGNED";
       byId.set(item.local_id, {
         ...tried,
         status: firstSigner ? "conflict" : "failed",
         error: out.message,
         error_status: out.status,
+        error_code: out.code,
+        existing: out.existing,
       });
       report.rejected.push({ label: item.label, message: out.message });
     }

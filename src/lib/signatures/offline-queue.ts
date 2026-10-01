@@ -30,6 +30,16 @@ export interface QueuedSignature {
   error?: string | undefined;
   /** HTTP status from the last server rejection; undefined = network/unknown. */
   error_status?: number | undefined;
+  /** Machine code from the server (e.g. ALREADY_SIGNED, BINDER_NOT_SIGNABLE). */
+  error_code?: string | undefined;
+  /** The winning signature when the server reports ALREADY_SIGNED. */
+  existing?: {
+    signature_id: string;
+    signer_role: string;
+    synced_at: string;
+    signed_by_me: boolean;
+    content_sha256_matches: boolean;
+  } | null | undefined;
   attempts?: number;
   last_attempt_at?: string;
 }
@@ -73,6 +83,8 @@ export async function enqueueSignature(item: QueuedSignature): Promise<QueuedSig
     attempts: 0,
     error: undefined,
     error_status: undefined,
+    error_code: undefined,
+    existing: undefined,
   };
   await writeSignatureQueue([...q.filter((x) => !same(x)), fresh]);
   return fresh;
@@ -88,5 +100,9 @@ export async function dismissSignature(localId: string, currentUserId: string) {
 
 /** Blind retry is only safe for server errors (>=500) or network/unknown failures — never 400/403/409. */
 export function isRetryable(x: QueuedSignature) {
-  return x.status === "failed" && (x.error_status === undefined || x.error_status >= 500);
+  return (
+    x.status === "failed" &&
+    !x.error_code &&
+    (x.error_status === undefined || x.error_status >= 500)
+  );
 }
