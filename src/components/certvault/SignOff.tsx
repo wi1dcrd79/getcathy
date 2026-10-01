@@ -100,13 +100,7 @@ export function SignOff({
         setQueued(true);
         toast.message("You're offline — signature saved on this device and will submit on reconnect.");
       } else {
-        toast.error(
-          out.status === 409
-            ? "Someone else already signed this record."
-            : out.status === 400
-              ? "This record changed — reload and review before signing."
-              : out.message,
-        );
+        toast.error(out.message);
         await queryClient.invalidateQueries({ queryKey: ["signatures"] });
       }
       setOpen(false);
