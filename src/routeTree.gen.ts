@@ -22,6 +22,7 @@ import { Route as EvidenceReviewRouteImport } from './routes/evidence-review'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as LedgerConflictsRouteImport } from './routes/ledger-conflicts'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as OutboxRouteImport } from './routes/outbox'
 import { Route as PersonnelRouteImport } from './routes/personnel'
 import { Route as RiskAnalysisRouteImport } from './routes/risk-analysis'
 import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
@@ -99,6 +100,11 @@ const McpRoute = McpRouteImport.update({
   path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OutboxRoute = OutboxRouteImport.update({
+  id: '/outbox',
+  path: '/outbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PersonnelRoute = PersonnelRouteImport.update({
   id: '/personnel',
   path: '/personnel',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
   '/mcp': typeof McpRoute
+  '/outbox': typeof OutboxRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
   '/mcp': typeof McpRoute
+  '/outbox': typeof OutboxRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
   '/mcp': typeof McpRoute
+  '/outbox': typeof OutboxRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/ledger-conflicts'
     | '/mcp'
+    | '/outbox'
     | '/personnel'
     | '/risk-analysis'
     | '/scan-transfer'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/ledger-conflicts'
     | '/mcp'
+    | '/outbox'
     | '/personnel'
     | '/risk-analysis'
     | '/scan-transfer'
@@ -304,6 +315,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/ledger-conflicts'
     | '/mcp'
+    | '/outbox'
     | '/personnel'
     | '/risk-analysis'
     | '/scan-transfer'
@@ -331,6 +343,7 @@ export interface RootRouteChildren {
   ImportRoute: typeof ImportRoute
   LedgerConflictsRoute: typeof LedgerConflictsRoute
   McpRoute: typeof McpRoute
+  OutboxRoute: typeof OutboxRoute
   PersonnelRoute: typeof PersonnelRoute
   RiskAnalysisRoute: typeof RiskAnalysisRoute
   ScanTransferRoute: typeof ScanTransferRoute
@@ -437,6 +450,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/outbox': {
+      id: '/outbox'
+      path: '/outbox'
+      fullPath: '/outbox'
+      preLoaderRoute: typeof OutboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/personnel': {
       id: '/personnel'
       path: '/personnel'
@@ -531,6 +551,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImportRoute: ImportRoute,
   LedgerConflictsRoute: LedgerConflictsRoute,
   McpRoute: McpRoute,
+  OutboxRoute: OutboxRoute,
   PersonnelRoute: PersonnelRoute,
   RiskAnalysisRoute: RiskAnalysisRoute,
   ScanTransferRoute: ScanTransferRoute,
