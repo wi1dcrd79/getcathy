@@ -47,10 +47,19 @@ const submitSignatureSchema = z
     { message: "Exactly one signature target must be provided" },
   );
 
+export interface ExistingSignature {
+  signature_id: string;
+  signer_role: string;
+  synced_at: string;
+  signed_by_me: boolean;
+  content_sha256_matches: boolean;
+}
+
 export class SignatureSubmissionError extends Error {
   constructor(
     public readonly status: 400 | 403 | 409,
     message: string,
+    public readonly extra: Record<string, unknown> = {},
   ) {
     super(message);
     this.name = "SignatureSubmissionError";
@@ -116,6 +125,7 @@ export const submitSignature = createServerFn({ method: "POST" })
           throw new SignatureSubmissionError(
             409,
             `This binder is ${binder.status} and can't be signed.`,
+            { code: "BINDER_NOT_SIGNABLE", binder_status: binder.status },
           );
         }
         if (!binder.content_sha256 || binder.content_sha256 !== data.content_sha256) {
@@ -198,6 +208,28 @@ export const submitSignature = createServerFn({ method: "POST" })
         }
       }
 
+      // Describe the winning signature so the client can tell a lost response
+      // (own, same content) apart from a real first-signature conflict.
+      const alreadySigned = async () => {
+        const { data: win } = await supabaseAdmin
+          .from("signatures")
+          .select("id, signer_id, signer_role, synced_at, content_sha256")
+          .eq(targetColumn, targetId)
+          .maybeSingle();
+        return new SignatureSubmissionError(409, "This record has already been signed.", {
+          code: "ALREADY_SIGNED",
+          existing: win
+            ? {
+                signature_id: win.id,
+                signer_role: win.signer_role,
+                synced_at: win.synced_at,
+                signed_by_me: win.signer_id === userId,
+                content_sha256_matches: win.content_sha256 === data.content_sha256,
+              }
+            : null,
+        });
+      };
+
       // 3. First-signature-wins: reject if the target is already signed.
       const { data: existing } = await supabaseAdmin
         .from("signatures")
@@ -205,7 +237,7 @@ export const submitSignature = createServerFn({ method: "POST" })
         .eq(targetColumn, targetId)
         .maybeSingle();
       if (existing) {
-        throw new SignatureSubmissionError(409, "This record has already been signed.");
+        throw await alreadySigned();
       }
 
       // 4. Store the signature image server-side (no client write access to the bucket).
@@ -257,7 +289,7 @@ export const submitSignature = createServerFn({ method: "POST" })
         if (imagePath) await supabaseAdmin.storage.from("signatures").remove([imagePath]);
         // Unique-violation race: another signer won between the check and insert.
         if (insertError.code === "23505") {
-          throw new SignatureSubmissionError(409, "This record has already been signed.");
+          throw await alreadySigned();
         }
         throw new Error(`Failed to record signature: ${insertError.message}`);
       }
@@ -288,7 +320,14 @@ export const submitSignature = createServerFn({ method: "POST" })
       return { ok: true as const, signature_id: inserted.id, synced_at: inserted.synced_at };
     } catch (e) {
       if (e instanceof SignatureSubmissionError) {
-        return { ok: false as const, status: e.status, message: e.message };
+        return {
+          ok: false as const,
+          status: e.status,
+          message: e.message,
+          code: e.extra["code"] as string | undefined,
+          binder_status: e.extra["binder_status"] as string | undefined,
+          existing: e.extra["existing"] as ExistingSignature | null | undefined,
+        };
       }
       throw e;
     }
