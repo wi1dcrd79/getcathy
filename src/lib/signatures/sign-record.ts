@@ -194,7 +194,9 @@ export async function flushSignatureQueue(onlyLocalId?: string): Promise<Signatu
       byId.delete(item.local_id);
       report.signed += 1;
     } else if (out.kind === "rejected") {
-      const firstSigner = out.code === "ALREADY_SIGNED";
+      const firstSigner =
+        out.code === "ALREADY_SIGNED" ||
+        (!out.code && out.status === 409 && /already been signed/i.test(out.message));
       byId.set(item.local_id, {
         ...tried,
         status: firstSigner ? "conflict" : "failed",
