@@ -74,3 +74,5 @@ ios/App/App/public/
 ios/App/build/
 ios/DerivedData/
 *.xcuserstate
+supabase/snippets/
+supabase/.branches/
