@@ -24,7 +24,7 @@ export interface AssetRecord extends AssetRow {
 export async function fetchAssets(): Promise<AssetRecord[]> {
   const [{ data: assets, error: aErr }, { data: inspections, error: iErr }] = await Promise.all([
     supabase.from("assets").select("*").order("asset_tag"),
-    supabase.from("inspections").select("*").order("inspection_date", { ascending: false }),
+    supabase.from("inspections").select("*").eq("status" as never, "final" as never).order("inspection_date", { ascending: false }),
   ]);
   if (aErr) throw aErr;
   if (iErr) throw iErr;

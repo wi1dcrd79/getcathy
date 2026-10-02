@@ -18,12 +18,21 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as CompanyAdminRouteImport } from './routes/company-admin'
 import { Route as CompanyPortalRouteImport } from './routes/company-portal'
+import { Route as EvidenceReviewRouteImport } from './routes/evidence-review'
 import { Route as ImportRouteImport } from './routes/import'
+import { Route as LedgerConflictsRouteImport } from './routes/ledger-conflicts'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as OutboxRouteImport } from './routes/outbox'
 import { Route as PersonnelRouteImport } from './routes/personnel'
 import { Route as RiskAnalysisRouteImport } from './routes/risk-analysis'
 import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as YardRouteImport } from './routes/yard'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as ApiInngestRouteImport } from './routes/api/inngest'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as ApiPublicEmailWebhookRouteImport } from './routes/api/public/email/webhook'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -71,9 +80,29 @@ const CompanyPortalRoute = CompanyPortalRouteImport.update({
   path: '/company-portal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EvidenceReviewRoute = EvidenceReviewRouteImport.update({
+  id: '/evidence-review',
+  path: '/evidence-review',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImportRoute = ImportRouteImport.update({
   id: '/import',
   path: '/import',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LedgerConflictsRoute = LedgerConflictsRouteImport.update({
+  id: '/ledger-conflicts',
+  path: '/ledger-conflicts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OutboxRoute = OutboxRouteImport.update({
+  id: '/outbox',
+  path: '/outbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PersonnelRoute = PersonnelRouteImport.update({
@@ -101,6 +130,32 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const YardRoute = YardRouteImport.update({
+  id: '/yard',
+  path: '/yard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiInngestRoute = ApiInngestRouteImport.update({
+  id: '/api/inngest',
+  path: '/api/inngest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicEmailWebhookRoute = ApiPublicEmailWebhookRouteImport.update({
+  id: '/api/public/email/webhook',
+  path: '/api/public/email/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -118,12 +173,21 @@ export interface FileRoutesByFullPath {
   '/billing': typeof BillingRoute
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
+  '/evidence-review': typeof EvidenceReviewRoute
   '/import': typeof ImportRoute
+  '/ledger-conflicts': typeof LedgerConflictsRoute
+  '/mcp': typeof McpRoute
+  '/outbox': typeof OutboxRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
+  '/yard': typeof YardRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/api/inngest': typeof ApiInngestRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/email/webhook': typeof ApiPublicEmailWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -136,12 +200,21 @@ export interface FileRoutesByTo {
   '/billing': typeof BillingRoute
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
+  '/evidence-review': typeof EvidenceReviewRoute
   '/import': typeof ImportRoute
+  '/ledger-conflicts': typeof LedgerConflictsRoute
+  '/mcp': typeof McpRoute
+  '/outbox': typeof OutboxRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
+  '/yard': typeof YardRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/api/inngest': typeof ApiInngestRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/email/webhook': typeof ApiPublicEmailWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -155,12 +228,21 @@ export interface FileRoutesById {
   '/billing': typeof BillingRoute
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
+  '/evidence-review': typeof EvidenceReviewRoute
   '/import': typeof ImportRoute
+  '/ledger-conflicts': typeof LedgerConflictsRoute
+  '/mcp': typeof McpRoute
+  '/outbox': typeof OutboxRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
+  '/yard': typeof YardRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/api/inngest': typeof ApiInngestRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/email/webhook': typeof ApiPublicEmailWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -175,12 +257,21 @@ export interface FileRouteTypes {
     | '/billing'
     | '/company-admin'
     | '/company-portal'
+    | '/evidence-review'
     | '/import'
+    | '/ledger-conflicts'
+    | '/mcp'
+    | '/outbox'
     | '/personnel'
     | '/risk-analysis'
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
+    | '/yard'
+    | '/.well-known/oauth-protected-resource'
+    | '/api/inngest'
+    | '/.lovable/oauth/consent'
+    | '/api/public/email/webhook'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -193,12 +284,21 @@ export interface FileRouteTypes {
     | '/billing'
     | '/company-admin'
     | '/company-portal'
+    | '/evidence-review'
     | '/import'
+    | '/ledger-conflicts'
+    | '/mcp'
+    | '/outbox'
     | '/personnel'
     | '/risk-analysis'
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
+    | '/yard'
+    | '/.well-known/oauth-protected-resource'
+    | '/api/inngest'
+    | '/.lovable/oauth/consent'
+    | '/api/public/email/webhook'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -211,12 +311,21 @@ export interface FileRouteTypes {
     | '/billing'
     | '/company-admin'
     | '/company-portal'
+    | '/evidence-review'
     | '/import'
+    | '/ledger-conflicts'
+    | '/mcp'
+    | '/outbox'
     | '/personnel'
     | '/risk-analysis'
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
+    | '/yard'
+    | '/.well-known/oauth-protected-resource'
+    | '/api/inngest'
+    | '/.lovable/oauth/consent'
+    | '/api/public/email/webhook'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -230,12 +339,21 @@ export interface RootRouteChildren {
   BillingRoute: typeof BillingRoute
   CompanyAdminRoute: typeof CompanyAdminRoute
   CompanyPortalRoute: typeof CompanyPortalRoute
+  EvidenceReviewRoute: typeof EvidenceReviewRoute
   ImportRoute: typeof ImportRoute
+  LedgerConflictsRoute: typeof LedgerConflictsRoute
+  McpRoute: typeof McpRoute
+  OutboxRoute: typeof OutboxRoute
   PersonnelRoute: typeof PersonnelRoute
   RiskAnalysisRoute: typeof RiskAnalysisRoute
   ScanTransferRoute: typeof ScanTransferRoute
   SuperAdminRoute: typeof SuperAdminRoute
   TermsRoute: typeof TermsRoute
+  YardRoute: typeof YardRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  ApiInngestRoute: typeof ApiInngestRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  ApiPublicEmailWebhookRoute: typeof ApiPublicEmailWebhookRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -304,11 +422,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompanyPortalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/evidence-review': {
+      id: '/evidence-review'
+      path: '/evidence-review'
+      fullPath: '/evidence-review'
+      preLoaderRoute: typeof EvidenceReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/import': {
       id: '/import'
       path: '/import'
       fullPath: '/import'
       preLoaderRoute: typeof ImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ledger-conflicts': {
+      id: '/ledger-conflicts'
+      path: '/ledger-conflicts'
+      fullPath: '/ledger-conflicts'
+      preLoaderRoute: typeof LedgerConflictsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/outbox': {
+      id: '/outbox'
+      path: '/outbox'
+      fullPath: '/outbox'
+      preLoaderRoute: typeof OutboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/personnel': {
@@ -346,6 +492,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/yard': {
+      id: '/yard'
+      path: '/yard'
+      fullPath: '/yard'
+      preLoaderRoute: typeof YardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/inngest': {
+      id: '/api/inngest'
+      path: '/api/inngest'
+      fullPath: '/api/inngest'
+      preLoaderRoute: typeof ApiInngestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/email/webhook': {
+      id: '/api/public/email/webhook'
+      path: '/api/public/email/webhook'
+      fullPath: '/api/public/email/webhook'
+      preLoaderRoute: typeof ApiPublicEmailWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -366,12 +547,22 @@ const rootRouteChildren: RootRouteChildren = {
   BillingRoute: BillingRoute,
   CompanyAdminRoute: CompanyAdminRoute,
   CompanyPortalRoute: CompanyPortalRoute,
+  EvidenceReviewRoute: EvidenceReviewRoute,
   ImportRoute: ImportRoute,
+  LedgerConflictsRoute: LedgerConflictsRoute,
+  McpRoute: McpRoute,
+  OutboxRoute: OutboxRoute,
   PersonnelRoute: PersonnelRoute,
   RiskAnalysisRoute: RiskAnalysisRoute,
   ScanTransferRoute: ScanTransferRoute,
   SuperAdminRoute: SuperAdminRoute,
   TermsRoute: TermsRoute,
+  YardRoute: YardRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  ApiInngestRoute: ApiInngestRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  ApiPublicEmailWebhookRoute: ApiPublicEmailWebhookRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport

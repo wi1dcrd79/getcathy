@@ -1,3 +1,4 @@
+import { SignOff } from "@/components/certvault/SignOff";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -293,6 +294,7 @@ function Personnel() {
                     <th className="px-4 py-3">Stamp / No.</th>
                     <th className="px-4 py-3">Expires</th>
                     <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Sign-off</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -312,12 +314,19 @@ function Personnel() {
                         <td className="px-4 py-3">
                           <StatusBadge status={certStatus(cert.expiration_date)} />
                         </td>
+                        <td className="px-4 py-3">
+                          <SignOff
+                            table="personnel_certs"
+                            row={cert as unknown as Record<string, unknown>}
+                            label={`${cert.cert_name}${person ? ` — ${person.last_name}` : ""}`}
+                          />
+                        </td>
                       </tr>
                     );
                   })}
                   {approved.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-4 py-6 text-sm text-muted-foreground">
+                      <td colSpan={7} className="px-4 py-6 text-sm text-muted-foreground">
                         No signed-off certifications yet.
                       </td>
                     </tr>

@@ -9,6 +9,7 @@ import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { ScannerInput } from "@/components/certvault/ScannerInput";
 import { TagKeypad } from "@/components/certvault/TagKeypad";
 import { enqueueTransfer, flushQueue, nextSequenceId, readQueue } from "@/lib/offline-queue";
+import { enqueueLedgerAction, flushLedgerOutbox } from "@/lib/asset-ledger";
 import { toast } from "sonner";
 
 
@@ -70,8 +71,9 @@ function ScanTransfer() {
     const goOnline = async () => {
       setOnline(true);
       const report = await flushQueue();
+      const ledgerReport = await flushLedgerOutbox();
       await refreshQueue();
-      if (report.applied > 0 || report.conflicts.length > 0) {
+      if (report.applied > 0 || report.conflicts.length > 0 || ledgerReport.applied > 0) {
         assetsQ.refetch();
       }
       if (report.applied > 0) {
@@ -83,6 +85,12 @@ function ScanTransfer() {
       for (const c of report.conflicts) {
         toast.warning(`Sync reconciliation — ${c.assetTag}`, {
           description: `Someone else moved it to ${c.actual} while you were offline. Your move to ${c.attempted} was logged as a conflict, not applied.`,
+          duration: 12000,
+        });
+      }
+      if (ledgerReport.conflicts.length > 0) {
+        toast.warning(`Ledger conflicts — ${ledgerReport.conflicts.length} action${ledgerReport.conflicts.length === 1 ? "" : "s"}`, {
+          description: "Filed to the manager review queue. The asset's current state was left untouched.",
           duration: 12000,
         });
       }
@@ -171,6 +179,14 @@ function ScanTransfer() {
           bin,
           captured_at: ts,
           local_sequence_id: await nextSequenceId(),
+        });
+        await enqueueLedgerAction({
+          company_id: companyId ?? "",
+          asset_id: asset.id,
+          action_type: "TRANSFER",
+          metadata: { from, to, site, zone, bin },
+          current_ledger_event_id:
+            (asset as { current_ledger_event_id?: string | null }).current_ledger_event_id ?? null,
         });
         setQueued(n);
         setMsg(`Offline — ${asset.asset_tag} → ${to} queued and will sync automatically.`);
