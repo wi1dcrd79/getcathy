@@ -1,7 +1,9 @@
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { PastDueBanner } from "@/components/certvault/PastDueBanner";
 import { AssistantWidget } from "@/components/certvault/AssistantWidget";
+import { SignatureSync } from "@/components/certvault/SignatureSync";
 import { Toaster } from "@/components/ui/sonner";
 import {
   Outlet,
@@ -40,7 +42,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -162,6 +164,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <AssistantWidget />
+      <SignatureSync />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );

@@ -16,7 +16,8 @@ and generates printable audit binders for OSHA / GC review.
 - **Frontend:** React 19, TypeScript, Vite 8, TanStack Start (SSR + server functions), Tailwind CSS v4, shadcn/ui
 - **Backend & Auth:** Lovable Cloud (Supabase: PostgreSQL, Row Level Security, Auth, Storage)
 - **Payments:** Paddle (Merchant of Record) — sandbox & live
-- **Durable execution:** Inngest — _planned, not yet implemented (Track 1)_
+- **Durable execution:** Inngest — live hourly telemetry sync + cert-expiration dispatch
+- **Email delivery tracking:** Resend webhooks — live, fail-closed signature validation and status progression
 - **PWA:** vite-plugin-pwa (service worker, installable, offline queueing via IndexedDB)
 - **Native shell:** Capacitor (Android) — app ID `com.cathy.operations`
 - **State & data:** TanStack Query
@@ -64,7 +65,9 @@ environment (Lovable Cloud) — do **not** put these in `.env` or commit them:
 - `PADDLE_SANDBOX_API_KEY` / `PADDLE_LIVE_API_KEY` — Paddle API access
 - `PAYMENTS_SANDBOX_WEBHOOK_SECRET` / `PAYMENTS_LIVE_WEBHOOK_SECRET` — Paddle webhook signature verification
 - `LOVABLE_API_KEY` — internal gateway key
-- _(Planned, Track 1)_ Inngest signing/event keys — connector `std_01m346mp6dev0sxakjbpqqp0by`, wired via `/api/inngest`
+- `INNGEST_API_KEY` / `INNGEST_SIGNING_KEY` — Inngest connector auth
+- `RESEND_WEBHOOK_SECRET` — signed Resend webhook verification for delivery state updates
+- _(Historical note)_ older planning docs mentioned Track 1 / Track 3 as pending; the codebase now includes live Inngest and webhook infrastructure
 
 Never commit real secrets. Public publishable keys are fine in code; everything
 else belongs in secret storage.
@@ -108,16 +111,28 @@ run in the same toolchain as the dev server.
 
 ```
 src/
-  routes/          # TanStack file-based routes (/, /auth, /personnel, /scan-transfer, /import, /audit-binder, /risk-analysis, /company-admin, /super-admin, /terms, ...)
-                    # Planned, not yet in repo: /compliance-reports (Track 6), /api/inngest (Track 1)
+  routes/          # TanStack file-based routes (/, /auth, /personnel, /scan-transfer, /import, /audit-binder, /risk-analysis, /company-admin, /super-admin, /terms, /api/inngest, /api/public/email/webhook, ...)
   components/      # UI components, including C.A.T.H.Y. domain components (in a legacy-named folder)
-  lib/             # Domain logic, compliance calculations, legal copy, *.functions.ts server functions
+  lib/             # Domain logic, compliance calculations, legal copy, *.functions.ts server functions, Inngest jobs
   integrations/    # Auto-generated backend clients — do not edit by hand
   hooks/           # useAuth, useProfile, usePaddleCheckout, ...
+public/            # PWA assets, manifest metadata, static install files
+android/           # Capacitor Android shell
+ios/              # Capacitor iOS shell
 ```
 
 `src/routeTree.gen.ts` and everything under `src/integrations/supabase/` are
 auto-generated — do not edit them manually.
+
+## Live runtime features
+
+The codebase now includes the following live paths that are not reflected in older
+planning-only documentation:
+
+- `src/routes/api/inngest.ts` — Inngest serve route for signed function execution
+- `src/lib/inngest/functions/telemetry-sync.ts` — hourly telemetry collection and sync
+- `src/routes/api/public/email/webhook.ts` — fail-closed Resend webhook verification and delivery tracking
+- `src/routes/api/public/payments/webhook.ts` — Paddle payment lifecycle webhook processing
 
 ## Mobile / PWA
 
