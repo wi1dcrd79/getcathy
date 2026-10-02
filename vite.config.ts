@@ -3,9 +3,6 @@ import { VitePWA } from "vite-plugin-pwa";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 
 export default defineConfig({
-  nitro: {
-    preset: "static",
-  },
   vite: {
     plugins: [
       mcpPlugin(),
