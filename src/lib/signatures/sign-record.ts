@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { submitSignature } from "./submit-signature.functions";
 import { hashRecord, type SignableTable } from "./signed-fields";
+import { conflictKind, isFirstSignerConflict, normalizeRejection } from "./conflict";
 import {
   enqueueSignature,
   isRetryable,
@@ -64,17 +65,18 @@ async function send(item: QueuedSignature): Promise<SendResult> {
         device_metadata: item.device_metadata,
       },
     });
-    if (res.ok) return { kind: "signed" };
+    if (res && (res as { ok?: unknown }).ok === true) return { kind: "signed" };
+    const n = normalizeRejection(res);
     // Lost response: our own signature over the same content already landed.
-    const ex = res.existing;
-    if (res.code === "ALREADY_SIGNED" && ex?.signed_by_me && ex.content_sha256_matches)
+    // Strict: only a fully valid block with real booleans may auto-clear.
+    if (n.code === "ALREADY_SIGNED" && conflictKind(n.existing) === "own_same")
       return { kind: "signed" };
     return {
       kind: "rejected",
-      status: res.status,
-      message: res.message,
-      code: res.code,
-      existing: ex,
+      status: n.status,
+      message: n.message,
+      code: n.code,
+      existing: n.existing,
     };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Signature failed";
@@ -194,9 +196,13 @@ export async function flushSignatureQueue(onlyLocalId?: string): Promise<Signatu
       byId.delete(item.local_id);
       report.signed += 1;
     } else if (out.kind === "rejected") {
-      const firstSigner =
-        out.code === "ALREADY_SIGNED" ||
-        (!out.code && out.status === 409 && /already been signed/i.test(out.message));
+      const firstSigner = isFirstSignerConflict({
+        status: out.status,
+        message: out.message,
+        code: out.code,
+        binder_status: undefined,
+        existing: out.existing ?? null,
+      });
       byId.set(item.local_id, {
         ...tried,
         status: firstSigner ? "conflict" : "failed",
