@@ -1,5 +1,6 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 
 export default defineConfig({
   nitro: {
@@ -7,6 +8,7 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      mcpPlugin(),
       VitePWA({
         strategies: "generateSW",
         registerType: "autoUpdate",
@@ -16,7 +18,7 @@ export default defineConfig({
         manifest: false,
         workbox: {
           globPatterns: ["**/*.{js,css,ico,png,svg,webp,woff2}"],
-          navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
+          navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /^\/mcp/, /^\/\.well-known/, /^\/\.lovable/],
           runtimeCaching: [
             {
               urlPattern: ({ request }) => request.mode === "navigate",

@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "sdk_version": "3.0.4",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://hvzkxlpbcsquiiourxyy.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "c-a-t-h-y",
+      "version": "0.2.0",
+      "title": "C.A.T.H.Y"
+    },
+    "tools": [
+      {
+        "name": "list_assets",
+        "title": "List assets",
+        "description": "List your company's tracked assets with site, zone, bin and status; optionally search by name, tag or serial/VIN.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "search": {
+              "description": "Match name, asset tag or serial/VIN.",
+              "type": "string",
+              "maxLength": 80
+            },
+            "limit": {
+              "default": 25,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_inspections",
+        "title": "List inspections",
+        "description": "List recent inspections for your company with result and expiration date; optionally only failed ones.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "failed_only": {
+              "default": false,
+              "description": "Only return failed inspections.",
+              "type": "boolean"
+            },
+            "limit": {
+              "default": 25,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_expiring_certs",
+        "title": "List expiring certifications",
+        "description": "List your company's personnel certifications that are lapsed or expire within the given number of days.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "within_days": {
+              "default": 30,
+              "description": "Look-ahead window in days.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 365
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_inspection_draft",
+        "title": "Create inspection draft",
+        "description": "Create a DRAFT inspection for an asset. Drafts are never signed or final and do not change compliance status, the Yard Map or the Audit Binder.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "asset_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "inspection_type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "result": {
+              "type": "string",
+              "enum": [
+                "Pass",
+                "Fail",
+                "Needs Service"
+              ]
+            },
+            "notes": {
+              "type": "string",
+              "maxLength": 4000
+            }
+          },
+          "required": [
+            "asset_id",
+            "inspection_type"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_reinspection_task",
+        "title": "Create re-inspection task",
+        "description": "Open a re-inspection task for an asset that is expired or failed. Refused for active assets or when an open task already exists.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "asset_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "due_date": {
+              "description": "YYYY-MM-DD; defaults to 3 days from now.",
+              "type": "string",
+              "format": "date",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+            },
+            "notes": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          "required": [
+            "asset_id"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_task_status",
+        "title": "Update task status",
+        "description": "Move a task open → in_progress or in_progress → ready_for_review. Tasks can't be completed or closed here; only a signed inspection closes a task.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "task_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "status": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          "required": [
+            "task_id",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "request_restricted_action",
+        "title": "Request restricted action (always refused)",
+        "description": "Assistants cannot sign or sign off inspections, compile or approve binders, change roles or users, or delete anything. Calling this records the attempt and returns a refusal.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "sign_inspection",
+                "approve_binder",
+                "compile_binder",
+                "change_role",
+                "manage_user",
+                "delete"
+              ]
+            },
+            "target_id": {
+              "type": "string",
+              "maxLength": 100
+            }
+          },
+          "required": [
+            "action"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
