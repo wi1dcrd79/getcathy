@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { QueuedSignature } from "@/lib/signatures/offline-queue";
 import {
@@ -57,7 +57,7 @@ function Row({ k, v }: { k: string; v: string }) {
 interface Props {
   item: QueuedSignature;
   online: boolean;
-  onDiscard: () => void;
+  onDiscard: (reason: string) => void;
   onClose: () => void;
 }
 
@@ -96,6 +96,36 @@ export function ConflictRecoveryScreen({ item, online, onDiscard, onClose }: Pro
     };
   }, [hasStored, online, item.target, item.target_id, item.signer_id, item.content_sha256]);
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null;
+    dialogRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !dialogRef.current) return;
+      const f = dialogRef.current.querySelectorAll<HTMLElement>("button:not([disabled])");
+      if (f.length === 0) return;
+      const first = f[0]!;
+      const last = f[f.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      prev?.focus();
+    };
+  }, [onClose]);
+
   const ex = stored ?? live;
   const kind = conflictKind(ex);
   const copy = COPY[kind];
@@ -107,6 +137,8 @@ export function ConflictRecoveryScreen({ item, online, onDiscard, onClose }: Pro
     <div
       role="dialog"
       aria-modal="true"
+      ref={dialogRef}
+      tabIndex={-1}
       aria-label={`Resolve conflict: ${item.label}`}
       className="fixed inset-0 z-50 overflow-y-auto bg-background"
     >
@@ -145,8 +177,9 @@ export function ConflictRecoveryScreen({ item, online, onDiscard, onClose }: Pro
         <div className="grid gap-2">
           <button
             type="button"
-            onClick={onDiscard}
-            className={`${btn} bg-accent text-accent-foreground`}
+            disabled={kind === "unknown"}
+            onClick={() => onDiscard(`conflict_${kind}`)}
+            className={`${btn} bg-accent text-accent-foreground disabled:opacity-50`}
           >
             Discard my signature
           </button>

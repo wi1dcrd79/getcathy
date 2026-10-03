@@ -5,7 +5,6 @@ import { conflictKind, isFirstSignerConflict, normalizeRejection } from "./confl
 import {
   enqueueSignature,
   isRetryable,
-  readSignatureQueue,
   readAllSignatures,
   writeSignatureQueue,
   type QueuedSignature,

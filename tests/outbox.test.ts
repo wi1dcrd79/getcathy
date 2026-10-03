@@ -195,3 +195,21 @@ describe("enqueue", () => {
     expect(q[0]).toMatchObject({ local_id: fresh.local_id, status: "queued", attempts: 0 });
   });
 });
+
+describe("tombstone discard", () => {
+  it("dismiss tombstones and survives later writes", async () => {
+    const a = makeItem({ signer_id: "user-a" });
+    const b = makeItem({ signer_id: "user-a" });
+    await seed([a, b]);
+    await dismissSignature(a.local_id, "user-a", "test");
+    expect(await readSignatureQueue()).toHaveLength(1);
+    await flushSignatureQueue();
+    const raw = (await get(KEY)) as QueuedSignature[];
+    const t = raw.find((x) => x.local_id === a.local_id)!;
+    expect(t.status).toBe("discarded");
+    expect(t.signature_png_base64).toBe("");
+    expect(t.content_sha256).toBe(a.content_sha256);
+    expect(t.discarded_by).toBe("user-a");
+    expect(t.discard_reason).toBe("test");
+  });
+});
