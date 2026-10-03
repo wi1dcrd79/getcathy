@@ -19,6 +19,7 @@ import { UpgradeModal } from "@/components/certvault/UpgradeModal";
 import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { useProfile } from "@/hooks/useProfile";
 import { WEB_BILLING_URL } from "@/lib/platform";
+import { PublicLandingView } from "@/components/PublicLandingView";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,8 +38,15 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: Dashboard,
+  component: Home,
 });
+
+function Home() {
+  const { session, loading } = useAuth();
+  if (loading) return <div className="min-h-screen bg-background" aria-busy="true" />;
+  if (!session) return <PublicLandingView />;
+  return <Dashboard />;
+}
 
 type Filter = "all" | "rigging" | "welders" | "overdue";
 
@@ -107,12 +115,8 @@ const READ_ONLY_REASON =
   "Your account is past due. Records stay readable and printable for 30 days, but new assets and yard moves are paused until payment is updated.";
 
 function Dashboard() {
-  const { session, loading: authLoading } = useAuth();
+  const { session } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!authLoading && !session) navigate({ to: "/auth" });
-  }, [authLoading, session, navigate]);
 
   const { companyId, isPro, isSuperAdmin, readOnly, role } = useProfile();
   const showAdminConsole = isPro && (isSuperAdmin || role === "company_admin");
