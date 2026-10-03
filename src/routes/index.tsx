@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { PublicLandingView } from "@/components/PublicLandingView";
 import { fetchAssets, fetchWelders, type AssetRecord } from "@/lib/certvault-data";
 import {
   CATEGORY_LABEL,
@@ -110,9 +111,8 @@ function Dashboard() {
   const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!authLoading && !session) navigate({ to: "/auth" });
-  }, [authLoading, session, navigate]);
+  // Signed-out visitors get the public landing page (Paddle-required public
+  // pricing/terms surface) instead of a hard redirect to /auth.
 
   const { companyId, isPro, isSuperAdmin, readOnly, role } = useProfile();
   const showAdminConsole = isPro && (isSuperAdmin || role === "company_admin");
