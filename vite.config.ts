@@ -14,6 +14,7 @@ export default defineConfig({
         devOptions: { enabled: false },
         manifest: false,
         workbox: {
+          globDirectory: ".output/public",
           globPatterns: ["**/*.{js,css,ico,png,svg,webp,woff2}"],
           navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /^\/mcp/, /^\/\.well-known/, /^\/\.lovable/],
           runtimeCaching: [
