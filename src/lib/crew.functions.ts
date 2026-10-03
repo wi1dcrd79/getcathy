@@ -58,7 +58,10 @@ export const createCrewMember = createServerFn({ method: "POST" })
     if (pe) {
       await supabaseAdmin.auth.admin.deleteUser(created.user.id);
       const seat = /seat/i.test(pe.message);
-      return { ok: false as const, message: seat ? "Your plan's seat limit is reached." : pe.message };
+      return {
+        ok: false as const,
+        message: seat ? "Your plan's seat limit is reached." : pe.message,
+      };
     }
     return { ok: true as const };
   });

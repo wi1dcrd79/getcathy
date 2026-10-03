@@ -40,7 +40,12 @@ function renderEmail(c: Candidate, days: number, role: string) {
 }
 
 export const certExpirationDispatcher = inngest.createFunction(
-  { id: "cert-expiration-dispatcher", concurrency: { limit: 1 }, retries: 0, triggers: [{ cron: "0 6 * * *" }] },
+  {
+    id: "cert-expiration-dispatcher",
+    concurrency: { limit: 1 },
+    retries: 0,
+    triggers: [{ cron: "0 6 * * *" }],
+  },
   async ({ step, runId }) => {
     const results: Record<string, { sent: number; failed: number }> = {};
 

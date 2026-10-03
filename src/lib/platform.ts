@@ -10,7 +10,9 @@ export function isNativeShell(): boolean {
   const w = window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } };
   if (w.Capacitor?.isNativePlatform?.()) return true;
   const ua = navigator.userAgent || "";
-  return /capacitor|cathy-native|\bwv\b.*Android.*CATHY/i.test(ua) || location.protocol === "capacitor:";
+  return (
+    /capacitor|cathy-native|\bwv\b.*Android.*CATHY/i.test(ua) || location.protocol === "capacitor:"
+  );
 }
 
 /**

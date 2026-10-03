@@ -3,7 +3,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
-import { SignatureCaptureDialog, type RecordKind } from "@/components/signatures/SignatureCaptureDialog";
+import {
+  SignatureCaptureDialog,
+  type RecordKind,
+} from "@/components/signatures/SignatureCaptureDialog";
 import { SignatureVerification, type SignatureVerificationRow } from "./SignatureVerification";
 import { signRecord } from "@/lib/signatures/sign-record";
 import { canSign, hashRecord, type SignableTable } from "@/lib/signatures/signed-fields";
@@ -35,7 +38,9 @@ export function useCompanySignatures() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("signatures")
-        .select("id, inspection_id, risk_assessment_id, cert_verification_id, signer_id, signer_role, signed_at, offline_created_at, synced_at, content_sha256");
+        .select(
+          "id, inspection_id, risk_assessment_id, cert_verification_id, signer_id, signer_role, signed_at, offline_created_at, synced_at, content_sha256",
+        );
       if (error) throw error;
       return (data ?? []) as SignatureRow[];
     },
@@ -98,7 +103,9 @@ export function SignOff({
         await queryClient.invalidateQueries({ queryKey: ["signatures"] });
       } else if (out.kind === "queued") {
         setQueued(true);
-        toast.message("You're offline — signature saved on this device and will submit on reconnect.");
+        toast.message(
+          "You're offline — signature saved on this device and will submit on reconnect.",
+        );
       } else {
         toast.error(out.message);
         await queryClient.invalidateQueries({ queryKey: ["signatures"] });

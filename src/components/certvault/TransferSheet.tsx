@@ -4,7 +4,8 @@ import { buildBreadcrumb } from "@/lib/compliance";
 
 const field =
   "w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary";
-const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
+const label =
+  "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
 
 export function TransferSheet({
   open,
@@ -108,7 +109,9 @@ export function TransferSheet({
           className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-accent/50 bg-accent/5 px-4 py-6 text-accent"
         >
           <span className="text-2xl">≣</span>
-          <span className="text-sm font-semibold uppercase tracking-widest">Scan asset barcode</span>
+          <span className="text-sm font-semibold uppercase tracking-widest">
+            Scan asset barcode
+          </span>
         </button>
 
         <div className="space-y-3">
@@ -136,7 +139,12 @@ export function TransferSheet({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
               <label className={label}>Site</label>
-              <input className={field} list="tx-sites" value={site} onChange={(e) => setSite(e.target.value)} />
+              <input
+                className={field}
+                list="tx-sites"
+                value={site}
+                onChange={(e) => setSite(e.target.value)}
+              />
               <datalist id="tx-sites">
                 {sites.map((s) => (
                   <option key={s} value={s} />
@@ -145,7 +153,12 @@ export function TransferSheet({
             </div>
             <div>
               <label className={label}>Zone</label>
-              <input className={field} list="tx-zones" value={zone} onChange={(e) => setZone(e.target.value)} />
+              <input
+                className={field}
+                list="tx-zones"
+                value={zone}
+                onChange={(e) => setZone(e.target.value)}
+              />
               <datalist id="tx-zones">
                 {zones.map((s) => (
                   <option key={s} value={s} />
@@ -154,7 +167,12 @@ export function TransferSheet({
             </div>
             <div>
               <label className={label}>Bin</label>
-              <input className={field} list="tx-bins" value={bin} onChange={(e) => setBin(e.target.value)} />
+              <input
+                className={field}
+                list="tx-bins"
+                value={bin}
+                onChange={(e) => setBin(e.target.value)}
+              />
               <datalist id="tx-bins">
                 {bins.map((s) => (
                   <option key={s} value={s} />

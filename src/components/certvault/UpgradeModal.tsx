@@ -76,7 +76,9 @@ export function UpgradeModal({
                     <span className="text-sm font-bold text-primary">{p.priceLabel}</span>
                   </span>
                   <span className="mt-1 block text-xs text-muted-foreground">
-                    {tier === "enterprise" ? "Unlimited seats · multi-yard" : "Unlimited assets · 5 seats"}
+                    {tier === "enterprise"
+                      ? "Unlimited seats · multi-yard"
+                      : "Unlimited assets · 5 seats"}
                   </span>
                 </button>
               );

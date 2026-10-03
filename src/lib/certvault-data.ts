@@ -13,7 +13,8 @@ export class PlanLimitError extends Error {
 }
 
 function isLimitError(err: unknown): boolean {
-  const msg = err instanceof Error ? err.message : String((err as { message?: string })?.message ?? "");
+  const msg =
+    err instanceof Error ? err.message : String((err as { message?: string })?.message ?? "");
   return msg.includes("FREE_PLAN_LIMIT");
 }
 
@@ -24,7 +25,11 @@ export interface AssetRecord extends AssetRow {
 export async function fetchAssets(): Promise<AssetRecord[]> {
   const [{ data: assets, error: aErr }, { data: inspections, error: iErr }] = await Promise.all([
     supabase.from("assets").select("*").order("asset_tag"),
-    supabase.from("inspections").select("*").eq("status" as never, "final" as never).order("inspection_date", { ascending: false }),
+    supabase
+      .from("inspections")
+      .select("*")
+      .eq("status" as never, "final" as never)
+      .order("inspection_date", { ascending: false }),
   ]);
   if (aErr) throw aErr;
   if (iErr) throw iErr;

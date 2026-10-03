@@ -68,8 +68,14 @@ function statusLabel(status: string): { text: string; className: string } {
 function BillingDashboard() {
   const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { context, companyId, isPro, isPastDue, graceDaysLeft, isLoading: profileLoading } =
-    useProfile();
+  const {
+    context,
+    companyId,
+    isPro,
+    isPastDue,
+    graceDaysLeft,
+    isLoading: profileLoading,
+  } = useProfile();
   const [upgradeReason, setUpgradeReason] = useState<string | null>(null);
 
   useEffect(() => {
@@ -156,8 +162,9 @@ function BillingDashboard() {
         {isPastDue && (
           <div className="rounded-lg border border-warning bg-warning/10 p-4 text-sm text-warning">
             Account Past Due — your records stay safe in read-only mode
-            {graceDaysLeft !== null && ` for ${graceDaysLeft} more day${graceDaysLeft === 1 ? "" : "s"}`}.
-            Update payment to resume moves and new assets.
+            {graceDaysLeft !== null &&
+              ` for ${graceDaysLeft} more day${graceDaysLeft === 1 ? "" : "s"}`}
+            . Update payment to resume moves and new assets.
           </div>
         )}
 
@@ -175,7 +182,9 @@ function BillingDashboard() {
               <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
                 Status
               </p>
-              <p className={`mt-1 text-lg font-bold uppercase ${status.className}`}>{status.text}</p>
+              <p className={`mt-1 text-lg font-bold uppercase ${status.className}`}>
+                {status.text}
+              </p>
               {renews && <p className="mt-1 text-xs text-muted-foreground">{renews}</p>}
             </div>
           </div>

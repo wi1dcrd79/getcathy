@@ -21,23 +21,36 @@ export const compileAuditBinder = createServerFn({ method: "POST" })
       .eq("id", userId)
       .single();
     if (pe || !profile?.company_id) throw new Error("No company for this account.");
-    if (!COMPILE_ROLES.includes(profile.role)) throw new Error("Your role can't compile audit binders.");
+    if (!COMPILE_ROLES.includes(profile.role))
+      throw new Error("Your role can't compile audit binders.");
     const cid = profile.company_id;
 
     const [assets, insps, certs, prev] = await Promise.all([
-      supabase.from("assets").select("id, asset_tag, name, status, site, zone, bin, serial_or_vin").eq("company_id", cid).order("asset_tag"),
+      supabase
+        .from("assets")
+        .select("id, asset_tag, name, status, site, zone, bin, serial_or_vin")
+        .eq("company_id", cid)
+        .order("asset_tag"),
       supabase
         .from("inspections")
         .select("id, asset_id, inspection_type, inspection_date, expiration_date, result")
-        .eq("company_id", cid).eq("status" as never, "final" as never)
+        .eq("company_id", cid)
+        .eq("status" as never, "final" as never)
         .order("inspection_date", { ascending: false }),
       supabase
         .from("personnel_certs")
-        .select("id, personnel_id, cert_name, cert_number, issue_date, expiration_date, approval_status")
+        .select(
+          "id, personnel_id, cert_name, cert_number, issue_date, expiration_date, approval_status",
+        )
         .eq("company_id", cid)
         .eq("approval_status", "approved")
         .order("id"),
-      supabase.from("audit_binders").select("version").eq("company_id", cid).order("version", { ascending: false }).limit(1),
+      supabase
+        .from("audit_binders")
+        .select("version")
+        .eq("company_id", cid)
+        .order("version", { ascending: false })
+        .limit(1),
     ]);
     for (const r of [assets, insps, certs, prev]) if (r.error) throw new Error(r.error.message);
 
@@ -45,7 +58,10 @@ export const compileAuditBinder = createServerFn({ method: "POST" })
     for (const i of insps.data ?? []) if (!latest.has(i.asset_id)) latest.set(i.asset_id, i);
     const snapshot = {
       company_id: cid,
-      equipment: (assets.data ?? []).map((a) => ({ ...a, latest_inspection: latest.get(a.id) ?? null })),
+      equipment: (assets.data ?? []).map((a) => ({
+        ...a,
+        latest_inspection: latest.get(a.id) ?? null,
+      })),
       certifications: certs.data ?? [],
     };
     const content_sha256 = await canonicalSha256(snapshot);

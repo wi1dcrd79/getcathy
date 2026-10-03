@@ -5,9 +5,7 @@
   "auth": {
     "type": "oauth",
     "issuer": "https://hvzkxlpbcsquiiourxyy.supabase.co/auth/v1",
-    "accepted_audiences": [
-      "authenticated"
-    ]
+    "accepted_audiences": ["authenticated"]
   },
   "mcp": {
     "server": {
@@ -125,21 +123,14 @@
             },
             "result": {
               "type": "string",
-              "enum": [
-                "Pass",
-                "Fail",
-                "Needs Service"
-              ]
+              "enum": ["Pass", "Fail", "Needs Service"]
             },
             "notes": {
               "type": "string",
               "maxLength": 4000
             }
           },
-          "required": [
-            "asset_id",
-            "inspection_type"
-          ],
+          "required": ["asset_id", "inspection_type"],
           "additionalProperties": false
         },
         "outputSchema": null
@@ -174,9 +165,7 @@
               "maxLength": 1000
             }
           },
-          "required": [
-            "asset_id"
-          ],
+          "required": ["asset_id"],
           "additionalProperties": false
         },
         "outputSchema": null
@@ -210,10 +199,7 @@
               "maxLength": 1000
             }
           },
-          "required": [
-            "task_id",
-            "status"
-          ],
+          "required": ["task_id", "status"],
           "additionalProperties": false
         },
         "outputSchema": null
@@ -247,9 +233,7 @@
               "maxLength": 100
             }
           },
-          "required": [
-            "action"
-          ],
+          "required": ["action"],
           "additionalProperties": false
         },
         "outputSchema": null

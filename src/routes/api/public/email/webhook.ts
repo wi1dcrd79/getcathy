@@ -1,5 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { createHmac, timingSafeEqual } from 'crypto';
+import { createFileRoute } from "@tanstack/react-router";
+import { createHmac, timingSafeEqual } from "crypto";
 
 /**
  * Resend delivery webhook — advances cert_notifications through the delivery
@@ -17,10 +17,10 @@ type ResendEvent = {
   };
 };
 
-const TERMINAL_STATUSES = new Set(['delivered', 'bounced', 'failed']);
+const TERMINAL_STATUSES = new Set(["delivered", "bounced", "failed"]);
 
 async function adminClient() {
-  const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
 
@@ -36,41 +36,43 @@ function verifySvixSignature(
   headers: Headers,
   secret: string | undefined,
 ): { ok: boolean; reason?: string } {
-  if (!secret || secret.trim() === '') {
-    return { ok: false, reason: 'RESEND_WEBHOOK_SECRET is not configured' };
+  if (!secret || secret.trim() === "") {
+    return { ok: false, reason: "RESEND_WEBHOOK_SECRET is not configured" };
   }
 
-  const id = headers.get('svix-id');
-  const timestamp = headers.get('svix-timestamp');
-  const signatureHeader = headers.get('svix-signature');
+  const id = headers.get("svix-id");
+  const timestamp = headers.get("svix-timestamp");
+  const signatureHeader = headers.get("svix-signature");
   if (!id || !timestamp || !signatureHeader) {
-    return { ok: false, reason: 'missing svix signature headers' };
+    return { ok: false, reason: "missing svix signature headers" };
   }
 
   const skewSeconds = Math.abs(Date.now() / 1000 - Number(timestamp));
   if (!Number.isFinite(skewSeconds) || skewSeconds > 300) {
-    return { ok: false, reason: 'signature timestamp outside tolerance' };
+    return { ok: false, reason: "signature timestamp outside tolerance" };
   }
 
-  const key = Buffer.from(secret.replace(/^whsec_/, ''), 'base64');
-  const expected = createHmac('sha256', key).update(`${id}.${timestamp}.${rawBody}`).digest('base64');
+  const key = Buffer.from(secret.replace(/^whsec_/, ""), "base64");
+  const expected = createHmac("sha256", key)
+    .update(`${id}.${timestamp}.${rawBody}`)
+    .digest("base64");
 
-  const provided = signatureHeader.split(' ').filter(Boolean);
+  const provided = signatureHeader.split(" ").filter(Boolean);
   const match = provided.some((sig) => {
-    const sigValue = sig.replace(/^v1,/, '');
+    const sigValue = sig.replace(/^v1,/, "");
     const a = Buffer.from(sigValue);
     const b = Buffer.from(expected);
     return a.length === b.length && timingSafeEqual(a, b);
   });
 
-  return match ? { ok: true } : { ok: false, reason: 'signature mismatch' };
+  return match ? { ok: true } : { ok: false, reason: "signature mismatch" };
 }
 
 async function findNotification(supabase: any, emailId: string) {
   const { data, error } = await supabase
-    .from('cert_notifications')
-    .select('id, company_id, delivery_status')
-    .eq('provider_message_id', emailId)
+    .from("cert_notifications")
+    .select("id, company_id, delivery_status")
+    .eq("provider_message_id", emailId)
     .maybeSingle();
   if (error) throw error;
   return data as { id: string; company_id: string; delivery_status: string } | null;
@@ -80,12 +82,12 @@ async function handleDelivered(supabase: any, event: ResendEvent): Promise<boole
   const emailId = event.data.email_id;
   if (!emailId) return false;
   const cert = await findNotification(supabase, emailId);
-  if (!cert || cert.delivery_status !== 'dispatched') return false;
+  if (!cert || cert.delivery_status !== "dispatched") return false;
 
   const { error } = await supabase
-    .from('cert_notifications')
-    .update({ delivery_status: 'delivered', resolved_at: new Date().toISOString() })
-    .eq('id', cert.id);
+    .from("cert_notifications")
+    .update({ delivery_status: "delivered", resolved_at: new Date().toISOString() })
+    .eq("id", cert.id);
   if (error) throw error;
   return true;
 }
@@ -94,20 +96,21 @@ async function handleBounced(supabase: any, event: ResendEvent): Promise<boolean
   const emailId = event.data.email_id;
   if (!emailId) return false;
   const cert = await findNotification(supabase, emailId);
-  if (!cert || cert.delivery_status === 'delivered' || cert.delivery_status === 'bounced') return false;
+  if (!cert || cert.delivery_status === "delivered" || cert.delivery_status === "bounced")
+    return false;
 
   const { error } = await supabase
-    .from('cert_notifications')
-    .update({ delivery_status: 'bounced', resolved_at: new Date().toISOString() })
-    .eq('id', cert.id);
+    .from("cert_notifications")
+    .update({ delivery_status: "bounced", resolved_at: new Date().toISOString() })
+    .eq("id", cert.id);
   if (error) throw error;
 
-  const bounceMessage = event.data.bounce?.message || 'unknown bounce';
-  await supabase.from('job_failures').insert({
+  const bounceMessage = event.data.bounce?.message || "unknown bounce";
+  await supabase.from("job_failures").insert({
     company_id: cert.company_id,
-    function_id: 'resend-webhook',
-    event_name: 'email.bounced',
-    status: 'failed',
+    function_id: "resend-webhook",
+    event_name: "email.bounced",
+    status: "failed",
     error_message: `Email bounced: ${bounceMessage}`.slice(0, 1000),
     payload: {
       cert_notification_id: cert.id,
@@ -122,20 +125,21 @@ async function handleComplained(supabase: any, event: ResendEvent): Promise<bool
   const emailId = event.data.email_id;
   if (!emailId) return false;
   const cert = await findNotification(supabase, emailId);
-  if (!cert || cert.delivery_status === 'delivered' || cert.delivery_status === 'failed') return false;
+  if (!cert || cert.delivery_status === "delivered" || cert.delivery_status === "failed")
+    return false;
 
   const { error } = await supabase
-    .from('cert_notifications')
-    .update({ delivery_status: 'failed', resolved_at: new Date().toISOString() })
-    .eq('id', cert.id);
+    .from("cert_notifications")
+    .update({ delivery_status: "failed", resolved_at: new Date().toISOString() })
+    .eq("id", cert.id);
   if (error) throw error;
 
-  await supabase.from('job_failures').insert({
+  await supabase.from("job_failures").insert({
     company_id: cert.company_id,
-    function_id: 'resend-webhook',
-    event_name: 'email.complained',
-    status: 'failed',
-    error_message: 'Recipient marked certification email as spam'.slice(0, 1000),
+    function_id: "resend-webhook",
+    event_name: "email.complained",
+    status: "failed",
+    error_message: "Recipient marked certification email as spam".slice(0, 1000),
     payload: {
       cert_notification_id: cert.id,
       provider_message_id: emailId,
@@ -152,12 +156,12 @@ async function handleDeliveryDelayed(supabase: any, event: ResendEvent): Promise
   const cert = await findNotification(supabase, emailId);
   if (!cert) return false;
 
-  await supabase.from('job_failures').insert({
+  await supabase.from("job_failures").insert({
     company_id: cert.company_id,
-    function_id: 'resend-webhook',
-    event_name: 'email.delivery_delayed',
-    status: 'failed',
-    error_message: 'Email delivery delayed by provider'.slice(0, 1000),
+    function_id: "resend-webhook",
+    event_name: "email.delivery_delayed",
+    status: "failed",
+    error_message: "Email delivery delayed by provider".slice(0, 1000),
     payload: {
       cert_notification_id: cert.id,
       provider_message_id: emailId,
@@ -171,20 +175,21 @@ async function handleFailed(supabase: any, event: ResendEvent): Promise<boolean>
   const emailId = event.data.email_id;
   if (!emailId) return false;
   const cert = await findNotification(supabase, emailId);
-  if (!cert || cert.delivery_status === 'delivered' || cert.delivery_status === 'failed') return false;
+  if (!cert || cert.delivery_status === "delivered" || cert.delivery_status === "failed")
+    return false;
 
   const { error } = await supabase
-    .from('cert_notifications')
-    .update({ delivery_status: 'failed', resolved_at: new Date().toISOString() })
-    .eq('id', cert.id);
+    .from("cert_notifications")
+    .update({ delivery_status: "failed", resolved_at: new Date().toISOString() })
+    .eq("id", cert.id);
   if (error) throw error;
 
-  await supabase.from('job_failures').insert({
+  await supabase.from("job_failures").insert({
     company_id: cert.company_id,
-    function_id: 'resend-webhook',
-    event_name: 'email.failed',
-    status: 'failed',
-    error_message: 'Email could not be sent (provider reported send failure)'.slice(0, 1000),
+    function_id: "resend-webhook",
+    event_name: "email.failed",
+    status: "failed",
+    error_message: "Email could not be sent (provider reported send failure)".slice(0, 1000),
     payload: {
       cert_notification_id: cert.id,
       provider_message_id: emailId,
@@ -193,7 +198,7 @@ async function handleFailed(supabase: any, event: ResendEvent): Promise<boolean>
   return true;
 }
 
-export const Route = createFileRoute('/api/public/email/webhook')({
+export const Route = createFileRoute("/api/public/email/webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
@@ -201,11 +206,11 @@ export const Route = createFileRoute('/api/public/email/webhook')({
         const verification = verifySvixSignature(
           rawBody,
           request.headers,
-          process.env['RESEND_WEBHOOK_SECRET'],
+          process.env["RESEND_WEBHOOK_SECRET"],
         );
         if (!verification.ok) {
           console.warn(`[resend-webhook] rejected: ${verification.reason}`);
-          return new Response('Invalid signature', { status: 401 });
+          return new Response("Invalid signature", { status: 401 });
         }
 
         let event: ResendEvent;
@@ -218,19 +223,19 @@ export const Route = createFileRoute('/api/public/email/webhook')({
         const supabase = await adminClient();
         try {
           switch (event.type) {
-            case 'email.delivered':
+            case "email.delivered":
               await handleDelivered(supabase, event);
               break;
-            case 'email.bounced':
+            case "email.bounced":
               await handleBounced(supabase, event);
               break;
-            case 'email.complained':
+            case "email.complained":
               await handleComplained(supabase, event);
               break;
-            case 'email.delivery_delayed':
+            case "email.delivery_delayed":
               await handleDeliveryDelayed(supabase, event);
               break;
-            case 'email.failed':
+            case "email.failed":
               await handleFailed(supabase, event);
               break;
             default:

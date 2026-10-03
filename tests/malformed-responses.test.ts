@@ -8,18 +8,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const submit = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/signatures/submit-signature.functions", () => ({ submitSignature: submit }));
-vi.mock("@/lib/signatures/signed-fields", () => ({ hashRecord: vi.fn(async () => "a".repeat(64)) }));
+vi.mock("@/lib/signatures/signed-fields", () => ({
+  hashRecord: vi.fn(async () => "a".repeat(64)),
+}));
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: { getSession: async () => ({ data: { session: { user: { id: "user-a" } } } }) },
   },
 }));
 
-import {
-  conflictKind,
-  normalizeExisting,
-  normalizeRejection,
-} from "@/lib/signatures/conflict";
+import { conflictKind, normalizeExisting, normalizeRejection } from "@/lib/signatures/conflict";
 import { isRetryable, readSignatureQueue } from "@/lib/signatures/offline-queue";
 import { flushSignatureQueue, signRecord } from "@/lib/signatures/sign-record";
 import { makeItem, seed, setOnline } from "./helpers";
@@ -99,9 +97,11 @@ describe("normalizeExisting", () => {
       "other_different",
     );
     expect(conflictKind(normalizeExisting({ ...valid, signed_by_me: true }))).toBe("own_same");
-    expect(conflictKind(normalizeExisting({ ...valid, signed_by_me: true, content_sha256_matches: false }))).toBe(
-      "own_different",
-    );
+    expect(
+      conflictKind(
+        normalizeExisting({ ...valid, signed_by_me: true, content_sha256_matches: false }),
+      ),
+    ).toBe("own_different");
     expect(conflictKind(normalizeExisting({ signer_role: "x" }))).toBe("unknown");
   });
 });
@@ -119,10 +119,13 @@ describe("normalizeRejection", () => {
     });
   });
 
-  it.each([undefined, null, "409", 409.5, 99, 700, Number.NaN])("falls back on status %j", (status) => {
-    expect(normalizeRejection({ code: "ALREADY_SIGNED", status }).status).toBe(409);
-    expect(normalizeRejection({ status }).status).toBe(500);
-  });
+  it.each([undefined, null, "409", 409.5, 99, 700, Number.NaN])(
+    "falls back on status %j",
+    (status) => {
+      expect(normalizeRejection({ code: "ALREADY_SIGNED", status }).status).toBe(409);
+      expect(normalizeRejection({ status }).status).toBe(500);
+    },
+  );
 
   it.each([undefined, null, "", "   ", 123, {}])("replaces unusable message %j", (message) => {
     const n = normalizeRejection({ status: 409, message });
@@ -149,14 +152,27 @@ describe("ALREADY_SIGNED, malformed", () => {
     ["existing is a string", { existing: "signed" }],
     ["existing is an array", { existing: [valid] }],
     ["existing empty object", { existing: {} }],
-    ["missing content_sha256_matches", { existing: { ...valid, signed_by_me: true, content_sha256_matches: undefined } }],
-    ["missing signed_by_me", { existing: { ...valid, signed_by_me: undefined, content_sha256_matches: true } }],
-    ["flags are truthy strings", { existing: { ...valid, signed_by_me: "true", content_sha256_matches: "true" } }],
+    [
+      "missing content_sha256_matches",
+      { existing: { ...valid, signed_by_me: true, content_sha256_matches: undefined } },
+    ],
+    [
+      "missing signed_by_me",
+      { existing: { ...valid, signed_by_me: undefined, content_sha256_matches: true } },
+    ],
+    [
+      "flags are truthy strings",
+      { existing: { ...valid, signed_by_me: "true", content_sha256_matches: "true" } },
+    ],
   ])("%s -> conflict, kept, not retryable, never cleared", async (_n, over) => {
     const { report, q } = await flushOne(already(over));
     expect(report.signed).toBe(0);
     expect(report.rejected).toHaveLength(1);
-    expect(q).toMatchObject({ status: "conflict", error_code: "ALREADY_SIGNED", error_status: 409 });
+    expect(q).toMatchObject({
+      status: "conflict",
+      error_code: "ALREADY_SIGNED",
+      error_status: 409,
+    });
     expect(q.existing ?? null).toBeNull();
     expect(isRetryable(q)).toBe(false);
   });
@@ -190,7 +206,9 @@ describe("ALREADY_SIGNED, malformed", () => {
   });
 
   it("online sign with a malformed block resolves as rejected, not signed", async () => {
-    submit.mockResolvedValue(already({ existing: { ...valid, signed_by_me: "true", content_sha256_matches: "true" } }));
+    submit.mockResolvedValue(
+      already({ existing: { ...valid, signed_by_me: "true", content_sha256_matches: "true" } }),
+    );
     const out = await signRecord({
       table: "inspections",
       row: { id: "insp-1" },
@@ -211,7 +229,11 @@ describe("BINDER_NOT_SIGNABLE, malformed", () => {
     ["stray existing block", { existing: valid }],
   ])("%s -> failed with its own code, not retryable", async (_n, over) => {
     const { q } = await flushOne(binder(over));
-    expect(q).toMatchObject({ status: "failed", error_code: "BINDER_NOT_SIGNABLE", error_status: 409 });
+    expect(q).toMatchObject({
+      status: "failed",
+      error_code: "BINDER_NOT_SIGNABLE",
+      error_status: 409,
+    });
     expect(q.existing ?? null).toBeNull();
     expect(isRetryable(q)).toBe(false);
   });
@@ -234,7 +256,9 @@ describe("BINDER_NOT_SIGNABLE, malformed", () => {
   });
 
   it("is not a conflict even if the message mentions signing", async () => {
-    const { q } = await flushOne(binder({ message: "Binder has already been signed or is not ready" }));
+    const { q } = await flushOne(
+      binder({ message: "Binder has already been signed or is not ready" }),
+    );
     expect(q.status).toBe("failed");
   });
 });

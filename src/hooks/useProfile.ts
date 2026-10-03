@@ -30,7 +30,6 @@ async function loadContext(): Promise<CompanyContext | null> {
   // Account initialization happens server-side only.
   await bootstrapAccount();
 
-
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, company_id, email, role, is_super_admin")
@@ -43,7 +42,9 @@ async function loadContext(): Promise<CompanyContext | null> {
   if (p.company_id) {
     const { data } = await supabase
       .from("companies")
-      .select("id, name, subscription_tier, subscription_status, seat_limit, past_due_since, grace_days")
+      .select(
+        "id, name, subscription_tier, subscription_status, seat_limit, past_due_since, grace_days",
+      )
       .eq("id", p.company_id)
       .maybeSingle();
     company = (data as CompanyContext["company"]) ?? null;

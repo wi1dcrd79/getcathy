@@ -29,8 +29,18 @@ export function sanitizeRows(rows: Record<string, unknown>[]): Record<string, st
 }
 
 const MONTHS: Record<string, number> = {
-  jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
-  jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+  jan: 1,
+  feb: 2,
+  mar: 3,
+  apr: 4,
+  may: 5,
+  jun: 6,
+  jul: 7,
+  aug: 8,
+  sep: 9,
+  oct: 10,
+  nov: 11,
+  dec: 12,
 };
 
 function iso(y: number, m: number, d: number): string | null {
@@ -93,30 +103,69 @@ export function parseDate(input: string): string | null {
 /** Canonical craft titles the platform recognises, plus common field spellings. */
 export const CRAFT_ALIASES: Record<string, string[]> = {
   "Combo Welder & Pipefitter": [
-    "welder", "weldr", "wleder", "combo welder", "combowelder", "pipe welder",
-    "pipewelder", "pipefitter", "pipe fitter", "fitter", "tig welder",
-    "mig welder", "stick welder", "structural welder", "6g welder",
+    "welder",
+    "weldr",
+    "wleder",
+    "combo welder",
+    "combowelder",
+    "pipe welder",
+    "pipewelder",
+    "pipefitter",
+    "pipe fitter",
+    "fitter",
+    "tig welder",
+    "mig welder",
+    "stick welder",
+    "structural welder",
+    "6g welder",
   ],
   Boilermaker: ["boilermaker", "boiler maker", "boilermkr", "bolier maker", "vessel welder"],
   "Commercial Plumber": [
-    "plumber", "plummer", "commercial plumber", "journeyman plumber",
-    "master plumber", "medical gas installer", "pipe layer",
+    "plumber",
+    "plummer",
+    "commercial plumber",
+    "journeyman plumber",
+    "master plumber",
+    "medical gas installer",
+    "pipe layer",
   ],
   "Crane & Heavy Iron": [
-    "crane operator", "craneop", "operator", "heavy equipment operator",
-    "equipment operator", "forklift operator", "excavator operator",
-    "telehandler operator", "heavy iron", "dozer operator",
+    "crane operator",
+    "craneop",
+    "operator",
+    "heavy equipment operator",
+    "equipment operator",
+    "forklift operator",
+    "excavator operator",
+    "telehandler operator",
+    "heavy iron",
+    "dozer operator",
   ],
   "Rigging & Safety": [
-    "rigger", "riggr", "qualified rigger", "signalperson", "signal person",
-    "safety", "safety officer", "scaffold builder", "scaffolder", "painter",
-    "blaster", "general labor", "laborer", "labourer", "helper",
+    "rigger",
+    "riggr",
+    "qualified rigger",
+    "signalperson",
+    "signal person",
+    "safety",
+    "safety officer",
+    "scaffold builder",
+    "scaffolder",
+    "painter",
+    "blaster",
+    "general labor",
+    "laborer",
+    "labourer",
+    "helper",
   ],
 };
 
 export const CANONICAL_CRAFTS = Object.keys(CRAFT_ALIASES);
 
-const norm = (s: string) => clean(s).toLowerCase().replace(/[^a-z0-9]/g, "");
+const norm = (s: string) =>
+  clean(s)
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
 
 function editDistance(a: string, b: string): number {
   const prev = Array.from({ length: b.length + 1 }, (_, i) => i);

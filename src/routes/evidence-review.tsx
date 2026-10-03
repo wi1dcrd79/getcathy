@@ -18,10 +18,14 @@ export const Route = createFileRoute("/evidence-review")({
       { title: "AI Evidence Review | C.A.T.H.Y." },
       {
         name: "description",
-        content: "Upload audit documents and check them against signed compliance records for missing or inconsistent evidence.",
+        content:
+          "Upload audit documents and check them against signed compliance records for missing or inconsistent evidence.",
       },
       { property: "og:title", content: "AI Evidence Review | C.A.T.H.Y." },
-      { property: "og:description", content: "Cross-check audit paperwork against sealed, signed compliance records." },
+      {
+        property: "og:description",
+        content: "Cross-check audit paperwork against sealed, signed compliance records.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -29,8 +33,10 @@ export const Route = createFileRoute("/evidence-review")({
   component: EvidenceReview,
 });
 
-const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
-const field = "w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:border-primary";
+const label =
+  "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
+const field =
+  "w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:border-primary";
 const btn =
   "min-h-12 rounded-md border border-border px-4 py-2 text-xs font-semibold uppercase tracking-widest hover:border-primary disabled:opacity-50";
 
@@ -64,7 +70,13 @@ function YardChip({ s }: { s?: string | undefined }) {
         : s === "Out of compliance"
           ? "border-destructive/40 text-destructive"
           : "border-border text-muted-foreground";
-  return <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${c}`}>{s}</span>;
+  return (
+    <span
+      className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${c}`}
+    >
+      {s}
+    </span>
+  );
 }
 interface SavedReview {
   id: string;
@@ -77,7 +89,9 @@ interface SavedReview {
   created_at: string;
 }
 
-const TARGETS: Array<[SignableTable, "inspection_id" | "cert_verification_id" | "risk_assessment_id"]> = [
+const TARGETS: Array<
+  [SignableTable, "inspection_id" | "cert_verification_id" | "risk_assessment_id"]
+> = [
   ["inspections", "inspection_id"],
   ["personnel_certs", "cert_verification_id"],
   ["risk_assessments", "risk_assessment_id"],
@@ -110,7 +124,8 @@ function EvidenceReview() {
   const qc = useQueryClient();
   const { session, loading } = useAuth();
   const { companyId, role, isSuperAdmin, readOnly } = useProfile();
-  const canReview = isSuperAdmin || ["company_admin", "safety_director", "qc_inspector"].includes(role);
+  const canReview =
+    isSuperAdmin || ["company_admin", "safety_director", "qc_inspector"].includes(role);
 
   const [title, setTitle] = useState("");
   const [docs, setDocs] = useState<Doc[]>([]);
@@ -147,7 +162,9 @@ function EvidenceReview() {
           .select(SIGNED_COLUMNS[table].join(", "))
           .eq("company_id", companyId!) // explicit tenant filter; RLS also enforces this
           .in("id", ids);
-        const byId = new Map(((recs ?? []) as unknown as Record<string, unknown>[]).map((r) => [String(r["id"]), r]));
+        const byId = new Map(
+          ((recs ?? []) as unknown as Record<string, unknown>[]).map((r) => [String(r["id"]), r]),
+        );
         for (const s of rows) {
           const rec = byId.get(s[col] as string);
           if (!rec) continue;
@@ -165,11 +182,16 @@ function EvidenceReview() {
       const assetIds = [...new Set(out.map((o) => o.assetId).filter(Boolean))] as string[];
       if (assetIds.length) {
         const [a, i] = await Promise.all([
-          supabase.from("assets").select("id, status").eq("company_id", companyId!).in("id", assetIds),
+          supabase
+            .from("assets")
+            .select("id, status")
+            .eq("company_id", companyId!)
+            .in("id", assetIds),
           supabase
             .from("inspections")
             .select("asset_id, result, expiration_date")
-            .eq("company_id", companyId!).eq("status" as never, "final" as never)
+            .eq("company_id", companyId!)
+            .eq("status" as never, "final" as never)
             .in("asset_id", assetIds)
             .order("inspection_date", { ascending: false }),
         ]);
@@ -181,7 +203,11 @@ function EvidenceReview() {
           if (!o.assetId) continue;
           const s = status.get(o.assetId);
           const l = latest.get(o.assetId);
-          if (s === "out_of_compliance") o.yard = l && l.result !== "Fail" && l.expiration_date < today ? "Expired" : "Out of compliance";
+          if (s === "out_of_compliance")
+            o.yard =
+              l && l.result !== "Fail" && l.expiration_date < today
+                ? "Expired"
+                : "Out of compliance";
           else if (s && /^(active|available|in_service)$/i.test(s)) o.yard = "Active";
           else if (s) o.yard = s.replace(/_/g, " ");
         }
@@ -196,7 +222,9 @@ function EvidenceReview() {
     queryFn: async (): Promise<SavedReview[]> => {
       const { data, error } = await supabase
         .from("evidence_reviews")
-        .select("id, title, overall_status, summary, findings, document_names, record_refs, created_at")
+        .select(
+          "id, title, overall_status, summary, findings, document_names, record_refs, created_at",
+        )
         .order("created_at", { ascending: false })
         .limit(20);
       if (error) throw new Error(error.message);
@@ -240,13 +268,17 @@ function EvidenceReview() {
     setErr(null);
     setResult(null);
     const options = signed.data ?? [];
-    const records = options.filter((o) => picked.has(o.key)).map((o) => ({ table: o.table, id: o.id }));
+    const records = options
+      .filter((o) => picked.has(o.key))
+      .map((o) => ({ table: o.table, id: o.id }));
     if (title.trim().length < 3) return setErr("Give the audit a short title.");
     if (!docs.length) return setErr("Upload at least one audit document.");
     if (!records.length) return setErr("Select at least one signed record to compare against.");
     setBusy(true);
     try {
-      const res = await runEvidenceReview({ data: { title: title.trim(), documents: docs, records, detailLevel } });
+      const res = await runEvidenceReview({
+        data: { title: title.trim(), documents: docs, records, detailLevel },
+      });
       setResult(res);
       if (res.saveError) setErr(`Review finished but could not be saved: ${res.saveError}`);
       qc.invalidateQueries({ queryKey: ["evidence-reviews", companyId] });
@@ -257,31 +289,39 @@ function EvidenceReview() {
     }
   }
 
-  const options = (signed.data ?? []).filter((o) => o.label.toLowerCase().includes(filter.toLowerCase()));
+  const options = (signed.data ?? []).filter((o) =>
+    o.label.toLowerCase().includes(filter.toLowerCase()),
+  );
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-primary">
+          <Link
+            to="/"
+            className="text-xs uppercase tracking-widest text-muted-foreground hover:text-primary"
+          >
             ← Dashboard
           </Link>
           <h1 className="mt-1 text-2xl font-bold uppercase tracking-wide">AI Evidence Review</h1>
           <p className="text-sm text-muted-foreground">
-            Upload audit paperwork and check it against your signed records for missing or inconsistent evidence.
+            Upload audit paperwork and check it against your signed records for missing or
+            inconsistent evidence.
           </p>
         </div>
       </div>
 
       {!canReview ? (
         <div className="rounded-md border border-border bg-card p-4 text-sm text-muted-foreground">
-          Only company admins, safety directors and QC inspectors can run evidence reviews. You can still read past
-          reviews below.
+          Only company admins, safety directors and QC inspectors can run evidence reviews. You can
+          still read past reviews below.
         </div>
       ) : (
         <section className="space-y-5 rounded-md border border-border bg-card p-4">
           <div>
-            <label className={label} htmlFor="ev-title">Audit title</label>
+            <label className={label} htmlFor="ev-title">
+              Audit title
+            </label>
             <input
               id="ev-title"
               className={field}
@@ -306,7 +346,10 @@ function EvidenceReview() {
                 Add documents
               </button>
               {docs.map((d, i) => (
-                <span key={i} className="flex min-h-12 items-center gap-2 rounded-md border border-border px-3 text-xs">
+                <span
+                  key={i}
+                  className="flex min-h-12 items-center gap-2 rounded-md border border-border px-3 text-xs"
+                >
                   {d.mediaType === "application/pdf" ? "PDF" : "IMG"} · {d.name}
                   <button
                     type="button"
@@ -323,18 +366,37 @@ function EvidenceReview() {
 
           <div>
             <span className={label}>Signed records this audit covers ({picked.size} selected)</span>
-            <input className={`${field} mb-2`} placeholder="Filter records" value={filter} onChange={(e) => setFilter(e.target.value)} />
+            <input
+              className={`${field} mb-2`}
+              placeholder="Filter records"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            />
             <div className="max-h-72 overflow-y-auto rounded-md border border-border">
-              {signed.isLoading && <p className="p-3 text-sm text-muted-foreground">Loading signed records…</p>}
+              {signed.isLoading && (
+                <p className="p-3 text-sm text-muted-foreground">Loading signed records…</p>
+              )}
               {signed.data && options.length === 0 && (
-                <p className="p-3 text-sm text-muted-foreground">No signed records yet. Sign off inspections, certifications or risk reviews first.</p>
+                <p className="p-3 text-sm text-muted-foreground">
+                  No signed records yet. Sign off inspections, certifications or risk reviews first.
+                </p>
               )}
               {options.map((o) => (
-                <label key={o.key} className="flex min-h-12 cursor-pointer items-center gap-3 border-b border-border px-3 text-sm last:border-b-0 hover:bg-muted">
-                  <input type="checkbox" className="h-5 w-5" checked={picked.has(o.key)} onChange={() => toggle(o.key)} />
+                <label
+                  key={o.key}
+                  className="flex min-h-12 cursor-pointer items-center gap-3 border-b border-border px-3 text-sm last:border-b-0 hover:bg-muted"
+                >
+                  <input
+                    type="checkbox"
+                    className="h-5 w-5"
+                    checked={picked.has(o.key)}
+                    onChange={() => toggle(o.key)}
+                  />
                   <span className="flex-1">{o.label}</span>
                   <YardChip s={o.yard} />
-                  <span className="text-xs text-muted-foreground">{new Date(o.signedAt).toLocaleDateString()}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(o.signedAt).toLocaleDateString()}
+                  </span>
                 </label>
               ))}
             </div>
@@ -372,14 +434,20 @@ function EvidenceReview() {
             disabled={busy || readOnly}
             onClick={run}
           >
-            {busy ? "Comparing documents with records…" : readOnly ? "Read-only (billing past due)" : "Run evidence review"}
+            {busy
+              ? "Comparing documents with records…"
+              : readOnly
+                ? "Read-only (billing past due)"
+                : "Run evidence review"}
           </button>
         </section>
       )}
 
       {result && (
         <section className="rounded-md border border-border bg-card p-3">
-          <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Records compared · Yard Map status</h2>
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            Records compared · Yard Map status
+          </h2>
           <ul className="mt-2 space-y-1 text-sm">
             {(signed.data ?? [])
               .filter((o) => picked.has(o.key))
@@ -395,17 +463,28 @@ function EvidenceReview() {
       {result && <ResultView title={title} r={result} />}
 
       <section className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Review history</h2>
-        {history.data?.length === 0 && <p className="text-sm text-muted-foreground">No reviews yet.</p>}
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+          Review history
+        </h2>
+        {history.data?.length === 0 && (
+          <p className="text-sm text-muted-foreground">No reviews yet.</p>
+        )}
         {history.data?.map((h) => (
           <details key={h.id} className="rounded-md border border-border bg-card p-3">
             <summary className="flex min-h-12 cursor-pointer items-center gap-3">
-              <span className={`rounded px-2 py-1 text-[10px] font-bold ${statusTone(h.overall_status)}`}>{h.overall_status.replace("_", " ")}</span>
+              <span
+                className={`rounded px-2 py-1 text-[10px] font-bold ${statusTone(h.overall_status)}`}
+              >
+                {h.overall_status.replace("_", " ")}
+              </span>
               <span className="flex-1 text-sm font-semibold">{h.title}</span>
-              <span className="text-xs text-muted-foreground">{new Date(h.created_at).toLocaleString()}</span>
+              <span className="text-xs text-muted-foreground">
+                {new Date(h.created_at).toLocaleString()}
+              </span>
             </summary>
             <p className="mt-2 text-xs text-muted-foreground">
-              Documents: {h.document_names.join(", ")} · Records: {h.record_refs.map((r) => r.label).join("; ")}
+              Documents: {h.document_names.join(", ")} · Records:{" "}
+              {h.record_refs.map((r) => r.label).join("; ")}
             </p>
             <ResultView r={h} compact />
           </details>
@@ -415,12 +494,26 @@ function EvidenceReview() {
   );
 }
 
-function ResultView({ r, title, compact }: { r: EvidenceResult; title?: string; compact?: boolean }) {
+function ResultView({
+  r,
+  title,
+  compact,
+}: {
+  r: EvidenceResult;
+  title?: string;
+  compact?: boolean;
+}) {
   return (
-    <section className={compact ? "mt-3 space-y-3" : "space-y-3 rounded-md border border-border bg-card p-4"}>
+    <section
+      className={
+        compact ? "mt-3 space-y-3" : "space-y-3 rounded-md border border-border bg-card p-4"
+      }
+    >
       {!compact && (
         <div className="flex items-center gap-3">
-          <span className={`rounded px-2 py-1 text-xs font-bold ${statusTone(r.overall_status)}`}>{r.overall_status.replace("_", " ")}</span>
+          <span className={`rounded px-2 py-1 text-xs font-bold ${statusTone(r.overall_status)}`}>
+            {r.overall_status.replace("_", " ")}
+          </span>
           <h2 className="text-lg font-bold">{title}</h2>
         </div>
       )}
@@ -430,20 +523,26 @@ function ResultView({ r, title, compact }: { r: EvidenceResult; title?: string; 
       ) : (
         <ul className="space-y-2">
           {r.findings.map((f, i) => (
-            <li key={i} className={`rounded-md border-l-4 bg-background p-3 ${sevTone(f.severity)}`}>
+            <li
+              key={i}
+              className={`rounded-md border-l-4 bg-background p-3 ${sevTone(f.severity)}`}
+            >
               <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-widest">
                 <span>{f.severity}</span>
                 <span className="text-muted-foreground">{f.kind.replaceAll("_", " ")}</span>
               </div>
               <p className="mt-1 text-sm text-foreground">{f.detail}</p>
-              <p className="mt-1 text-xs text-muted-foreground">Record: {f.record} · Document: {f.document}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Record: {f.record} · Document: {f.document}
+              </p>
               <p className="mt-1 text-xs text-foreground">→ {f.recommendation}</p>
             </li>
           ))}
         </ul>
       )}
       <p className="text-[11px] text-muted-foreground">
-        AI findings are advisory. Signed records are sealed — corrections require a new record or version.
+        AI findings are advisory. Signed records are sealed — corrections require a new record or
+        version.
       </p>
     </section>
   );

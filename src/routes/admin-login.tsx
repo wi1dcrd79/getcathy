@@ -29,7 +29,8 @@ export const Route = createFileRoute("/admin-login")({
 
 const field =
   "w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary";
-const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
+const label =
+  "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
 
 function AdminLogin() {
   const navigate = useNavigate();
@@ -93,7 +94,9 @@ function AdminLogin() {
       <div className="w-full max-w-sm rounded-2xl border border-warning/50 bg-surface p-6">
         <div className="flex items-center gap-2 text-warning">
           <ShieldCheck size={18} />
-          <span className="text-[11px] font-bold uppercase tracking-widest">Restricted Console</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest">
+            Restricted Console
+          </span>
         </div>
         <h1 className="mt-2 text-2xl font-bold uppercase tracking-wide text-foreground">
           Platform Owner

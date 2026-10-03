@@ -22,7 +22,8 @@ export const Route = createFileRoute("/terms")({
       { property: "og:title", content: "Terms of Service — C.A.T.H.Y." },
       {
         property: "og:description",
-        content: "Licensed use, restricted rights, data ownership and liability terms for C.A.T.H.Y.",
+        content:
+          "Licensed use, restricted rights, data ownership and liability terms for C.A.T.H.Y.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -35,14 +36,18 @@ function TermsPage() {
   return (
     <main className="safe-top safe-bottom mx-auto min-h-screen max-w-3xl px-4 py-8">
       <div className="hazard-stripe mb-6 h-1 w-full opacity-70" />
-      <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{BRAND_DIVISION}</p>
+      <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+        {BRAND_DIVISION}
+      </p>
       <h1 className="mt-1 text-3xl font-bold uppercase text-foreground">Terms of Service</h1>
       <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">
         Version {TERMS_VERSION} · Effective 2026
       </p>
 
       <section className="mt-8 rounded-xl border border-border bg-surface p-5">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-foreground">Pricing &amp; Refunds</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-foreground">
+          Pricing &amp; Refunds
+        </h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {PLAN_DISCLOSURES.map((p) => (
             <div key={p.name} className="rounded-lg border border-border p-4">
@@ -62,15 +67,16 @@ function TermsPage() {
             advance in USD and renew automatically until canceled.
           </p>
           <p>
-            <strong className="text-foreground">Cancellation &amp; refunds:</strong> cancel any time from
-            your account settings or the Paddle customer portal — access continues to the end of the
-            period you already paid for. 30-day money-back guarantee; mid-term cancellations and
-            downgrades are refunded on a prorated basis for the unused portion. Refunds are processed by
-            Paddle.com, our reseller and Merchant of Record.
+            <strong className="text-foreground">Cancellation &amp; refunds:</strong> cancel any time
+            from your account settings or the Paddle customer portal — access continues to the end
+            of the period you already paid for. 30-day money-back guarantee; mid-term cancellations
+            and downgrades are refunded on a prorated basis for the unused portion. Refunds are
+            processed by Paddle.com, our reseller and Merchant of Record.
           </p>
           <p>
-            <strong className="text-foreground">Payment lapse:</strong> accounts enter a 30-day read-only
-            compliance grace period — all records and audit binders stay viewable and printable.
+            <strong className="text-foreground">Payment lapse:</strong> accounts enter a 30-day
+            read-only compliance grace period — all records and audit binders stay viewable and
+            printable.
           </p>
           <p>
             <strong className="text-foreground">Support &amp; operator contact:</strong>{" "}
@@ -84,7 +90,9 @@ function TermsPage() {
       <div className="mt-8 text-sm leading-relaxed text-muted-foreground">
         {TERMS_SECTIONS.map((s) => (
           <section key={s.heading} className="mb-7">
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-foreground">{s.heading}</h2>
+            <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-foreground">
+              {s.heading}
+            </h2>
             {s.body.map((p, i) => (
               <p key={i} className="mb-3">
                 {p}
@@ -94,8 +102,13 @@ function TermsPage() {
         ))}
       </div>
 
-      <section id="privacy" className="mt-4 scroll-mt-6 rounded-xl border border-border bg-surface p-5">
-        <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{BRAND_DIVISION}</p>
+      <section
+        id="privacy"
+        className="mt-4 scroll-mt-6 rounded-xl border border-border bg-surface p-5"
+      >
+        <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+          {BRAND_DIVISION}
+        </p>
         <h2 className="mt-1 text-2xl font-bold uppercase text-foreground">Privacy Policy</h2>
         <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">
           Version {TERMS_VERSION} · Effective 2026

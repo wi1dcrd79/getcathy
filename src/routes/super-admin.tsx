@@ -14,7 +14,8 @@ export const Route = createFileRoute("/super-admin")({
       { title: "Company Control — C.A.T.H.Y." },
       {
         name: "description",
-        content: "Super-admin console for managing C.A.T.H.Y. company accounts, plans and crew seats.",
+        content:
+          "Super-admin console for managing C.A.T.H.Y. company accounts, plans and crew seats.",
       },
       { property: "og:title", content: "Company Control — C.A.T.H.Y." },
       {
@@ -75,8 +76,7 @@ function SuperAdmin() {
   const navigate = useNavigate();
   const { isSuperAdmin: profileSuperAdmin, isLoading: profileLoading } = useProfile();
   const isSuperAdmin =
-    profileSuperAdmin &&
-    (session?.user?.email ?? "").trim().toLowerCase() === SUPER_ADMIN_EMAIL;
+    profileSuperAdmin && (session?.user?.email ?? "").trim().toLowerCase() === SUPER_ADMIN_EMAIL;
   const qc = useQueryClient();
 
   useEffect(() => {
@@ -118,11 +118,14 @@ function SuperAdmin() {
     mutationFn: async (vars: { id: string; tier?: string; seats?: number }) => {
       const patch: Record<string, unknown> = {};
       if (vars.tier !== undefined) {
-        patch['subscription_tier'] = vars.tier;
-        patch['seat_limit'] = seatsForTier(vars.tier as PlanTier);
+        patch["subscription_tier"] = vars.tier;
+        patch["seat_limit"] = seatsForTier(vars.tier as PlanTier);
       }
-      if (vars.seats !== undefined) patch['seat_limit'] = vars.seats;
-      const { error } = await supabase.from("companies").update(patch as never).eq("id", vars.id);
+      if (vars.seats !== undefined) patch["seat_limit"] = vars.seats;
+      const { error } = await supabase
+        .from("companies")
+        .update(patch as never)
+        .eq("id", vars.id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["companies"] }),
@@ -140,10 +143,16 @@ function SuperAdmin() {
           This console is only available to the platform owner.
         </p>
         <div className="mt-4 flex flex-col items-center gap-2">
-          <Link to="/admin-login" className="text-sm font-semibold uppercase tracking-widest text-primary">
+          <Link
+            to="/admin-login"
+            className="text-sm font-semibold uppercase tracking-widest text-primary"
+          >
             Owner sign in
           </Link>
-          <Link to="/" className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+          <Link
+            to="/"
+            className="text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+          >
             Back to dashboard
           </Link>
         </div>
@@ -166,7 +175,10 @@ function SuperAdmin() {
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/admin-invoices" className="text-xs font-semibold uppercase tracking-widest text-primary">
+            <Link
+              to="/admin-invoices"
+              className="text-xs font-semibold uppercase tracking-widest text-primary"
+            >
               Invoices
             </Link>
             <Link to="/" className="text-xs font-semibold uppercase tracking-widest text-primary">
@@ -177,12 +189,17 @@ function SuperAdmin() {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-6">
-        {companiesQ.isLoading && <p className="text-sm text-muted-foreground">Loading companies…</p>}
+        {companiesQ.isLoading && (
+          <p className="text-sm text-muted-foreground">Loading companies…</p>
+        )}
         {companiesQ.error && <p className="text-sm text-destructive">Could not load companies.</p>}
 
         <div className="space-y-3">
           {companies.map((c) => (
-            <article key={c.id} className="panel flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <article
+              key={c.id}
+              className="panel flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
               <div>
                 <p className="font-semibold">{c.name}</p>
                 <p className="text-xs text-muted-foreground">

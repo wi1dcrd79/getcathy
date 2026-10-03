@@ -15,20 +15,35 @@ interface Props {
   onCancel: () => void;
 }
 
-export function SignatureCaptureDialog({ recordKind, label, role, computeHash, busy, onConfirm, onCancel }: Props) {
+export function SignatureCaptureDialog({
+  recordKind,
+  label,
+  role,
+  computeHash,
+  busy,
+  onConfirm,
+  onCancel,
+}: Props) {
   const [hash, setHash] = useState<string | null>(null);
   const [hashErr, setHashErr] = useState(false);
 
   useEffect(() => {
     let live = true;
-    computeHash().then((h) => live && setHash(h)).catch(() => live && setHashErr(true));
+    computeHash()
+      .then((h) => live && setHash(h))
+      .catch(() => live && setHashErr(true));
     return () => {
       live = false;
     };
   }, [computeHash]);
 
   return (
-    <div role="dialog" aria-modal="true" aria-label={`Sign ${label}`} className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 backdrop-blur sm:items-center">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Sign ${label}`}
+      className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 backdrop-blur sm:items-center"
+    >
       <div className="safe-bottom max-h-[95vh] w-full max-w-xl overflow-y-auto rounded-t-xl border border-border bg-card p-4 sm:rounded-xl">
         <h2 className="text-base font-bold uppercase tracking-wide">Sign off</h2>
         <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
@@ -39,10 +54,13 @@ export function SignatureCaptureDialog({ recordKind, label, role, computeHash, b
           <dt className="text-muted-foreground">Signing as</dt>
           <dd className="font-semibold uppercase tracking-wide">{role.replace(/_/g, " ")}</dd>
           <dt className="text-muted-foreground">Fingerprint</dt>
-          <dd className="break-all font-mono text-[10px]">{hashErr ? "Could not compute" : hash ?? "Computing…"}</dd>
+          <dd className="break-all font-mono text-[10px]">
+            {hashErr ? "Could not compute" : (hash ?? "Computing…")}
+          </dd>
         </dl>
         <p className="mt-3 rounded-md border border-warning px-3 py-2 text-xs font-semibold text-warning">
-          Single signature, final. Once signed, this record is permanently frozen — any correction requires a new version.
+          Single signature, final. Once signed, this record is permanently frozen — any correction
+          requires a new version.
         </p>
         <SignaturePad busy={busy || !hash} onConfirm={onConfirm} onCancel={onCancel} />
       </div>

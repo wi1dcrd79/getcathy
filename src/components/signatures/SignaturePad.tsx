@@ -113,13 +113,28 @@ export function SignaturePad({ busy, confirmLabel = "Sign", onConfirm, onCancel 
         </div>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">
-        <button type="button" onClick={onCancel} disabled={busy} className="h-12 rounded-md border border-border text-xs font-semibold uppercase tracking-widest">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={busy}
+          className="h-12 rounded-md border border-border text-xs font-semibold uppercase tracking-widest"
+        >
           Cancel
         </button>
-        <button type="button" onClick={clear} disabled={busy || !hasInk} className="h-12 rounded-md border border-border text-xs font-semibold uppercase tracking-widest disabled:opacity-40">
+        <button
+          type="button"
+          onClick={clear}
+          disabled={busy || !hasInk}
+          className="h-12 rounded-md border border-border text-xs font-semibold uppercase tracking-widest disabled:opacity-40"
+        >
           Clear
         </button>
-        <button type="button" onClick={confirm} disabled={busy || !hasInk} className="h-12 rounded-md bg-accent text-xs font-bold uppercase tracking-widest text-accent-foreground disabled:opacity-40">
+        <button
+          type="button"
+          onClick={confirm}
+          disabled={busy || !hasInk}
+          className="h-12 rounded-md bg-accent text-xs font-bold uppercase tracking-widest text-accent-foreground disabled:opacity-40"
+        >
           {busy ? "Signing…" : confirmLabel}
         </button>
       </div>

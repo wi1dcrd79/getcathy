@@ -19,7 +19,8 @@ export const Route = createFileRoute("/risk-analysis")({
       { property: "og:title", content: "AI Risk Review | C.A.T.H.Y." },
       {
         property: "og:description",
-        content: "Turn field inspection notes and photos into a ranked hazard summary and corrective action plan.",
+        content:
+          "Turn field inspection notes and photos into a ranked hazard summary and corrective action plan.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -28,7 +29,8 @@ export const Route = createFileRoute("/risk-analysis")({
   component: RiskAnalysis,
 });
 
-const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
+const label =
+  "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
 const field =
   "w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:border-primary";
 const btn =
@@ -109,7 +111,9 @@ function RiskAnalysis() {
     queryFn: async (): Promise<SavedRow[]> => {
       const { data, error } = await supabase
         .from("risk_assessments")
-        .select("id, company_id, created_by, notes, asset_tag, overall_risk, summary, actions, photo_count, created_at")
+        .select(
+          "id, company_id, created_by, notes, asset_tag, overall_risk, summary, actions, photo_count, created_at",
+        )
         .order("created_at", { ascending: false })
         .limit(20);
       if (error) throw new Error(error.message);
@@ -150,7 +154,8 @@ function RiskAnalysis() {
         },
       });
       setResult({ overall_risk: data.overall_risk, summary: data.summary, actions: data.actions });
-      if (data.saveError) setErr(`Review complete, but it was not saved to the log: ${data.saveError}`);
+      if (data.saveError)
+        setErr(`Review complete, but it was not saved to the log: ${data.saveError}`);
       queryClient.invalidateQueries({ queryKey: ["risk-assessments", companyId] });
     } catch (e) {
       setErr(e instanceof Error ? e.message : "The risk review could not be completed.");
@@ -337,7 +342,9 @@ function RiskAnalysis() {
                   >
                     {row.overall_risk}
                   </span>
-                  <span className="text-sm font-semibold">{row.asset_tag || "Unassigned asset"}</span>
+                  <span className="text-sm font-semibold">
+                    {row.asset_tag || "Unassigned asset"}
+                  </span>
                   <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
                     {new Date(row.created_at).toLocaleString()} · {row.photo_count} photo
                     {row.photo_count === 1 ? "" : "s"}

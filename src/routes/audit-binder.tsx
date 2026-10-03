@@ -43,7 +43,11 @@ function AuditBinder() {
 
   const assetsQ = useQuery({ queryKey: ["assets"], queryFn: fetchAssets, enabled: !!session });
   const weldersQ = useQuery({ queryKey: ["welders"], queryFn: fetchWelders, enabled: !!session });
-  const peopleQ = useQuery({ queryKey: ["personnel"], queryFn: fetchPersonnel, enabled: !!session });
+  const peopleQ = useQuery({
+    queryKey: ["personnel"],
+    queryFn: fetchPersonnel,
+    enabled: !!session,
+  });
   const certsQ = useQuery({ queryKey: ["certs"], queryFn: fetchCerts, enabled: !!session });
 
   const assets = assetsQ.data ?? [];
@@ -87,7 +91,8 @@ function AuditBinder() {
               <p className="text-xs uppercase tracking-widest">Prepared for {companyName}</p>
             </div>
             <p className="text-xs">
-              Generated {new Date().toLocaleString()} · {assets.length} assets · {welders.length} welders
+              Generated {new Date().toLocaleString()} · {assets.length} assets · {welders.length}{" "}
+              welders
             </p>
           </div>
 
@@ -112,7 +117,9 @@ function AuditBinder() {
                   <td>
                     {a.name}
                     <br />
-                    <small>{CATEGORY_LABEL[a.category]} · {a.make_model || "—"}</small>
+                    <small>
+                      {CATEGORY_LABEL[a.category]} · {a.make_model || "—"}
+                    </small>
                   </td>
                   <td>{a.serial_or_vin || "—"}</td>
                   <td>{a.current_location || a.location || "Unassigned"}</td>
@@ -216,7 +223,9 @@ function AuditBinder() {
         </section>
 
         <footer className="binder-footer">
-          <p>{BRAND_DIVISION} · Prepared for {companyName}</p>
+          <p>
+            {BRAND_DIVISION} · Prepared for {companyName}
+          </p>
           <p>{COPYRIGHT_LINE}</p>
         </footer>
       </main>

@@ -81,7 +81,11 @@ function LedgerConflicts() {
     setResolving(id);
     const { error } = await supabase
       .from("ledger_conflicts")
-      .update({ status: "RESOLVED", resolved_by: session!.user.id, resolved_at: new Date().toISOString() } as never)
+      .update({
+        status: "RESOLVED",
+        resolved_by: session!.user.id,
+        resolved_at: new Date().toISOString(),
+      } as never)
       .eq("id", id);
     setResolving(null);
     if (error) {
@@ -114,7 +118,9 @@ function LedgerConflicts() {
 
       <main className="safe-bottom mx-auto max-w-3xl space-y-4 px-4 py-5">
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-widest">
-          <span className={`rounded-full border px-3 py-1 ${pending.length > 0 ? "border-warning text-warning" : "border-success text-success"}`}>
+          <span
+            className={`rounded-full border px-3 py-1 ${pending.length > 0 ? "border-warning text-warning" : "border-success text-success"}`}
+          >
             {pending.length} pending review
           </span>
           <span className="rounded-full border border-border px-3 py-1 text-muted-foreground">
@@ -122,7 +128,9 @@ function LedgerConflicts() {
           </span>
         </div>
 
-        {conflictsQ.isLoading && <p className="text-sm text-muted-foreground">Loading conflicts…</p>}
+        {conflictsQ.isLoading && (
+          <p className="text-sm text-muted-foreground">Loading conflicts…</p>
+        )}
 
         {!conflictsQ.isLoading && conflicts.length === 0 && (
           <div className="panel p-6 text-center">

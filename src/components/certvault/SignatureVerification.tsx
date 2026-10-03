@@ -3,7 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { ShieldCheck, ShieldAlert, FileDown } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { hashRecord, pickSignedColumns, SIGNED_COLUMNS, type SignableTable } from "@/lib/signatures/signed-fields";
+import {
+  hashRecord,
+  pickSignedColumns,
+  SIGNED_COLUMNS,
+  type SignableTable,
+} from "@/lib/signatures/signed-fields";
 import { getSignerIdentity } from "@/lib/signatures/submit-signature.functions";
 
 const TABLE_LABEL: Record<SignableTable, string> = {
@@ -111,7 +116,9 @@ export function SignatureVerification({
       line("Signature", { bold: true, size: 11, gap: 4 });
       line(`Signer: ${signer.data?.email ?? sig.signer_id}`);
       line(`Authorized role: ${sig.signer_role.replace(/_/g, " ")}`);
-      line(`Signed at: ${formatWhen(signedWhen)}${sig.offline_created_at ? " (captured offline)" : ""}`);
+      line(
+        `Signed at: ${formatWhen(signedWhen)}${sig.offline_created_at ? " (captured offline)" : ""}`,
+      );
       line(`Synced at: ${formatWhen(sig.synced_at)}`, { gap: 12 });
 
       line("Sealed content hash (SHA-256, RFC 8785 canonical)", { bold: true, size: 11, gap: 4 });
@@ -170,7 +177,9 @@ export function SignatureVerification({
       </div>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5">
         <dt className="text-muted-foreground">Signer</dt>
-        <dd className="font-medium text-foreground">{signer.data?.email ?? sig.signer_id.slice(0, 8) + "…"}</dd>
+        <dd className="font-medium text-foreground">
+          {signer.data?.email ?? sig.signer_id.slice(0, 8) + "…"}
+        </dd>
         <dt className="text-muted-foreground">Authorized role</dt>
         <dd className="font-medium text-foreground">{sig.signer_role.replace(/_/g, " ")}</dd>
         <dt className="text-muted-foreground">Signed at</dt>
@@ -182,9 +191,7 @@ export function SignatureVerification({
         <dd className="break-all font-mono text-[10px] text-foreground">{sig.content_sha256}</dd>
         <dt className="text-muted-foreground">Integrity</dt>
         <dd>
-          {hashState === "checking" && (
-            <span className="text-muted-foreground">Recomputing…</span>
-          )}
+          {hashState === "checking" && <span className="text-muted-foreground">Recomputing…</span>}
           {hashState === "match" && (
             <span className="inline-flex items-center gap-1 font-bold text-primary">
               <ShieldCheck className="h-3.5 w-3.5" /> Verified — record unchanged since signing

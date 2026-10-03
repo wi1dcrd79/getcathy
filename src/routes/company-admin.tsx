@@ -44,7 +44,8 @@ function AddCrew({ onDone }: { onDone: () => void }) {
   const run = useServerFn(createCrewMember);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  const input = "min-h-[48px] rounded-md border border-border bg-input px-3 text-sm text-foreground";
+  const input =
+    "min-h-[48px] rounded-md border border-border bg-input px-3 text-sm text-foreground";
   return (
     <form
       className="mt-4 grid gap-2 rounded-md border border-dashed border-border p-3 sm:grid-cols-[1fr_1fr_auto_auto]"
@@ -63,20 +64,35 @@ function AddCrew({ onDone }: { onDone: () => void }) {
             },
           });
           if (r.ok) {
-            setMsg({ ok: true, text: "Crew member added. Share the temporary password with them." });
+            setMsg({
+              ok: true,
+              text: "Crew member added. Share the temporary password with them.",
+            });
             form.reset();
             onDone();
           } else setMsg({ ok: false, text: r.message });
         } catch {
-          setMsg({ ok: false, text: "Check the email and use a password of at least 10 characters." });
+          setMsg({
+            ok: false,
+            text: "Check the email and use a password of at least 10 characters.",
+          });
         } finally {
           setBusy(false);
         }
       }}
     >
-      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground sm:col-span-4">Add crew member</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground sm:col-span-4">
+        Add crew member
+      </p>
       <input name="email" type="email" required placeholder="Work email" className={input} />
-      <input name="password" type="text" required minLength={10} placeholder="Temporary password" className={input} />
+      <input
+        name="password"
+        type="text"
+        required
+        minLength={10}
+        placeholder="Temporary password"
+        className={input}
+      />
       <select name="role" defaultValue="field_tech" className={input}>
         {ASSIGNABLE_ROLES.map((r) => (
           <option key={r.value} value={r.value}>
@@ -91,7 +107,9 @@ function AddCrew({ onDone }: { onDone: () => void }) {
         {busy ? "Adding…" : "Add"}
       </button>
       {msg && (
-        <p className={`text-sm sm:col-span-4 ${msg.ok ? "text-success" : "text-destructive"}`}>{msg.text}</p>
+        <p className={`text-sm sm:col-span-4 ${msg.ok ? "text-success" : "text-destructive"}`}>
+          {msg.text}
+        </p>
       )}
     </form>
   );
@@ -245,13 +263,17 @@ function CompanyAdmin() {
         {isPastDue && (
           <p className="panel border-warning/40 p-3 text-sm text-warning">
             Account past due — records stay readable
-            {graceDaysLeft !== null ? ` for ${graceDaysLeft} more day${graceDaysLeft === 1 ? "" : "s"}` : ""}. Update
-            payment to resume moves.
+            {graceDaysLeft !== null
+              ? ` for ${graceDaysLeft} more day${graceDaysLeft === 1 ? "" : "s"}`
+              : ""}
+            . Update payment to resume moves.
           </p>
         )}
 
         <section className="panel p-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Company</h2>
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            Company
+          </h2>
           <form
             className="mt-2 flex flex-wrap items-center gap-2"
             onSubmit={(e) => {
@@ -282,14 +304,18 @@ function CompanyAdmin() {
 
         <section className="panel p-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Crew seats</h2>
+            <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+              Crew seats
+            </h2>
             <p className="text-xs text-muted-foreground">
               {team.length} of {seatLimit >= 999999 ? "unlimited" : seatLimit} used
             </p>
           </div>
 
           {teamQ.isLoading && <p className="mt-3 text-sm text-muted-foreground">Loading crew…</p>}
-          {teamQ.error && <p className="mt-3 text-sm text-destructive">Could not load your crew list.</p>}
+          {teamQ.error && (
+            <p className="mt-3 text-sm text-destructive">Could not load your crew list.</p>
+          )}
 
           <ul className="mt-3 space-y-2">
             {team.map((m) => (
@@ -321,7 +347,9 @@ function CompanyAdmin() {
               <li className="text-sm text-muted-foreground">No crew members on file yet.</li>
             )}
           </ul>
-          {setRole.error && <p className="mt-2 text-sm text-destructive">Could not change that role.</p>}
+          {setRole.error && (
+            <p className="mt-2 text-sm text-destructive">Could not change that role.</p>
+          )}
           <AddCrew onDone={() => qc.invalidateQueries({ queryKey: ["company-team", companyId] })} />
           <p className="mt-3 text-xs text-muted-foreground">
             Only company admins can add crew or change roles. You cannot change your own role.
@@ -329,12 +357,17 @@ function CompanyAdmin() {
         </section>
 
         <section className="panel p-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Subscription</h2>
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            Subscription
+          </h2>
           <div className="mt-2 space-y-1 text-sm">
             <p>
-              Plan: <span className="font-semibold">{planFor(company?.subscription_tier).name}</span>
+              Plan:{" "}
+              <span className="font-semibold">{planFor(company?.subscription_tier).name}</span>
             </p>
-            <p className="text-muted-foreground">Account status: {company?.subscription_status ?? "unknown"}</p>
+            <p className="text-muted-foreground">
+              Account status: {company?.subscription_status ?? "unknown"}
+            </p>
             {billingQ.data?.current_period_end && (
               <p className="text-muted-foreground">
                 Renews {new Date(billingQ.data.current_period_end).toLocaleDateString()}

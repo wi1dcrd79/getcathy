@@ -24,7 +24,8 @@ const EMPTY: NewInspectionInput = {
 
 const field =
   "w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary";
-const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
+const label =
+  "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
 
 export function ScanSheet({
   open,
@@ -187,7 +188,12 @@ export function ScanSheet({
           </div>
           <div className="col-span-2">
             <label className={label}>Description</label>
-            <input required className={field} value={form.name} onChange={(e) => set("name", e.target.value)} />
+            <input
+              required
+              className={field}
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+            />
           </div>
           <div className="col-span-1">
             <label className={label}>Make / Model</label>
@@ -209,15 +215,27 @@ export function ScanSheet({
           <div className="col-span-2 grid grid-cols-3 gap-3 rounded-lg border border-border bg-input/40 p-3">
             <div>
               <label className={label}>Site</label>
-              <input className={field} value={form.site} onChange={(e) => set("site", e.target.value)} />
+              <input
+                className={field}
+                value={form.site}
+                onChange={(e) => set("site", e.target.value)}
+              />
             </div>
             <div>
               <label className={label}>Zone</label>
-              <input className={field} value={form.zone} onChange={(e) => set("zone", e.target.value)} />
+              <input
+                className={field}
+                value={form.zone}
+                onChange={(e) => set("zone", e.target.value)}
+              />
             </div>
             <div>
               <label className={label}>Bin</label>
-              <input className={field} value={form.bin} onChange={(e) => set("bin", e.target.value)} />
+              <input
+                className={field}
+                value={form.bin}
+                onChange={(e) => set("bin", e.target.value)}
+              />
             </div>
           </div>
           <div className="col-span-1">
@@ -241,7 +259,11 @@ export function ScanSheet({
           </div>
           <div className="col-span-1">
             <label className={label}>Result</label>
-            <select className={field} value={form.result} onChange={(e) => set("result", e.target.value)}>
+            <select
+              className={field}
+              value={form.result}
+              onChange={(e) => set("result", e.target.value)}
+            >
               <option>Pass</option>
               <option>Fail</option>
               <option>Needs Service</option>

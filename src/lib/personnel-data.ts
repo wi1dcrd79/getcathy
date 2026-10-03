@@ -33,10 +33,7 @@ export interface CustomTrade {
 }
 
 export async function fetchPersonnel(): Promise<PersonnelRecord[]> {
-  const { data, error } = await supabase
-    .from("personnel_records")
-    .select("*")
-    .order("last_name");
+  const { data, error } = await supabase.from("personnel_records").select("*").order("last_name");
   if (error) throw error;
   return (data ?? []) as unknown as PersonnelRecord[];
 }
@@ -51,10 +48,7 @@ export async function fetchCerts(): Promise<PersonnelCert[]> {
 }
 
 export async function fetchCustomTrades(): Promise<CustomTrade[]> {
-  const { data, error } = await supabase
-    .from("custom_trades")
-    .select("*")
-    .order("trade_name");
+  const { data, error } = await supabase.from("custom_trades").select("*").order("trade_name");
   if (error) throw error;
   return (data ?? []) as unknown as CustomTrade[];
 }

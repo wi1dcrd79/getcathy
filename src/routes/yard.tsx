@@ -16,10 +16,14 @@ export const Route = createFileRoute("/yard")({
       { title: "Yard Map: Site, Zone, Bin | C.A.T.H.Y." },
       {
         name: "description",
-        content: "Drill from site to zone to bin and see compliance status and physical inventory side by side.",
+        content:
+          "Drill from site to zone to bin and see compliance status and physical inventory side by side.",
       },
       { property: "og:title", content: "Yard Map: Site, Zone, Bin | C.A.T.H.Y." },
-      { property: "og:description", content: "Compliance and inventory together for every site, zone and bin." },
+      {
+        property: "og:description",
+        content: "Compliance and inventory together for every site, zone and bin.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -68,7 +72,16 @@ interface Tally {
 }
 
 function tally(rows: Row[]): Tally {
-  const t: Tally = { total: 0, ok: 0, expiring: 0, lapsed: 0, none: 0, failed: 0, actions: 0, flagged: 0 };
+  const t: Tally = {
+    total: 0,
+    ok: 0,
+    expiring: 0,
+    lapsed: 0,
+    none: 0,
+    failed: 0,
+    actions: 0,
+    flagged: 0,
+  };
   for (const r of rows) {
     t.total++;
     if (r.compliance === "Compliant") t.ok++;
@@ -105,7 +118,8 @@ function YardPage() {
         supabase
           .from("inspections")
           .select("asset_id, inspection_date, expiration_date, result")
-          .eq("company_id", companyId!).eq("status" as never, "final" as never)
+          .eq("company_id", companyId!)
+          .eq("status" as never, "final" as never)
           .order("inspection_date", { ascending: false }),
         supabase
           .from("corrective_actions")
@@ -121,9 +135,11 @@ function YardPage() {
       ]);
       for (const r of [a, i, c, m]) if (r.error) throw r.error;
       const latest = new Map<string, Insp>();
-      for (const x of (i.data ?? []) as Insp[]) if (!latest.has(x.asset_id)) latest.set(x.asset_id, x);
+      for (const x of (i.data ?? []) as Insp[])
+        if (!latest.has(x.asset_id)) latest.set(x.asset_id, x);
       const acts = new Map<string, number>();
-      for (const x of c.data ?? []) if (x.asset_id) acts.set(x.asset_id, (acts.get(x.asset_id) ?? 0) + 1);
+      for (const x of c.data ?? [])
+        if (x.asset_id) acts.set(x.asset_id, (acts.get(x.asset_id) ?? 0) + 1);
       const rows: Row[] = ((a.data ?? []) as Asset[]).map((x) => {
         const l = latest.get(x.id);
         return {
@@ -133,7 +149,8 @@ function YardPage() {
         };
       });
       const mine = (c.data ?? []).filter(
-        (x) => x.assigned_to === session!.user.id && x.description.startsWith("Re-inspection required"),
+        (x) =>
+          x.assigned_to === session!.user.id && x.description.startsWith("Re-inspection required"),
       );
       return { rows, moves: (m.data ?? []) as Move[], mine };
     },
@@ -141,7 +158,8 @@ function YardPage() {
 
   const level: "site" | "zone" | "bin" = !site ? "site" : !zone ? "zone" : "bin";
   const scoped = useMemo(
-    () => (q.data?.rows ?? []).filter((r) => (!site || r.site === site) && (!zone || r.zone === zone)),
+    () =>
+      (q.data?.rows ?? []).filter((r) => (!site || r.site === site) && (!zone || r.zone === zone)),
     [q.data, site, zone],
   );
   const groups = useMemo(() => {
@@ -210,7 +228,9 @@ function YardPage() {
                   {q.data.mine.map((x) => (
                     <li key={x.id} className="flex flex-wrap justify-between gap-2">
                       <span>{x.description.replace("Re-inspection required: ", "")}</span>
-                      <span className="text-xs text-muted-foreground">Due {new Date(x.due_date).toLocaleDateString()}</span>
+                      <span className="text-xs text-muted-foreground">
+                        Due {new Date(x.due_date).toLocaleDateString()}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -220,14 +240,24 @@ function YardPage() {
               <Stat label="Equipment" value={all.total} />
               <Stat label="Out of compliance" value={all.lapsed} tone="destructive" />
               <Stat label="Expiring ≤30d" value={all.expiring} tone="warning" />
-              <Stat label="Open actions" value={all.actions} tone={all.actions ? "warning" : undefined} />
+              <Stat
+                label="Open actions"
+                value={all.actions}
+                tone={all.actions ? "warning" : undefined}
+              />
             </section>
 
             <section className="panel p-4">
               <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                {level === "site" ? "Sites" : level === "zone" ? `Zones in ${site}` : `Bins in ${zone}`}
+                {level === "site"
+                  ? "Sites"
+                  : level === "zone"
+                    ? `Zones in ${site}`
+                    : `Bins in ${zone}`}
               </h2>
-              {groups.length === 0 && <p className="mt-3 text-sm text-muted-foreground">No equipment here yet.</p>}
+              {groups.length === 0 && (
+                <p className="mt-3 text-sm text-muted-foreground">No equipment here yet.</p>
+              )}
               <ul className="mt-3 space-y-2">
                 {groups.map(([name, rows]) => {
                   const t = tally(rows);
@@ -248,7 +278,10 @@ function YardPage() {
                       {level === "bin" && (
                         <ul className="mt-3 divide-y divide-border border-t border-border">
                           {rows.map((r) => (
-                            <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                            <li
+                              key={r.id}
+                              className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm"
+                            >
                               <span className="min-w-0">
                                 <span className="font-semibold">{r.asset_tag}</span>{" "}
                                 <span className="text-muted-foreground">{r.name}</span>
@@ -292,8 +325,12 @@ function YardPage() {
             </section>
 
             <section className="panel p-4">
-              <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Recent moves</h2>
-              {moves.length === 0 && <p className="mt-3 text-sm text-muted-foreground">No moves recorded.</p>}
+              <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                Recent moves
+              </h2>
+              {moves.length === 0 && (
+                <p className="mt-3 text-sm text-muted-foreground">No moves recorded.</p>
+              )}
               <ul className="mt-3 space-y-1 text-sm">
                 {moves.map((m, i) => (
                   <li key={i} className="flex flex-wrap justify-between gap-2">
@@ -303,7 +340,9 @@ function YardPage() {
                         {m.moved_from} → {m.moved_to}
                       </span>
                     </span>
-                    <span className="text-xs text-muted-foreground">{new Date(m.created_at).toLocaleString()}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(m.created_at).toLocaleString()}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -315,17 +354,38 @@ function YardPage() {
   );
 }
 
-function Stat({ label, value, tone }: { label: string; value: number; tone?: "warning" | "destructive" | undefined }) {
-  const c = tone === "destructive" ? "text-destructive" : tone === "warning" ? "text-warning" : "text-foreground";
+function Stat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone?: "warning" | "destructive" | undefined;
+}) {
+  const c =
+    tone === "destructive"
+      ? "text-destructive"
+      : tone === "warning"
+        ? "text-warning"
+        : "text-foreground";
   return (
     <div className="panel p-3">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </p>
       <p className={`font-display text-2xl font-bold ${c}`}>{value}</p>
     </div>
   );
 }
 
-function Chip({ children, tone }: { children: React.ReactNode; tone?: "success" | "warning" | "destructive" | undefined }) {
+function Chip({
+  children,
+  tone,
+}: {
+  children: React.ReactNode;
+  tone?: "success" | "warning" | "destructive" | undefined;
+}) {
   const c =
     tone === "success"
       ? "border-success/40 text-success"
