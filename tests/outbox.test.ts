@@ -20,9 +20,11 @@ import {
   enqueueSignature,
   isRetryable,
   readSignatureQueue,
+  type QueuedSignature,
 } from "@/lib/signatures/offline-queue";
+import { get } from "idb-keyval";
 import { flushSignatureQueue, retrySignature, signRecord } from "@/lib/signatures/sign-record";
-import { makeItem, seed, setOnline, wait } from "./helpers";
+import { KEY, makeItem, seed, setOnline, wait } from "./helpers";
 
 const OK = { ok: true, signature_id: "sig-1", synced_at: "2026-10-01T12:00:00.000Z" };
 const sign = (id = "insp-1") =>
