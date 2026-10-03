@@ -207,6 +207,10 @@ function Dashboard() {
   const loading = assetsQ.isLoading || weldersQ.isLoading;
   const error = assetsQ.error || weldersQ.error;
 
+  if (!authLoading && !session) {
+    return <PublicLandingView />;
+  }
+
   return (
     <div className="min-h-screen pb-40 lg:pb-10">
       <header className="safe-top no-print sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
