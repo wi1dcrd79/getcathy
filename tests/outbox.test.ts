@@ -4,7 +4,9 @@ const submit = vi.hoisted(() => vi.fn());
 const session = vi.hoisted(() => ({ userId: "user-a" as string | null }));
 
 vi.mock("@/lib/signatures/submit-signature.functions", () => ({ submitSignature: submit }));
-vi.mock("@/lib/signatures/signed-fields", () => ({ hashRecord: vi.fn(async () => "a".repeat(64)) }));
+vi.mock("@/lib/signatures/signed-fields", () => ({
+  hashRecord: vi.fn(async () => "a".repeat(64)),
+}));
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: {
@@ -20,9 +22,11 @@ import {
   enqueueSignature,
   isRetryable,
   readSignatureQueue,
+  type QueuedSignature,
 } from "@/lib/signatures/offline-queue";
+import { get } from "idb-keyval";
 import { flushSignatureQueue, retrySignature, signRecord } from "@/lib/signatures/sign-record";
-import { makeItem, seed, setOnline, wait } from "./helpers";
+import { KEY, makeItem, seed, setOnline, wait } from "./helpers";
 
 const OK = { ok: true, signature_id: "sig-1", synced_at: "2026-10-01T12:00:00.000Z" };
 const sign = (id = "insp-1") =>
@@ -108,7 +112,10 @@ describe("shared device", () => {
     session.userId = "user-b";
     await flushSignatureQueue();
     expect(submit).not.toHaveBeenCalled();
-    expect((await readSignatureQueue())[0]).toMatchObject({ signer_id: "user-a", status: "queued" });
+    expect((await readSignatureQueue())[0]).toMatchObject({
+      signer_id: "user-a",
+      status: "queued",
+    });
   });
 
   it("legacy items without signer_id become needs_resign and are never submitted", async () => {
@@ -132,7 +139,11 @@ describe("rejections", () => {
   it("409 already signed -> conflict, not retryable", async () => {
     const item = makeItem();
     await seed([item]);
-    submit.mockResolvedValue({ ok: false, status: 409, message: "This record has already been signed." });
+    submit.mockResolvedValue({
+      ok: false,
+      status: 409,
+      message: "This record has already been signed.",
+    });
     await flushSignatureQueue();
     const [q] = await readSignatureQueue();
     expect(q).toMatchObject({ status: "conflict", error_status: 409 });
@@ -142,7 +153,11 @@ describe("rejections", () => {
 
   it("409 binder-not-compiled is a failure with the server's own message, not a conflict", async () => {
     await seed([makeItem()]);
-    submit.mockResolvedValue({ ok: false, status: 409, message: "This binder is draft and can't be signed." });
+    submit.mockResolvedValue({
+      ok: false,
+      status: 409,
+      message: "This binder is draft and can't be signed.",
+    });
     await flushSignatureQueue();
     expect((await readSignatureQueue())[0]).toMatchObject({
       status: "failed",
@@ -153,7 +168,11 @@ describe("rejections", () => {
   it("400 hash mismatch is failed and never blindly retryable", async () => {
     const item = makeItem();
     await seed([item]);
-    submit.mockResolvedValue({ ok: false, status: 400, message: "Signature content hash does not match the current record contents." });
+    submit.mockResolvedValue({
+      ok: false,
+      status: 400,
+      message: "Signature content hash does not match the current record contents.",
+    });
     await flushSignatureQueue();
     const [q] = await readSignatureQueue();
     expect(q).toMatchObject({ status: "failed", error_status: 400 });
@@ -193,5 +212,23 @@ describe("enqueue", () => {
     const q = await readSignatureQueue();
     expect(q).toHaveLength(1);
     expect(q[0]).toMatchObject({ local_id: fresh.local_id, status: "queued", attempts: 0 });
+  });
+});
+
+describe("tombstone discard", () => {
+  it("dismiss tombstones and survives later writes", async () => {
+    const a = makeItem({ signer_id: "user-a" });
+    const b = makeItem({ signer_id: "user-a" });
+    await seed([a, b]);
+    await dismissSignature(a.local_id, "user-a", "test");
+    expect(await readSignatureQueue()).toHaveLength(1);
+    await flushSignatureQueue();
+    const raw = (await get(KEY)) as QueuedSignature[];
+    const t = raw.find((x) => x.local_id === a.local_id)!;
+    expect(t.status).toBe("discarded");
+    expect(t.signature_png_base64).toBe("");
+    expect(t.content_sha256).toBe(a.content_sha256);
+    expect(t.discarded_by).toBe("user-a");
+    expect(t.discard_reason).toBe("test");
   });
 });

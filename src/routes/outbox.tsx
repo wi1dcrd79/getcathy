@@ -152,13 +152,15 @@ function Outbox() {
     }
   }
 
-  async function dismiss(x: QueuedSignature): Promise<boolean> {
+  async function dismiss(x: QueuedSignature, reason?: string): Promise<boolean> {
     if (!user) return false;
     if (
-      !window.confirm(`Remove "${x.label}" from this device? The drawn signature will be deleted.`)
+      !window.confirm(
+        `Discard "${x.label}" from this device? The drawn signature image will be deleted. A record that it was discarded is kept.`,
+      )
     )
       return false;
-    await dismissSignature(x.local_id, user.id);
+    await dismissSignature(x.local_id, user.id, reason);
     return true;
   }
 
@@ -267,7 +269,9 @@ function Outbox() {
         <ConflictRecoveryScreen
           item={review}
           online={online}
-          onDiscard={() => void dismiss(review).then((done) => done && setReview(null))}
+          onDiscard={(reason) =>
+            void dismiss(review, reason).then((done) => done && setReview(null))
+          }
           onClose={() => setReview(null)}
         />
       )}
