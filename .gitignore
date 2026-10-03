@@ -74,5 +74,12 @@ ios/App/App/public/
 ios/App/build/
 ios/DerivedData/
 *.xcuserstate
+<<<<<<< HEAD
 supabase/snippets/
 supabase/.branches/
+=======
+
+# Local build and tool directories
+.nvm/
+src-tauri/target/
+>>>>>>> conflict-recovery-screen
