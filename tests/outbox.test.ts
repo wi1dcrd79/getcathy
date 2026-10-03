@@ -4,7 +4,9 @@ const submit = vi.hoisted(() => vi.fn());
 const session = vi.hoisted(() => ({ userId: "user-a" as string | null }));
 
 vi.mock("@/lib/signatures/submit-signature.functions", () => ({ submitSignature: submit }));
-vi.mock("@/lib/signatures/signed-fields", () => ({ hashRecord: vi.fn(async () => "a".repeat(64)) }));
+vi.mock("@/lib/signatures/signed-fields", () => ({
+  hashRecord: vi.fn(async () => "a".repeat(64)),
+}));
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: {
@@ -110,7 +112,10 @@ describe("shared device", () => {
     session.userId = "user-b";
     await flushSignatureQueue();
     expect(submit).not.toHaveBeenCalled();
-    expect((await readSignatureQueue())[0]).toMatchObject({ signer_id: "user-a", status: "queued" });
+    expect((await readSignatureQueue())[0]).toMatchObject({
+      signer_id: "user-a",
+      status: "queued",
+    });
   });
 
   it("legacy items without signer_id become needs_resign and are never submitted", async () => {
@@ -134,7 +139,11 @@ describe("rejections", () => {
   it("409 already signed -> conflict, not retryable", async () => {
     const item = makeItem();
     await seed([item]);
-    submit.mockResolvedValue({ ok: false, status: 409, message: "This record has already been signed." });
+    submit.mockResolvedValue({
+      ok: false,
+      status: 409,
+      message: "This record has already been signed.",
+    });
     await flushSignatureQueue();
     const [q] = await readSignatureQueue();
     expect(q).toMatchObject({ status: "conflict", error_status: 409 });
@@ -144,7 +153,11 @@ describe("rejections", () => {
 
   it("409 binder-not-compiled is a failure with the server's own message, not a conflict", async () => {
     await seed([makeItem()]);
-    submit.mockResolvedValue({ ok: false, status: 409, message: "This binder is draft and can't be signed." });
+    submit.mockResolvedValue({
+      ok: false,
+      status: 409,
+      message: "This binder is draft and can't be signed.",
+    });
     await flushSignatureQueue();
     expect((await readSignatureQueue())[0]).toMatchObject({
       status: "failed",
@@ -155,7 +168,11 @@ describe("rejections", () => {
   it("400 hash mismatch is failed and never blindly retryable", async () => {
     const item = makeItem();
     await seed([item]);
-    submit.mockResolvedValue({ ok: false, status: 400, message: "Signature content hash does not match the current record contents." });
+    submit.mockResolvedValue({
+      ok: false,
+      status: 400,
+      message: "Signature content hash does not match the current record contents.",
+    });
     await flushSignatureQueue();
     const [q] = await readSignatureQueue();
     expect(q).toMatchObject({ status: "failed", error_status: 400 });

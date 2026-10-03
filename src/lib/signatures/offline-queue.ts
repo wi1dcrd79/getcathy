@@ -10,7 +10,8 @@ export type SignatureTarget =
   | "incident_report_resolution_id";
 
 /** "needs_resign" = legacy item with no recorded signer; never auto-submitted. */
-export type OutboxStatus = "queued" | "syncing" | "conflict" | "failed" | "needs_resign" | "discarded";
+export type OutboxStatus =
+  "queued" | "syncing" | "conflict" | "failed" | "needs_resign" | "discarded";
 
 export interface QueuedSignature {
   local_id: string;
@@ -33,13 +34,16 @@ export interface QueuedSignature {
   /** Machine code from the server (e.g. ALREADY_SIGNED, BINDER_NOT_SIGNABLE). */
   error_code?: string | undefined;
   /** The winning signature when the server reports ALREADY_SIGNED. */
-  existing?: {
-    signature_id: string;
-    signer_role: string;
-    synced_at: string;
-    signed_by_me: boolean;
-    content_sha256_matches: boolean;
-  } | null | undefined;
+  existing?:
+    | {
+        signature_id: string;
+        signer_role: string;
+        synced_at: string;
+        signed_by_me: boolean;
+        content_sha256_matches: boolean;
+      }
+    | null
+    | undefined;
   attempts?: number;
   last_attempt_at?: string;
   discarded_at?: string;
