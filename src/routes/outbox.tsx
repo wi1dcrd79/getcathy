@@ -22,6 +22,7 @@ import {
   TABLE_BY_TARGET,
 } from "@/lib/signatures/sign-record";
 import { hashRecord } from "@/lib/signatures/signed-fields";
+import { ConflictRecoveryScreen } from "@/components/signatures/ConflictRecoveryScreen";
 
 export const Route = createFileRoute("/outbox")({
   head: () => ({
@@ -70,6 +71,7 @@ function Outbox() {
     row: Record<string, unknown>;
   } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [review, setReview] = useState<QueuedSignature | null>(null);
 
   useEffect(() => {
     const refresh = () => void readSignatureQueue().then(setAll);
@@ -150,13 +152,14 @@ function Outbox() {
     }
   }
 
-  async function dismiss(x: QueuedSignature) {
-    if (!user) return;
+  async function dismiss(x: QueuedSignature): Promise<boolean> {
+    if (!user) return false;
     if (
       !window.confirm(`Remove "${x.label}" from this device? The drawn signature will be deleted.`)
     )
-      return;
+      return false;
     await dismissSignature(x.local_id, user.id);
+    return true;
   }
 
   if (!loading && !user) {
@@ -242,6 +245,7 @@ function Outbox() {
             online={online}
             onRetry={async () => report(await retrySignature(x.local_id))}
             onResign={() => void startResign(x)}
+            onReview={() => setReview(x)}
             onDismiss={() => void dismiss(x)}
           />
         ))}
@@ -258,6 +262,15 @@ function Outbox() {
           onCancel={() => setResign(null)}
         />
       )}
+
+      {review && (
+        <ConflictRecoveryScreen
+          item={review}
+          online={online}
+          onDiscard={() => void dismiss(review).then((done) => done && setReview(null))}
+          onClose={() => setReview(null)}
+        />
+      )}
     </div>
   );
 }
@@ -268,12 +281,14 @@ function OutboxCard({
   onRetry,
   onResign,
   onDismiss,
+  onReview,
 }: {
   item: QueuedSignature;
   online: boolean;
   onRetry: () => void;
   onResign: () => void;
   onDismiss: () => void;
+  onReview: () => void;
 }) {
   const [winner, setWinner] = useState<{ signer_role: string; synced_at: string } | null>(null);
 
@@ -354,6 +369,15 @@ function OutboxCard({
             className="min-h-12 rounded-md bg-accent px-5 text-sm font-bold uppercase tracking-widest text-accent-foreground disabled:opacity-50"
           >
             Re-sign
+          </button>
+        )}
+        {item.status === "conflict" && (
+          <button
+            type="button"
+            onClick={onReview}
+            className="min-h-12 rounded-md bg-accent px-5 text-sm font-bold uppercase tracking-widest text-accent-foreground"
+          >
+            Review
           </button>
         )}
         {bad && (

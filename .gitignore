@@ -74,3 +74,7 @@ ios/App/App/public/
 ios/App/build/
 ios/DerivedData/
 *.xcuserstate
+
+# Local build and tool directories
+.nvm/
+src-tauri/target/
