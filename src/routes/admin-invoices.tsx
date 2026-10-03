@@ -117,7 +117,8 @@ function AdminInvoices() {
           <div>
             <h1 className="font-display text-xl font-bold uppercase">Invoices</h1>
             <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
-              {invoices.length} records · {money(String(Math.round(collected * 100)), "USD")} collected
+              {invoices.length} records · {money(String(Math.round(collected * 100)), "USD")}{" "}
+              collected
             </p>
           </div>
           <Link
@@ -136,7 +137,9 @@ function AdminInvoices() {
               key={f}
               onClick={() => setFilter(f)}
               className={`min-h-12 flex-1 px-3 text-[11px] font-bold uppercase tracking-widest ${
-                filter === f ? "bg-primary text-primary-foreground" : "text-primary hover:bg-primary/10"
+                filter === f
+                  ? "bg-primary text-primary-foreground"
+                  : "text-primary hover:bg-primary/10"
               }`}
             >
               {f === "all" ? "All" : f === "paid" ? "Paid" : "Canceled / past due"}

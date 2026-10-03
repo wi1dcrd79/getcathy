@@ -99,7 +99,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "C.A.T.H.Y. — Industrial Compliance Tracking" },
       {
         property: "og:description",
-        content: "Field QA/QC compliance tracking for rigging, equipment and welder certifications.",
+        content:
+          "Field QA/QC compliance tracking for rigging, equipment and welder certifications.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -154,8 +155,6 @@ function RootComponent() {
     registerServiceWorker();
     void initNativeShell();
   }, []);
-
-
 
   return (
     <QueryClientProvider client={queryClient}>

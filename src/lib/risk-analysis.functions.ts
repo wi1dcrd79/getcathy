@@ -62,9 +62,7 @@ export const analyzeRisk = createServerFn({ method: "POST" })
       },
     });
 
-    const content: Array<
-      { type: "text"; text: string } | { type: "image"; image: string }
-    > = [
+    const content: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [
       {
         type: "text",
         text: [
@@ -98,14 +96,18 @@ export const analyzeRisk = createServerFn({ method: "POST" })
       result = (await stream.output) as RiskResult;
     } catch (error) {
       if (NoObjectGeneratedError.isInstance(error)) {
-        throw new Error("The analysis came back unreadable. Try again with more detail in the notes.");
+        throw new Error(
+          "The analysis came back unreadable. Try again with more detail in the notes.",
+        );
       }
       const message = error instanceof Error ? error.message : String(error);
       if (message.includes("402")) {
         throw new Error("AI credits are exhausted for this workspace. Add credits to continue.");
       }
       if (message.includes("429")) {
-        throw new Error("The AI service is busy right now. Wait a moment and run the analysis again.");
+        throw new Error(
+          "The AI service is busy right now. Wait a moment and run the analysis again.",
+        );
       }
       throw new Error(`Risk analysis failed: ${message}`);
     }

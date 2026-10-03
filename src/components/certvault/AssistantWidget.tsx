@@ -121,9 +121,13 @@ export function AssistantWidget() {
         >
           <div className="flex items-center justify-between border-b border-border px-3 py-3">
             <div>
-              <p className="text-sm font-bold uppercase tracking-widest text-foreground">CATHY Assist</p>
+              <p className="text-sm font-bold uppercase tracking-widest text-foreground">
+                CATHY Assist
+              </p>
               <p className="text-[11px] text-muted-foreground">
-                {errors.length ? `${errors.length} recent issue(s) detected` : "Help, troubleshooting & alerts"}
+                {errors.length
+                  ? `${errors.length} recent issue(s) detected`
+                  : "Help, troubleshooting & alerts"}
               </p>
             </div>
             <button
@@ -149,7 +153,9 @@ export function AssistantWidget() {
                 {m.content}
               </div>
             ))}
-            {busy && <p className="text-xs uppercase tracking-widest text-muted-foreground">Thinking…</p>}
+            {busy && (
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Thinking…</p>
+            )}
           </div>
 
           {errors.length > 0 && (

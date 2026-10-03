@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history — force pushing, or rebasing/amending/squashing commits
@@ -7,13 +8,16 @@
 >
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
+
 <!-- LOVABLE:END -->
 
 ## Signatures
+
 - Signature rows and images are written only by `submitSignature` (service role) after role/tenant/RFC 8785 hash checks — client INSERT on `signatures` and all client writes to the `signatures` bucket are intentionally absent, so signed evidence can't be forged or overwritten.
 - Signed-field lists live in `src/lib/signatures/signed-fields.ts`, shared by client and server — change them in one place or client/server hashes diverge.
 
 ## Build Rules (apply to every migration, function, feature)
+
 - Multi-tenancy: every company-scoped table has company_id + RLS; policies use `app_internal.get_current_company_id()`, `current_user_role()`, `is_super_admin()`; own-row checks compare directly to `auth.uid()` — never cross-tenant.
 - Roles: only company_admin, safety_director, qc_inspector, field_supervisor, operator, field_tech, viewer, craftsman; only company_admin/super_admin change roles; authority FKs (e.g. supervisor_id) are role-checked in triggers, not just tenant-checked.
 - Migrations: idempotent (IF NOT EXISTS, DROP POLICY IF EXISTS, DO $$ guards on constraints); never redeclare objects across files unguarded (caused a real CI failure); extend existing tables instead of forking; no polymorphic record_id — separate nullable FKs + exactly-one CHECK.

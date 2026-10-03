@@ -12,7 +12,12 @@ async function admin() {
 }
 
 export const telemetrySync = inngest.createFunction(
-  { id: "telemetry-sync", concurrency: { limit: 1 }, retries: 3, triggers: [{ cron: "0 * * * *" }] },
+  {
+    id: "telemetry-sync",
+    concurrency: { limit: 1 },
+    retries: 3,
+    triggers: [{ cron: "0 * * * *" }],
+  },
   async ({ step, runId }) => {
     const acquired = await step.run("acquire-lock", async () => {
       const supabase = await admin();

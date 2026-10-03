@@ -33,7 +33,8 @@ export const Route = createFileRoute("/auth")({
 
 const field =
   "w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary";
-const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
+const label =
+  "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -145,7 +146,11 @@ function AuthPage() {
               ) : (
                 <p>
                   Creating an account requires accepting the{" "}
-                  <button type="button" className="underline text-foreground" onClick={() => setShowTerms(true)}>
+                  <button
+                    type="button"
+                    className="underline text-foreground"
+                    onClick={() => setShowTerms(true)}
+                  >
                     Terms of Service
                   </button>
                   .

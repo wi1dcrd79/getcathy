@@ -41,7 +41,8 @@ export const Route = createFileRoute("/personnel")({
   component: Personnel,
 });
 
-const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
+const label =
+  "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
 const field =
   "w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:border-primary";
 const btn =
@@ -60,9 +61,17 @@ function Personnel() {
   const canSignOff = QC_ROLES.includes(role);
   const canManage = canWriteCompliance && !readOnly;
 
-  const peopleQ = useQuery({ queryKey: ["personnel"], queryFn: fetchPersonnel, enabled: !!session });
+  const peopleQ = useQuery({
+    queryKey: ["personnel"],
+    queryFn: fetchPersonnel,
+    enabled: !!session,
+  });
   const certsQ = useQuery({ queryKey: ["certs"], queryFn: fetchCerts, enabled: !!session });
-  const tradesQ = useQuery({ queryKey: ["custom-trades"], queryFn: fetchCustomTrades, enabled: !!session });
+  const tradesQ = useQuery({
+    queryKey: ["custom-trades"],
+    queryFn: fetchCustomTrades,
+    enabled: !!session,
+  });
 
   const people = peopleQ.data ?? [];
   const certs = certsQ.data ?? [];
@@ -189,47 +198,59 @@ function Personnel() {
         {tab === "matrix" && (
           <>
             {canManage && (
-            <section className="panel p-4">
-              <h2 className="text-sm font-bold uppercase tracking-widest">Add crew member</h2>
-              <div className="mt-3 grid gap-3 sm:grid-cols-4">
-                <div>
-                  <span className={label}>First name</span>
-                  <input className={field} value={p.first_name} onChange={(e) => setP({ ...p, first_name: e.target.value })} />
+              <section className="panel p-4">
+                <h2 className="text-sm font-bold uppercase tracking-widest">Add crew member</h2>
+                <div className="mt-3 grid gap-3 sm:grid-cols-4">
+                  <div>
+                    <span className={label}>First name</span>
+                    <input
+                      className={field}
+                      value={p.first_name}
+                      onChange={(e) => setP({ ...p, first_name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <span className={label}>Last name</span>
+                    <input
+                      className={field}
+                      value={p.last_name}
+                      onChange={(e) => setP({ ...p, last_name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <span className={label}>Employee ID</span>
+                    <input
+                      className={field}
+                      value={p.employee_id}
+                      onChange={(e) => setP({ ...p, employee_id: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <span className={label}>Craft title</span>
+                    <input
+                      list="craft-titles"
+                      className={field}
+                      value={p.trade_title}
+                      onChange={(e) => setP({ ...p, trade_title: e.target.value })}
+                    />
+                    <datalist id="craft-titles">
+                      {TRADE_PRESETS.map((tp) => (
+                        <option key={tp.key} value={tp.title} />
+                      ))}
+                      {trades.map((ct) => (
+                        <option key={ct.id} value={ct.trade_name} />
+                      ))}
+                    </datalist>
+                  </div>
                 </div>
-                <div>
-                  <span className={label}>Last name</span>
-                  <input className={field} value={p.last_name} onChange={(e) => setP({ ...p, last_name: e.target.value })} />
-                </div>
-                <div>
-                  <span className={label}>Employee ID</span>
-                  <input className={field} value={p.employee_id} onChange={(e) => setP({ ...p, employee_id: e.target.value })} />
-                </div>
-                <div>
-                  <span className={label}>Craft title</span>
-                  <input
-                    list="craft-titles"
-                    className={field}
-                    value={p.trade_title}
-                    onChange={(e) => setP({ ...p, trade_title: e.target.value })}
-                  />
-                  <datalist id="craft-titles">
-                    {TRADE_PRESETS.map((tp) => (
-                      <option key={tp.key} value={tp.title} />
-                    ))}
-                    {trades.map((ct) => (
-                      <option key={ct.id} value={ct.trade_name} />
-                    ))}
-                  </datalist>
-                </div>
-              </div>
-              <button
-                onClick={savePerson}
-                disabled={!p.first_name || !p.last_name || !p.employee_id || !p.trade_title}
-                className="mt-3 rounded-md bg-primary px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary-foreground disabled:opacity-40"
-              >
-                Add crew member
-              </button>
-            </section>
+                <button
+                  onClick={savePerson}
+                  disabled={!p.first_name || !p.last_name || !p.employee_id || !p.trade_title}
+                  className="mt-3 rounded-md bg-primary px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary-foreground disabled:opacity-40"
+                >
+                  Add crew member
+                </button>
+              </section>
             )}
 
             <section className="panel p-4">
@@ -237,7 +258,11 @@ function Personnel() {
               <div className="mt-3 grid gap-3 sm:grid-cols-5">
                 <div>
                   <span className={label}>Crew member</span>
-                  <select className={field} value={c.personnel_id} onChange={(e) => setC({ ...c, personnel_id: e.target.value })}>
+                  <select
+                    className={field}
+                    value={c.personnel_id}
+                    onChange={(e) => setC({ ...c, personnel_id: e.target.value })}
+                  >
                     <option value="">Select…</option>
                     {people.map((pp) => (
                       <option key={pp.id} value={pp.id}>
@@ -248,15 +273,28 @@ function Personnel() {
                 </div>
                 <div>
                   <span className={label}>Certification</span>
-                  <input className={field} value={c.cert_name} onChange={(e) => setC({ ...c, cert_name: e.target.value })} />
+                  <input
+                    className={field}
+                    value={c.cert_name}
+                    onChange={(e) => setC({ ...c, cert_name: e.target.value })}
+                  />
                 </div>
                 <div>
                   <span className={label}>Cert / stamp no.</span>
-                  <input className={field} value={c.cert_number} onChange={(e) => setC({ ...c, cert_number: e.target.value })} />
+                  <input
+                    className={field}
+                    value={c.cert_number}
+                    onChange={(e) => setC({ ...c, cert_number: e.target.value })}
+                  />
                 </div>
                 <div>
                   <span className={label}>Issued</span>
-                  <input type="date" className={field} value={c.issue_date} onChange={(e) => setC({ ...c, issue_date: e.target.value })} />
+                  <input
+                    type="date"
+                    className={field}
+                    value={c.issue_date}
+                    onChange={(e) => setC({ ...c, issue_date: e.target.value })}
+                  />
                 </div>
                 <div>
                   <span className={label}>Valid (months)</span>
@@ -305,9 +343,13 @@ function Personnel() {
                         <td className="px-4 py-3">
                           {person ? `${person.last_name}, ${person.first_name}` : "—"}
                         </td>
-                        <td className="px-4 py-3 text-muted-foreground">{person?.trade_title ?? "—"}</td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {person?.trade_title ?? "—"}
+                        </td>
                         <td className="px-4 py-3">{cert.cert_name}</td>
-                        <td className="tag-mono px-4 py-3 text-muted-foreground">{cert.cert_number ?? "—"}</td>
+                        <td className="tag-mono px-4 py-3 text-muted-foreground">
+                          {cert.cert_number ?? "—"}
+                        </td>
                         <td className="px-4 py-3 text-muted-foreground">
                           {cert.expiration_date ? formatDate(cert.expiration_date) : "No expiry"}
                         </td>
@@ -371,14 +413,22 @@ function Personnel() {
               {pending.map((cert) => {
                 const person = people.find((pp) => pp.id === cert.personnel_id);
                 return (
-                  <div key={cert.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-warning/50 bg-input p-3">
+                  <div
+                    key={cert.id}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-warning/50 bg-input p-3"
+                  >
                     <div>
                       <p className="text-sm font-semibold">
-                        {person ? `${person.last_name}, ${person.first_name}` : "Unknown crew member"} · {cert.cert_name}
+                        {person
+                          ? `${person.last_name}, ${person.first_name}`
+                          : "Unknown crew member"}{" "}
+                        · {cert.cert_name}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         Issued {formatDate(cert.issue_date)}
-                        {cert.expiration_date ? ` · expires ${formatDate(cert.expiration_date)}` : ""}
+                        {cert.expiration_date
+                          ? ` · expires ${formatDate(cert.expiration_date)}`
+                          : ""}
                       </p>
                     </div>
                     {canSignOff ? (
@@ -405,7 +455,9 @@ function Personnel() {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-xs uppercase tracking-widest text-warning">Awaiting QC</span>
+                      <span className="text-xs uppercase tracking-widest text-warning">
+                        Awaiting QC
+                      </span>
                     )}
                   </div>
                 );
@@ -433,7 +485,11 @@ function Personnel() {
                 <div className="mt-3 grid gap-3 sm:grid-cols-3">
                   <div className="sm:col-span-2">
                     <span className={label}>Craft title</span>
-                    <input className={field} value={t.trade_name} onChange={(e) => setT({ ...t, trade_name: e.target.value })} />
+                    <input
+                      className={field}
+                      value={t.trade_name}
+                      onChange={(e) => setT({ ...t, trade_name: e.target.value })}
+                    />
                   </div>
                   <div>
                     <span className={label}>Expires every (months)</span>
@@ -442,7 +498,9 @@ function Personnel() {
                       min={1}
                       className={field}
                       value={t.recurrence_months}
-                      onChange={(e) => setT({ ...t, recurrence_months: Number(e.target.value) || 12 })}
+                      onChange={(e) =>
+                        setT({ ...t, recurrence_months: Number(e.target.value) || 12 })
+                      }
                     />
                   </div>
                 </div>
@@ -457,12 +515,19 @@ function Personnel() {
             )}
             <ul className="mt-4 space-y-2">
               {trades.map((ct) => (
-                <li key={ct.id} className="flex items-center justify-between rounded-md border border-border bg-input px-3 py-2 text-sm">
+                <li
+                  key={ct.id}
+                  className="flex items-center justify-between rounded-md border border-border bg-input px-3 py-2 text-sm"
+                >
                   <span>{ct.trade_name}</span>
-                  <span className="text-xs text-muted-foreground">{ct.recurrence_months} months</span>
+                  <span className="text-xs text-muted-foreground">
+                    {ct.recurrence_months} months
+                  </span>
                 </li>
               ))}
-              {trades.length === 0 && <p className="text-sm text-muted-foreground">No custom crafts yet.</p>}
+              {trades.length === 0 && (
+                <p className="text-sm text-muted-foreground">No custom crafts yet.</p>
+              )}
             </ul>
           </section>
         )}

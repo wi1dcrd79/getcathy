@@ -5,9 +5,16 @@ import { supabaseForUser } from "../supabase";
 export default defineTool({
   name: "list_expiring_certs",
   title: "List expiring certifications",
-  description: "List your company's personnel certifications that are lapsed or expire within the given number of days.",
+  description:
+    "List your company's personnel certifications that are lapsed or expire within the given number of days.",
   inputSchema: {
-    within_days: z.number().int().min(0).max(365).default(30).describe("Look-ahead window in days."),
+    within_days: z
+      .number()
+      .int()
+      .min(0)
+      .max(365)
+      .default(30)
+      .describe("Look-ahead window in days."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ within_days }, ctx) => {
@@ -23,10 +30,17 @@ export default defineTool({
       .limit(200);
     if (error) throw new ToolError(error.message);
     const certs = (data ?? []).map((c) => ({
-      id: c.id, personnel_id: c.personnel_id, cert_name: c.cert_name, cert_number: c.cert_number,
-      expiration_date: c.expiration_date, approval_status: c.approval_status,
+      id: c.id,
+      personnel_id: c.personnel_id,
+      cert_name: c.cert_name,
+      cert_number: c.cert_number,
+      expiration_date: c.expiration_date,
+      approval_status: c.approval_status,
       state: c.expiration_date && c.expiration_date < today ? "lapsed" : "expiring",
     }));
-    return { content: [{ type: "text", text: JSON.stringify(certs) }], structuredContent: { certs } };
+    return {
+      content: [{ type: "text", text: JSON.stringify(certs) }],
+      structuredContent: { certs },
+    };
   },
 });

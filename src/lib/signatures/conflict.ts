@@ -5,7 +5,8 @@
 import type { QueuedSignature } from "./offline-queue";
 
 export type ExistingSignature = NonNullable<QueuedSignature["existing"]>;
-export type ConflictKind = "own_same" | "own_different" | "other_same" | "other_different" | "unknown";
+export type ConflictKind =
+  "own_same" | "own_different" | "other_same" | "other_different" | "unknown";
 
 const DEFAULTS: Record<string, string> = {
   ALREADY_SIGNED: "This record has already been signed.",
@@ -44,8 +45,11 @@ export function normalizeRejection(raw: unknown): NormalizedRejection {
   const code = nonEmpty(r["code"]) ? (r["code"] as string) : undefined;
   const known = code !== undefined && code in DEFAULTS;
   const s = r["status"];
-  const status =
-    known ? 409 : typeof s === "number" && Number.isInteger(s) && s >= 100 && s <= 599 ? s : 500;
+  const status = known
+    ? 409
+    : typeof s === "number" && Number.isInteger(s) && s >= 100 && s <= 599
+      ? s
+      : 500;
   const message = nonEmpty(r["message"])
     ? (r["message"] as string)
     : ((code && DEFAULTS[code]) ?? GENERIC);

@@ -63,10 +63,7 @@ export function monthsSince(dateStr: string): number {
   return (now.getTime() - from.getTime()) / (MS_DAY * 30.4375);
 }
 
-export function assetStatus(
-  expiration_date: string,
-  result: InspectionResult,
-): ComplianceStatus {
+export function assetStatus(expiration_date: string, result: InspectionResult): ComplianceStatus {
   const d = daysUntil(expiration_date);
   if (d < 0 || result === "Fail") return "Out of Compliance";
   if (d <= 30) return "Expiring Soon";
@@ -89,11 +86,17 @@ export const CATEGORY_LABEL: Record<AssetCategory, string> = {
 
 /** Site > Zone > Bin breadcrumb. */
 export function buildBreadcrumb(site: string, zone: string, bin: string): string {
-  return [site, zone, bin].map((p) => p.trim()).filter(Boolean).join(" > ");
+  return [site, zone, bin]
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .join(" > ");
 }
 
 export function breadcrumbParts(value: string): string[] {
-  return value.split(">").map((p) => p.trim()).filter(Boolean);
+  return value
+    .split(">")
+    .map((p) => p.trim())
+    .filter(Boolean);
 }
 
 export function formatDate(dateStr: string): string {

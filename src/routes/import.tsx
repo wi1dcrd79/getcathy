@@ -21,7 +21,8 @@ export const Route = createFileRoute("/import")({
       { property: "og:title", content: "CSV Bulk Onboarding | C.A.T.H.Y." },
       {
         property: "og:description",
-        content: "Sanitised spreadsheet import with date normalisation, craft matching and duplicate detection.",
+        content:
+          "Sanitised spreadsheet import with date normalisation, craft matching and duplicate detection.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -30,7 +31,8 @@ export const Route = createFileRoute("/import")({
   component: ImportPage,
 });
 
-const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
+const label =
+  "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
 const field =
   "w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:border-primary";
 
@@ -115,7 +117,9 @@ function ImportPage() {
       }
       setExistingTags(tags);
       setExistingEmployees(
-        new Set((p.data ?? []).map((r) => (r.employee_id ?? "").trim().toLowerCase()).filter(Boolean)),
+        new Set(
+          (p.data ?? []).map((r) => (r.employee_id ?? "").trim().toLowerCase()).filter(Boolean),
+        ),
       );
     })();
     return () => {
@@ -158,10 +162,10 @@ function ImportPage() {
       for (const t of TARGETS[mode]) values[t.key] = raw(row, t.key);
 
       if (mode === "assets") {
-        if (!values['asset_tag']) issues.push("Missing asset tag");
-        if (!values['name']) issues.push("Missing description");
-        const key = values['asset_tag']!.toLowerCase();
-        const serial = (values['serial_or_vin'] ?? "").toLowerCase();
+        if (!values["asset_tag"]) issues.push("Missing asset tag");
+        if (!values["name"]) issues.push("Missing description");
+        const key = values["asset_tag"]!.toLowerCase();
+        const serial = (values["serial_or_vin"] ?? "").toLowerCase();
         if (key && (existingTags.has(key) || (serial && existingTags.has(serial)))) {
           duplicate = true;
           issues.push("Already in your yard");
@@ -171,14 +175,14 @@ function ImportPage() {
           issues.push("Duplicated in this file");
         }
         if (key) seen.add(key);
-        const cat = (values['category'] ?? "").toLowerCase().replace(/\s+/g, "_");
-        values['category'] = CATEGORIES.has(cat) ? cat : "rigging";
+        const cat = (values["category"] ?? "").toLowerCase().replace(/\s+/g, "_");
+        values["category"] = CATEGORIES.has(cat) ? cat : "rigging";
         if (cat && !CATEGORIES.has(cat)) note.push(`Category → rigging`);
       } else {
-        if (!values['first_name']) issues.push("Missing first name");
-        if (!values['last_name']) issues.push("Missing last name");
-        if (!values['employee_id']) issues.push("Missing employee ID");
-        const emp = values['employee_id']!.toLowerCase();
+        if (!values["first_name"]) issues.push("Missing first name");
+        if (!values["last_name"]) issues.push("Missing last name");
+        if (!values["employee_id"]) issues.push("Missing employee ID");
+        const emp = values["employee_id"]!.toLowerCase();
         if (emp && existingEmployees.has(emp)) {
           duplicate = true;
           issues.push("Employee already on the roster");
@@ -189,17 +193,18 @@ function ImportPage() {
         }
         if (emp) seen.add(emp);
 
-        const craft = matchCraft(values['trade_title'] ?? "");
-        if (craft.craft !== values['trade_title']) note.push(`Craft → ${craft.craft}`);
-        if (!craft.matched && values['trade_title']) note.push("Kept as custom trade");
-        values['trade_title'] = craft.craft;
+        const craft = matchCraft(values["trade_title"] ?? "");
+        if (craft.craft !== values["trade_title"]) note.push(`Craft → ${craft.craft}`);
+        if (!craft.matched && values["trade_title"]) note.push("Kept as custom trade");
+        values["trade_title"] = craft.craft;
 
         for (const dk of ["issue_date", "expiration_date"] as const) {
           const rawDate = values[dk];
           if (!rawDate) continue;
           const parsed = parseDate(rawDate);
           if (parsed) {
-            if (parsed !== rawDate) note.push(`${dk === "issue_date" ? "Issued" : "Expires"} → ${parsed}`);
+            if (parsed !== rawDate)
+              note.push(`${dk === "issue_date" ? "Issued" : "Expires"} → ${parsed}`);
             values[dk] = parsed;
           } else {
             issues.push(`Unreadable ${dk.replace("_", " ")}: "${rawDate}"`);
@@ -229,16 +234,16 @@ function ImportPage() {
       for (const c of good) {
         const v = c.values;
         if (mode === "assets") {
-          const crumb = buildBreadcrumb(v['site'] ?? "", v['zone'] ?? "", v['bin'] ?? "");
+          const crumb = buildBreadcrumb(v["site"] ?? "", v["zone"] ?? "", v["bin"] ?? "");
           const { error } = await supabase.from("assets").insert({
-            asset_tag: v['asset_tag']!,
-            name: v['name']!,
-            category: v['category']!,
-            make_model: v['make_model'] ?? "",
-            serial_or_vin: v['serial_or_vin'] ?? "",
-            site: v['site'] ?? "",
-            zone: v['zone'] ?? "",
-            bin: v['bin'] ?? "",
+            asset_tag: v["asset_tag"]!,
+            name: v["name"]!,
+            category: v["category"]!,
+            make_model: v["make_model"] ?? "",
+            serial_or_vin: v["serial_or_vin"] ?? "",
+            site: v["site"] ?? "",
+            zone: v["zone"] ?? "",
+            bin: v["bin"] ?? "",
             location: crumb,
             current_location: crumb,
             company_id: companyId,
@@ -252,10 +257,10 @@ function ImportPage() {
           const { data, error } = await supabase
             .from("personnel_records")
             .insert({
-              first_name: v['first_name']!,
-              last_name: v['last_name']!,
-              employee_id: v['employee_id']!,
-              trade_title: v['trade_title'] || "General Labor",
+              first_name: v["first_name"]!,
+              last_name: v["last_name"]!,
+              employee_id: v["employee_id"]!,
+              trade_title: v["trade_title"] || "General Labor",
               company_id: companyId,
               status: "active",
             } as never)
@@ -263,13 +268,13 @@ function ImportPage() {
             .single();
           if (error) throw new Error(error.message);
           ok += 1;
-          if (v['cert_name'] && data?.id) {
+          if (v["cert_name"] && data?.id) {
             await supabase.from("personnel_certs").insert({
               personnel_id: data.id,
               company_id: companyId,
-              cert_name: v['cert_name'],
-              issue_date: v['issue_date'] || new Date().toISOString().slice(0, 10),
-              expiration_date: v['expiration_date'] || null,
+              cert_name: v["cert_name"],
+              issue_date: v["issue_date"] || new Date().toISOString().slice(0, 10),
+              expiration_date: v["expiration_date"] || null,
             } as never);
           }
         }
@@ -448,7 +453,9 @@ function ImportPage() {
                 disabled={busy || good.length === 0}
                 className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold uppercase tracking-widest text-accent-foreground disabled:opacity-40"
               >
-                {busy ? "Importing…" : `Import ${good.length} clean row${good.length === 1 ? "" : "s"}`}
+                {busy
+                  ? "Importing…"
+                  : `Import ${good.length} clean row${good.length === 1 ? "" : "s"}`}
               </button>
             )}
           </>

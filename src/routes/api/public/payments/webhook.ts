@@ -1,58 +1,61 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { createClient } from '@supabase/supabase-js';
-import { verifyWebhook, EventName, type PaddleEnv } from '@/lib/paddle.server';
+import { createFileRoute } from "@tanstack/react-router";
+import { createClient } from "@supabase/supabase-js";
+import { verifyWebhook, EventName, type PaddleEnv } from "@/lib/paddle.server";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _supabase: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getSupabase(): any {
   if (!_supabase) {
-    _supabase = createClient(process.env['SUPABASE_URL']!, process.env['SUPABASE_SERVICE_ROLE_KEY']!);
+    _supabase = createClient(
+      process.env["SUPABASE_URL"]!,
+      process.env["SUPABASE_SERVICE_ROLE_KEY"]!,
+    );
   }
   return _supabase;
 }
 
 const TIER_BY_PRICE: Record<string, { tier: string; seats: number }> = {
-  field_yard_pro_monthly: { tier: 'pro', seats: 5 },
-  enterprise_contractor_monthly: { tier: 'enterprise', seats: 999999 },
+  field_yard_pro_monthly: { tier: "pro", seats: 5 },
+  enterprise_contractor_monthly: { tier: "enterprise", seats: 999999 },
 };
 
-const ACTIVE_STATUSES = new Set(['active', 'trialing', 'past_due']);
+const ACTIVE_STATUSES = new Set(["active", "trialing", "past_due"]);
 
 async function syncCompanyPlan(companyId: string | undefined, priceId: string, status: string) {
   if (!companyId) return;
   const supabase = getSupabase();
   const mapping = TIER_BY_PRICE[priceId];
 
-  if (ACTIVE_STATUSES.has(status) && status !== 'past_due') {
+  if (ACTIVE_STATUSES.has(status) && status !== "past_due") {
     // Healthy subscription — restore full limits and clear any grace period.
     await supabase
-      .from('companies')
+      .from("companies")
       .update({
-        subscription_tier: mapping?.tier ?? 'pro',
+        subscription_tier: mapping?.tier ?? "pro",
         seat_limit: mapping?.seats ?? 5,
-        subscription_status: 'active',
+        subscription_status: "active",
         past_due_since: null,
       })
-      .eq('id', companyId);
+      .eq("id", companyId);
     return;
   }
 
   // Lapsed / canceled / past due: never wipe limits. Enter the 30-day
   // read-only compliance grace period instead.
   const { data: current } = await supabase
-    .from('companies')
-    .select('past_due_since')
-    .eq('id', companyId)
+    .from("companies")
+    .select("past_due_since")
+    .eq("id", companyId)
     .maybeSingle();
 
   await supabase
-    .from('companies')
+    .from("companies")
     .update({
-      subscription_status: 'past_due',
-      past_due_since: current?.['past_due_since'] ?? new Date().toISOString(),
+      subscription_status: "past_due",
+      past_due_since: current?.["past_due_since"] ?? new Date().toISOString(),
     })
-    .eq('id', companyId);
+    .eq("id", companyId);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,7 +65,7 @@ async function handleSubscriptionUpsert(data: any, env: PaddleEnv) {
   const userId = customData?.userId;
   const companyId = customData?.companyId;
   if (!userId) {
-    console.error('No userId in customData');
+    console.error("No userId in customData");
     return;
   }
 
@@ -70,12 +73,12 @@ async function handleSubscriptionUpsert(data: any, env: PaddleEnv) {
   const priceId = item?.price?.importMeta?.externalId;
   const productId = item?.product?.importMeta?.externalId;
   if (!priceId || !productId) {
-    console.warn('Skipping subscription: missing importMeta.externalId');
+    console.warn("Skipping subscription: missing importMeta.externalId");
     return;
   }
 
   await getSupabase()
-    .from('subscriptions')
+    .from("subscriptions")
     .upsert(
       {
         user_id: userId,
@@ -87,11 +90,11 @@ async function handleSubscriptionUpsert(data: any, env: PaddleEnv) {
         status,
         current_period_start: currentBillingPeriod?.startsAt,
         current_period_end: currentBillingPeriod?.endsAt,
-        cancel_at_period_end: scheduledChange?.action === 'cancel',
+        cancel_at_period_end: scheduledChange?.action === "cancel",
         environment: env,
         updated_at: new Date().toISOString(),
       },
-      { onConflict: 'paddle_subscription_id' },
+      { onConflict: "paddle_subscription_id" },
     );
 
   await syncCompanyPlan(companyId, priceId, status);
@@ -101,15 +104,15 @@ async function handleSubscriptionUpsert(data: any, env: PaddleEnv) {
 async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
   const supabase = getSupabase();
   const { data: row } = await supabase
-    .from('subscriptions')
-    .update({ status: 'canceled', updated_at: new Date().toISOString() })
-    .eq('paddle_subscription_id', data.id)
-    .eq('environment', env)
-    .select('company_id, price_id')
+    .from("subscriptions")
+    .update({ status: "canceled", updated_at: new Date().toISOString() })
+    .eq("paddle_subscription_id", data.id)
+    .eq("environment", env)
+    .select("company_id, price_id")
     .maybeSingle();
 
-  if (row?.['company_id']) {
-    await syncCompanyPlan(row['company_id'] as string, String(row['price_id'] ?? ''), 'canceled');
+  if (row?.["company_id"]) {
+    await syncCompanyPlan(row["company_id"] as string, String(row["price_id"] ?? ""), "canceled");
   }
 }
 
@@ -125,22 +128,22 @@ async function handleWebhook(req: Request, env: PaddleEnv) {
       await handleSubscriptionCanceled(event.data, env);
       break;
     default:
-      console.log('Unhandled event:', event.eventType);
+      console.log("Unhandled event:", event.eventType);
   }
 }
 
-export const Route = createFileRoute('/api/public/payments/webhook')({
+export const Route = createFileRoute("/api/public/payments/webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         const url = new URL(request.url);
-        const env = (url.searchParams.get('env') || 'sandbox') as PaddleEnv;
+        const env = (url.searchParams.get("env") || "sandbox") as PaddleEnv;
         try {
           await handleWebhook(request, env);
           return Response.json({ received: true });
         } catch (e) {
-          console.error('Webhook error:', e);
-          return new Response('Webhook error', { status: 400 });
+          console.error("Webhook error:", e);
+          return new Response("Webhook error", { status: 400 });
         }
       },
     },

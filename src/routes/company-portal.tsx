@@ -119,7 +119,8 @@ function CompanyPortal() {
         .select(
           "id, inspector_name, inspection_type, inspection_date, expiration_date, result, asset_id",
         )
-        .eq("company_id", companyId!).eq("status" as never, "final" as never)
+        .eq("company_id", companyId!)
+        .eq("status" as never, "final" as never)
         .order("inspection_date", { ascending: false })
         .limit(200);
       if (error) throw error;
@@ -213,7 +214,8 @@ function CompanyPortal() {
         {isPastDue && (
           <div className="rounded-lg border border-warning bg-warning/10 p-4 text-sm text-warning">
             Account Past Due — Compliance &amp; audit records kept safe in read-only mode
-            {graceDaysLeft !== null && ` for ${graceDaysLeft} more day${graceDaysLeft === 1 ? "" : "s"}`}
+            {graceDaysLeft !== null &&
+              ` for ${graceDaysLeft} more day${graceDaysLeft === 1 ? "" : "s"}`}
             . Update payment to resume moves.
           </div>
         )}

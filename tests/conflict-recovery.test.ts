@@ -9,7 +9,9 @@ const submit = vi.hoisted(() => vi.fn());
 const session = vi.hoisted(() => ({ userId: "user-a" as string | null }));
 
 vi.mock("@/lib/signatures/submit-signature.functions", () => ({ submitSignature: submit }));
-vi.mock("@/lib/signatures/signed-fields", () => ({ hashRecord: vi.fn(async () => "a".repeat(64)) }));
+vi.mock("@/lib/signatures/signed-fields", () => ({
+  hashRecord: vi.fn(async () => "a".repeat(64)),
+}));
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: {
@@ -49,7 +51,12 @@ describe("409 recovery", () => {
   it("lost response: own matching signature already on server -> synced, no conflict", async () => {
     await seed([makeItem()]);
     submit.mockResolvedValue(
-      already({ signer_role: "qc_inspector", synced_at: "2026-10-01T10:05:00.000Z", signed_by_me: true, content_sha256_matches: true }),
+      already({
+        signer_role: "qc_inspector",
+        synced_at: "2026-10-01T10:05:00.000Z",
+        signed_by_me: true,
+        content_sha256_matches: true,
+      }),
     );
     const report = await flushSignatureQueue();
     expect(report.signed).toBe(1);
@@ -60,7 +67,12 @@ describe("409 recovery", () => {
   it("someone else signed first -> conflict carrying their role and time", async () => {
     await seed([makeItem()]);
     submit.mockResolvedValue(
-      already({ signer_role: "safety_director", synced_at: "2026-10-01T10:05:00.000Z", signed_by_me: false, content_sha256_matches: true }),
+      already({
+        signer_role: "safety_director",
+        synced_at: "2026-10-01T10:05:00.000Z",
+        signed_by_me: false,
+        content_sha256_matches: true,
+      }),
     );
     const report = await flushSignatureQueue();
     expect(report.rejected).toHaveLength(1);
@@ -74,7 +86,12 @@ describe("409 recovery", () => {
   it("signed version differs from what the user reviewed -> conflict flags the mismatch", async () => {
     await seed([makeItem()]);
     submit.mockResolvedValue(
-      already({ signer_role: "company_admin", synced_at: "2026-10-01T10:05:00.000Z", signed_by_me: false, content_sha256_matches: false }),
+      already({
+        signer_role: "company_admin",
+        synced_at: "2026-10-01T10:05:00.000Z",
+        signed_by_me: false,
+        content_sha256_matches: false,
+      }),
     );
     await flushSignatureQueue();
     expect((await readSignatureQueue())[0]).toMatchObject({
@@ -86,7 +103,12 @@ describe("409 recovery", () => {
   it("own signature but different content is NOT auto-cleared", async () => {
     await seed([makeItem()]);
     submit.mockResolvedValue(
-      already({ signer_role: "qc_inspector", synced_at: "2026-10-01T10:05:00.000Z", signed_by_me: true, content_sha256_matches: false }),
+      already({
+        signer_role: "qc_inspector",
+        synced_at: "2026-10-01T10:05:00.000Z",
+        signed_by_me: true,
+        content_sha256_matches: false,
+      }),
     );
     await flushSignatureQueue();
     expect((await readSignatureQueue())[0]!.status).toBe("conflict");
@@ -109,7 +131,12 @@ describe("409 recovery", () => {
 
   it("online sign hitting own matching signature resolves as signed", async () => {
     submit.mockResolvedValue(
-      already({ signer_role: "qc_inspector", synced_at: "2026-10-01T10:05:00.000Z", signed_by_me: true, content_sha256_matches: true }),
+      already({
+        signer_role: "qc_inspector",
+        synced_at: "2026-10-01T10:05:00.000Z",
+        signed_by_me: true,
+        content_sha256_matches: true,
+      }),
     );
     const out = await signRecord({
       table: "inspections",

@@ -12,7 +12,6 @@ import { enqueueTransfer, flushQueue, nextSequenceId, readQueue } from "@/lib/of
 import { enqueueLedgerAction, flushLedgerOutbox } from "@/lib/asset-ledger";
 import { toast } from "sonner";
 
-
 export const Route = createFileRoute("/scan-transfer")({
   head: () => ({
     meta: [
@@ -25,7 +24,8 @@ export const Route = createFileRoute("/scan-transfer")({
       { property: "og:title", content: "Yard Scanner — Scan-to-Transfer | C.A.T.H.Y." },
       {
         property: "og:description",
-        content: "Scan-to-transfer yard inventory with hardware scanner gun support and offline sync.",
+        content:
+          "Scan-to-transfer yard inventory with hardware scanner gun support and offline sync.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -34,7 +34,8 @@ export const Route = createFileRoute("/scan-transfer")({
   component: ScanTransfer,
 });
 
-const label = "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
+const label =
+  "mb-1 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground";
 const field =
   "w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:border-primary";
 
@@ -80,7 +81,9 @@ function ScanTransfer() {
         toast.success(
           `Back online — ${report.applied} queued transfer${report.applied === 1 ? "" : "s"} synced.`,
         );
-        setMsg(`Back online — ${report.applied} queued transfer${report.applied === 1 ? "" : "s"} synced.`);
+        setMsg(
+          `Back online — ${report.applied} queued transfer${report.applied === 1 ? "" : "s"} synced.`,
+        );
       }
       for (const c of report.conflicts) {
         toast.warning(`Sync reconciliation — ${c.assetTag}`, {
@@ -89,10 +92,14 @@ function ScanTransfer() {
         });
       }
       if (ledgerReport.conflicts.length > 0) {
-        toast.warning(`Ledger conflicts — ${ledgerReport.conflicts.length} action${ledgerReport.conflicts.length === 1 ? "" : "s"}`, {
-          description: "Filed to the manager review queue. The asset's current state was left untouched.",
-          duration: 12000,
-        });
+        toast.warning(
+          `Ledger conflicts — ${ledgerReport.conflicts.length} action${ledgerReport.conflicts.length === 1 ? "" : "s"}`,
+          {
+            description:
+              "Filed to the manager review queue. The asset's current state was left untouched.",
+            duration: 12000,
+          },
+        );
       }
       if (report.conflicts.length > 0) {
         setErr(
@@ -110,7 +117,6 @@ function ScanTransfer() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   const asset = useMemo(() => assets.find((a) => a.id === assetId) ?? null, [assets, assetId]);
   const uniq = (vals: string[]) => Array.from(new Set(vals.filter(Boolean))).sort();
@@ -137,7 +143,10 @@ function ScanTransfer() {
 
   /** Secondary barcode: bin labels print as SITE|ZONE|BIN or SITE>ZONE>BIN. */
   const matchDestination = (code: string) => {
-    const parts = code.split(/[|>]/).map((p) => p.trim()).filter(Boolean);
+    const parts = code
+      .split(/[|>]/)
+      .map((p) => p.trim())
+      .filter(Boolean);
     if (parts.length >= 3) {
       setSite(parts[0]!);
       setZone(parts[1]!);
@@ -191,7 +200,6 @@ function ScanTransfer() {
         setQueued(n);
         setMsg(`Offline — ${asset.asset_tag} → ${to} queued and will sync automatically.`);
         toast.info(`Queued offline — ${asset.asset_tag} → ${to}`);
-
       } else {
         setErr(e instanceof Error ? e.message : "Could not move this asset.");
         setBusy(false);
@@ -227,8 +235,8 @@ function ScanTransfer() {
       <main className="safe-bottom mx-auto max-w-3xl space-y-4 px-4 py-5">
         {readOnly && (
           <div className="rounded-lg border border-warning bg-warning/10 p-4 text-xs font-semibold uppercase tracking-widest text-warning">
-            Read-only mode — yard moves are paused while the account is past due. Scanning and lookups
-            still work.
+            Read-only mode — yard moves are paused while the account is past due. Scanning and
+            lookups still work.
           </div>
         )}
         <div className="panel flex items-center justify-between gap-3 p-4">
@@ -324,18 +332,46 @@ function ScanTransfer() {
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <div>
               <span className={label}>Site</span>
-              <input ref={siteRef} list="sites" value={site} onChange={(e) => setSite(e.target.value)} className={field} />
-              <datalist id="sites">{sites.map((s) => <option key={s} value={s} />)}</datalist>
+              <input
+                ref={siteRef}
+                list="sites"
+                value={site}
+                onChange={(e) => setSite(e.target.value)}
+                className={field}
+              />
+              <datalist id="sites">
+                {sites.map((s) => (
+                  <option key={s} value={s} />
+                ))}
+              </datalist>
             </div>
             <div>
               <span className={label}>Zone</span>
-              <input list="zones" value={zone} onChange={(e) => setZone(e.target.value)} className={field} />
-              <datalist id="zones">{zones.map((s) => <option key={s} value={s} />)}</datalist>
+              <input
+                list="zones"
+                value={zone}
+                onChange={(e) => setZone(e.target.value)}
+                className={field}
+              />
+              <datalist id="zones">
+                {zones.map((s) => (
+                  <option key={s} value={s} />
+                ))}
+              </datalist>
             </div>
             <div>
               <span className={label}>Bin</span>
-              <input list="bins" value={bin} onChange={(e) => setBin(e.target.value)} className={field} />
-              <datalist id="bins">{bins.map((s) => <option key={s} value={s} />)}</datalist>
+              <input
+                list="bins"
+                value={bin}
+                onChange={(e) => setBin(e.target.value)}
+                className={field}
+              />
+              <datalist id="bins">
+                {bins.map((s) => (
+                  <option key={s} value={s} />
+                ))}
+              </datalist>
             </div>
           </div>
           {to && (

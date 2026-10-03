@@ -36,17 +36,25 @@ export function TermsModal({ open, onAccept, onDecline }: Props) {
     >
       <div className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl border border-border bg-surface sm:rounded-2xl">
         <div className="border-b border-border px-5 py-4">
-          <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{BRAND_DIVISION}</p>
+          <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+            {BRAND_DIVISION}
+          </p>
           <h2 className="text-lg font-bold uppercase text-foreground">Terms of Service</h2>
           <p className="mt-1 text-xs text-muted-foreground">
             Version {TERMS_VERSION} · You must review and accept before creating an account.
           </p>
         </div>
 
-        <div ref={bodyRef} onScroll={onScroll} className="flex-1 overflow-y-auto px-5 py-4 text-sm text-muted-foreground">
+        <div
+          ref={bodyRef}
+          onScroll={onScroll}
+          className="flex-1 overflow-y-auto px-5 py-4 text-sm text-muted-foreground"
+        >
           {TERMS_SECTIONS.map((s) => (
             <section key={s.heading} className="mb-5">
-              <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-foreground">{s.heading}</h3>
+              <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-foreground">
+                {s.heading}
+              </h3>
               {s.body.map((p, i) => (
                 <p key={i} className="mb-2 leading-relaxed">
                   {p}
@@ -66,10 +74,14 @@ export function TermsModal({ open, onAccept, onDecline }: Props) {
               onChange={(e) => setChecked(e.target.checked)}
             />
             <span>
-              I have read and agree to the Terms of Service, including the restrictions on scraping, reverse
-              engineering and cloning, and the limitation of liability for third-party regulatory audits.
+              I have read and agree to the Terms of Service, including the restrictions on scraping,
+              reverse engineering and cloning, and the limitation of liability for third-party
+              regulatory audits.
               {!scrolledToEnd && (
-                <span className="block text-muted-foreground"> Scroll to the end of the terms to enable.</span>
+                <span className="block text-muted-foreground">
+                  {" "}
+                  Scroll to the end of the terms to enable.
+                </span>
               )}
             </span>
           </label>

@@ -48,7 +48,8 @@ export function BinderApproval() {
     },
   });
 
-  const canCompile = !isSuperAdmin && ["company_admin", "safety_director", "qc_inspector"].includes(role);
+  const canCompile =
+    !isSuperAdmin && ["company_admin", "safety_director", "qc_inspector"].includes(role);
   const b = q.data?.b;
   const sig = q.data?.sig;
 
@@ -91,22 +92,37 @@ export function BinderApproval() {
   }
 
   const tone =
-    b?.status === "signed" ? "border-success text-success" : b?.status === "compiled" ? "border-warning text-warning" : "border-border text-muted-foreground";
+    b?.status === "signed"
+      ? "border-success text-success"
+      : b?.status === "compiled"
+        ? "border-warning text-warning"
+        : "border-border text-muted-foreground";
 
   return (
     <section className="no-print mb-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-card p-3">
       <div className="text-sm">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Binder approval</p>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+          Binder approval
+        </p>
         {b ? (
           <p className="mt-1 flex flex-wrap items-center gap-2">
             <span className="font-semibold">Version {b.version}</span>
-            <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${tone}`}>{b.status}</span>
+            <span
+              className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${tone}`}
+            >
+              {b.status}
+            </span>
             {sig && (
               <span className="text-xs text-muted-foreground">
-                Approved by {sig.signer_role.replace(/_/g, " ")} · {new Date(sig.synced_at).toLocaleString()}
+                Approved by {sig.signer_role.replace(/_/g, " ")} ·{" "}
+                {new Date(sig.synced_at).toLocaleString()}
               </span>
             )}
-            {b.content_sha256 && <span className="font-mono text-[10px] text-muted-foreground">{b.content_sha256.slice(0, 16)}…</span>}
+            {b.content_sha256 && (
+              <span className="font-mono text-[10px] text-muted-foreground">
+                {b.content_sha256.slice(0, 16)}…
+              </span>
+            )}
           </p>
         ) : (
           <p className="mt-1 text-muted-foreground">No binder compiled yet.</p>

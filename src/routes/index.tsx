@@ -129,17 +129,18 @@ function Dashboard() {
   const weldersQ = useQuery({ queryKey: ["welders"], queryFn: fetchWelders, enabled: !!session });
 
   const rows = useMemo<UnifiedRow[]>(
-    () => [
-      ...(assetsQ.data ?? []).map(toAssetRow),
-      ...(weldersQ.data ?? []).map(toWelderRow),
-    ],
+    () => [...(assetsQ.data ?? []).map(toAssetRow), ...(weldersQ.data ?? []).map(toWelderRow)],
     [assetsQ.data, weldersQ.data],
   );
 
   const metrics = useMemo(() => {
     const compliant = rows.filter((r) => r.status === "Compliant" || r.status === "Active").length;
-    const soon = rows.filter((r) => r.status === "Expiring Soon" || r.status === "Grace Period").length;
-    const out = rows.filter((r) => r.status === "Out of Compliance" || r.status === "Lapsed").length;
+    const soon = rows.filter(
+      (r) => r.status === "Expiring Soon" || r.status === "Grace Period",
+    ).length;
+    const out = rows.filter(
+      (r) => r.status === "Out of Compliance" || r.status === "Lapsed",
+    ).length;
     return { total: rows.length, compliant, soon, out };
   }, [rows]);
 
@@ -160,16 +161,37 @@ function Dashboard() {
       );
     }
     return [...list].sort((a, b) => {
-      if (sortKey === "expiration") return (a.expiration ?? "9999").localeCompare(b.expiration ?? "9999");
+      if (sortKey === "expiration")
+        return (a.expiration ?? "9999").localeCompare(b.expiration ?? "9999");
       if (sortKey === "status") return a.status.localeCompare(b.status);
       return String(a[sortKey]).localeCompare(String(b[sortKey]));
     });
   }, [rows, filter, search, sortKey]);
 
   const exportCsv = () => {
-    const head = ["Tag", "Name", "Category", "Location", "Inspector", "Last", "Expires", "Result", "Status"];
+    const head = [
+      "Tag",
+      "Name",
+      "Category",
+      "Location",
+      "Inspector",
+      "Last",
+      "Expires",
+      "Result",
+      "Status",
+    ];
     const body = visible.map((r) =>
-      [r.tag, r.name, r.category, r.location, r.inspector, r.lastDate ?? "", r.expiration ?? "", r.result, r.status]
+      [
+        r.tag,
+        r.name,
+        r.category,
+        r.location,
+        r.inspector,
+        r.lastDate ?? "",
+        r.expiration ?? "",
+        r.result,
+        r.status,
+      ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(","),
     );
@@ -191,7 +213,13 @@ function Dashboard() {
         <div className="hazard-stripe h-1 w-full opacity-70" />
         <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
-            <img src="/images/certvault-icon.png" alt="" width={36} height={36} className="rounded-md" />
+            <img
+              src="/images/certvault-icon.png"
+              alt=""
+              width={36}
+              height={36}
+              className="rounded-md"
+            />
             <div className="min-w-0">
               <h1 className="truncate text-xl font-bold uppercase leading-none">
                 C.A.T.<span className="text-primary">H.Y.</span>
@@ -336,9 +364,13 @@ function Dashboard() {
           </div>
         </div>
 
-        {loading && rows.length === 0 && <p className="mt-8 text-sm text-muted-foreground">Loading compliance records…</p>}
+        {loading && rows.length === 0 && (
+          <p className="mt-8 text-sm text-muted-foreground">Loading compliance records…</p>
+        )}
         {error && (
-          <p className="mt-8 text-sm text-destructive">Could not load records. Pull to refresh and try again.</p>
+          <p className="mt-8 text-sm text-destructive">
+            Could not load records. Pull to refresh and try again.
+          </p>
         )}
 
         {/* Field cards (mobile) */}
@@ -362,10 +394,16 @@ function Dashboard() {
                 <span className="text-right">{r.category}</span>
                 <span>{r.detail}</span>
                 <span className="text-right">
-                  {r.expiration ? `Exp ${formatDate(r.expiration)} · ${daysUntil(r.expiration)}d` : "No record"}
+                  {r.expiration
+                    ? `Exp ${formatDate(r.expiration)} · ${daysUntil(r.expiration)}d`
+                    : "No record"}
                 </span>
               </div>
-              {r.notes && <p className="mt-2 border-t border-border pt-2 text-xs text-muted-foreground">{r.notes}</p>}
+              {r.notes && (
+                <p className="mt-2 border-t border-border pt-2 text-xs text-muted-foreground">
+                  {r.notes}
+                </p>
+              )}
             </article>
           ))}
           {!loading && visible.length === 0 && (
@@ -409,7 +447,9 @@ function Dashboard() {
                     <StatusBadge status={r.status} />
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {r.expiration ? `${formatDate(r.expiration)} (${daysUntil(r.expiration)}d)` : "—"}
+                    {r.expiration
+                      ? `${formatDate(r.expiration)} (${daysUntil(r.expiration)}d)`
+                      : "—"}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{r.category}</td>
                   <td className="px-4 py-3 text-muted-foreground">{r.location}</td>
@@ -540,7 +580,9 @@ function MetricCard({
   return (
     <div className="panel print-plain relative overflow-hidden p-4">
       <div className={`absolute inset-y-0 left-0 w-1 bg-current ${toneClass}`} />
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </p>
       <p className={`mt-1 font-display text-4xl font-bold ${toneClass}`}>{value}</p>
     </div>
   );

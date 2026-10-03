@@ -97,7 +97,10 @@ export async function flushLedgerOutbox(): Promise<LedgerSyncReport> {
   try {
     const res = await syncLedgerBatch({ data: { actions: ordered } });
     report.applied = res.applied;
-    report.conflicts = res.conflicts.map((c) => ({ assetId: c.asset_id, actionType: c.action_type }));
+    report.conflicts = res.conflicts.map((c) => ({
+      assetId: c.asset_id,
+      actionType: c.action_type,
+    }));
     report.failed = res.failed;
     // Keep only actions the server reported as failed (retryable); applied and
     // conflicted actions are durably recorded server-side already.

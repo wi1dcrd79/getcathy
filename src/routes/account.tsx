@@ -91,7 +91,7 @@ function AccountDashboard() {
         .eq("id", session!.user.id)
         .maybeSingle();
       if (error) throw error;
-      return ((data as unknown as { created_at: string } | null)?.created_at) ?? null;
+      return (data as unknown as { created_at: string } | null)?.created_at ?? null;
     },
   });
 
@@ -142,8 +142,9 @@ function AccountDashboard() {
         {isPastDue && (
           <div className="rounded-lg border border-warning bg-warning/10 p-4 text-sm text-warning">
             Account Past Due — your records stay safe in read-only mode
-            {graceDaysLeft !== null && ` for ${graceDaysLeft} more day${graceDaysLeft === 1 ? "" : "s"}`}.
-            Update payment to resume moves and new assets.
+            {graceDaysLeft !== null &&
+              ` for ${graceDaysLeft} more day${graceDaysLeft === 1 ? "" : "s"}`}
+            . Update payment to resume moves and new assets.
           </div>
         )}
 

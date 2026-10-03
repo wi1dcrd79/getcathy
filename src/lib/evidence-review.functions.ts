@@ -7,7 +7,10 @@ import { SIGNED_COLUMNS, pickSignedColumns, type SignableTable } from "./signatu
 
 const REVIEWER_ROLES = ["company_admin", "safety_director", "qc_inspector"];
 
-const TARGET_COL: Record<SignableTable, "inspection_id" | "cert_verification_id" | "risk_assessment_id"> = {
+const TARGET_COL: Record<
+  SignableTable,
+  "inspection_id" | "cert_verification_id" | "risk_assessment_id"
+> = {
   incident_reports: "incident_report_id" as "inspection_id",
   inspections: "inspection_id",
   personnel_certs: "cert_verification_id",
@@ -28,7 +31,12 @@ const Input = z.object({
     .min(1)
     .max(5),
   records: z
-    .array(z.object({ table: z.enum(["inspections", "personnel_certs", "risk_assessments"]), id: z.string().uuid() }))
+    .array(
+      z.object({
+        table: z.enum(["inspections", "personnel_certs", "risk_assessments"]),
+        id: z.string().uuid(),
+      }),
+    )
     .min(1)
     .max(25),
   /** raw = full signed field values leave the DB for comparison; summary = labels, dates, cert numbers and hashes only */
@@ -81,7 +89,9 @@ export const runEvidenceReview = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!profile?.company_id) throw new Error("No company found for your account.");
     if (!REVIEWER_ROLES.includes(profile.role)) {
-      throw new Error("Only company admins, safety directors and QC inspectors can run evidence reviews.");
+      throw new Error(
+        "Only company admins, safety directors and QC inspectors can run evidence reviews.",
+      );
     }
 
     // Load each selected record and its signature with the caller's own permissions (RLS scopes the company).
@@ -101,7 +111,8 @@ export const runEvidenceReview = createServerFn({ method: "POST" })
         .eq(TARGET_COL[r.table], r.id)
         .eq("company_id", profile.company_id)
         .maybeSingle();
-      if (!row || !sig) throw new Error("One of the selected records is not a signed record in your company.");
+      if (!row || !sig)
+        throw new Error("One of the selected records is not a signed record in your company.");
       const rec = row as unknown as Record<string, unknown>;
       const label = recordLabel(r.table, rec);
       refs.push({ table: r.table, id: r.id, label, signature_id: sig.id });
@@ -119,7 +130,16 @@ export const runEvidenceReview = createServerFn({ method: "POST" })
         for (const c of cols) {
           const v = rec[c];
           if (v == null) continue;
-          if (c.endsWith("_date") || c.endsWith("_at") || c === "cert_number" || c === "result" || c === "inspection_type" || c === "overall_risk" || c === "asset_tag" || c === "cert_name") {
+          if (
+            c.endsWith("_date") ||
+            c.endsWith("_at") ||
+            c === "cert_number" ||
+            c === "result" ||
+            c === "inspection_type" ||
+            c === "overall_risk" ||
+            c === "asset_tag" ||
+            c === "cert_name"
+          ) {
             summary[c] = v;
           }
         }
@@ -150,7 +170,12 @@ export const runEvidenceReview = createServerFn({ method: "POST" })
       content.push({ type: "text", text: `Document file name: ${d.name}` });
       if (d.mediaType === "application/pdf") {
         const base64 = d.dataUrl.slice(d.dataUrl.indexOf(",") + 1);
-        content.push({ type: "file", filename: d.name, data: base64, mediaType: "application/pdf" });
+        content.push({
+          type: "file",
+          filename: d.name,
+          data: base64,
+          mediaType: "application/pdf",
+        });
       } else {
         content.push({ type: "image", image: d.dataUrl });
       }
@@ -179,8 +204,10 @@ export const runEvidenceReview = createServerFn({ method: "POST" })
         throw new Error("The review came back unreadable. Try again, or upload clearer documents.");
       }
       const message = error instanceof Error ? error.message : String(error);
-      if (message.includes("402")) throw new Error("AI credits are exhausted for this workspace. Add credits to continue.");
-      if (message.includes("429")) throw new Error("The AI service is busy right now. Wait a moment and try again.");
+      if (message.includes("402"))
+        throw new Error("AI credits are exhausted for this workspace. Add credits to continue.");
+      if (message.includes("429"))
+        throw new Error("The AI service is busy right now. Wait a moment and try again.");
       if (message.includes("403")) throw new Error("The AI service declined this request.");
       throw new Error(`Evidence review failed: ${message}`);
     }
@@ -204,7 +231,9 @@ export const runEvidenceReview = createServerFn({ method: "POST" })
   });
 
 export function recordLabel(table: SignableTable, r: Record<string, unknown>): string {
-  if (table === "inspections") return `Inspection · ${r["inspection_type"] ?? ""} · ${r["inspection_date"] ?? ""} · ${r["result"] ?? ""}`;
-  if (table === "personnel_certs") return `Certification · ${r["cert_name"] ?? ""}${r["cert_number"] ? ` #${r["cert_number"]}` : ""}`;
+  if (table === "inspections")
+    return `Inspection · ${r["inspection_type"] ?? ""} · ${r["inspection_date"] ?? ""} · ${r["result"] ?? ""}`;
+  if (table === "personnel_certs")
+    return `Certification · ${r["cert_name"] ?? ""}${r["cert_number"] ? ` #${r["cert_number"]}` : ""}`;
   return `Risk review · ${r["asset_tag"] ?? "no tag"} · ${r["overall_risk"] ?? ""}`;
 }

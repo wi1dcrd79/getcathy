@@ -16,15 +16,22 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   head: () => ({
     meta: [
       { title: "Connect an assistant — C.A.T.H.Y." },
-      { name: "description", content: "Approve or deny an AI assistant's access to your C.A.T.H.Y. account." },
+      {
+        name: "description",
+        content: "Approve or deny an AI assistant's access to your C.A.T.H.Y. account.",
+      },
       { property: "og:title", content: "Connect an assistant — C.A.T.H.Y." },
-      { property: "og:description", content: "Approve AI assistant access to your compliance records." },
+      {
+        property: "og:description",
+        content: "Approve AI assistant access to your compliance records.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
   validateSearch: (s: Record<string, unknown>) => ({
-    authorization_id: typeof s["authorization_id"] === "string" ? (s["authorization_id"] as string) : "",
+    authorization_id:
+      typeof s["authorization_id"] === "string" ? (s["authorization_id"] as string) : "",
   }),
   beforeLoad: async ({ search, location }) => {
     if (!search.authorization_id) throw new Error("Missing authorization_id");
@@ -44,7 +51,9 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   errorComponent: ({ error }) => (
     <main className="mx-auto max-w-md p-6 text-foreground">
       <h1 className="text-xl font-bold">Could not load this request</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{String((error as Error)?.message ?? error)}</p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        {String((error as Error)?.message ?? error)}
+      </p>
     </main>
   ),
 });
@@ -64,20 +73,39 @@ function Consent() {
       // write_drafts is an app-level grant keyed on the OAuth client; unchecked = read-only.
       const { data: u } = await supabase.auth.getUser();
       const now = new Date().toISOString();
-      await supabase.from("assistant_grants" as never).update({ revoked_at: now } as never)
-        .eq("client_id" as never, clientId as never).is("revoked_at" as never, null);
+      await supabase
+        .from("assistant_grants" as never)
+        .update({ revoked_at: now } as never)
+        .eq("client_id" as never, clientId as never)
+        .is("revoked_at" as never, null);
       if (writeDrafts && u.user) {
-        const { error: gErr } = await supabase.from("assistant_grants" as never)
-          .insert({ user_id: u.user.id, client_id: clientId, client_name: name, scope: "write_drafts" } as never);
-        if (gErr) { setBusy(false); setError(gErr.message); return; }
+        const { error: gErr } = await supabase.from("assistant_grants" as never).insert({
+          user_id: u.user.id,
+          client_id: clientId,
+          client_name: name,
+          scope: "write_drafts",
+        } as never);
+        if (gErr) {
+          setBusy(false);
+          setError(gErr.message);
+          return;
+        }
       }
     }
     const { data, error } = approve
       ? await oauth().approveAuthorization(authorization_id)
       : await oauth().denyAuthorization(authorization_id);
-    if (error) { setBusy(false); setError(error.message); return; }
+    if (error) {
+      setBusy(false);
+      setError(error.message);
+      return;
+    }
     const target = data?.redirect_url ?? data?.redirect_to;
-    if (!target) { setBusy(false); setError("No redirect returned."); return; }
+    if (!target) {
+      setBusy(false);
+      setError("No redirect returned.");
+      return;
+    }
     window.location.href = target;
   }
 
@@ -85,17 +113,46 @@ function Consent() {
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 p-6 text-foreground">
       <h1 className="text-2xl font-bold">Connect {name} to C.A.T.H.Y.</h1>
       <p className="text-sm text-muted-foreground">
-        {name} will be able to read your company's assets, inspections and certification expirations as you. It can never sign, approve binders, change roles or delete anything.
+        {name} will be able to read your company's assets, inspections and certification expirations
+        as you. It can never sign, approve binders, change roles or delete anything.
       </p>
       <label className="flex min-h-12 items-start gap-3 rounded-md border border-border p-3 text-sm">
-        <input type="checkbox" className="mt-1 h-5 w-5" checked={writeDrafts} onChange={(e) => setWriteDrafts(e.target.checked)} disabled={!clientId} />
-        <span><span className="font-semibold">Also allow drafts (write_drafts)</span><br />
-          <span className="text-muted-foreground">Create draft inspections and re-inspection tasks, and move tasks to in progress or ready for review. Leave unchecked for read-only.</span></span>
+        <input
+          type="checkbox"
+          className="mt-1 h-5 w-5"
+          checked={writeDrafts}
+          onChange={(e) => setWriteDrafts(e.target.checked)}
+          disabled={!clientId}
+        />
+        <span>
+          <span className="font-semibold">Also allow drafts (write_drafts)</span>
+          <br />
+          <span className="text-muted-foreground">
+            Create draft inspections and re-inspection tasks, and move tasks to in progress or ready
+            for review. Leave unchecked for read-only.
+          </span>
+        </span>
       </label>
-      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
       <div className="flex gap-3">
-        <button disabled={busy} onClick={() => decide(true)} className="min-h-12 flex-1 rounded-md bg-primary px-4 font-semibold text-primary-foreground disabled:opacity-50">Approve</button>
-        <button disabled={busy} onClick={() => decide(false)} className="min-h-12 flex-1 rounded-md border border-border px-4 font-semibold disabled:opacity-50">Deny</button>
+        <button
+          disabled={busy}
+          onClick={() => decide(true)}
+          className="min-h-12 flex-1 rounded-md bg-primary px-4 font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          Approve
+        </button>
+        <button
+          disabled={busy}
+          onClick={() => decide(false)}
+          className="min-h-12 flex-1 rounded-md border border-border px-4 font-semibold disabled:opacity-50"
+        >
+          Deny
+        </button>
       </div>
       <section className="mt-4 flex flex-col gap-2">
         <h2 className="text-sm font-semibold">Assistants that can create drafts</h2>
