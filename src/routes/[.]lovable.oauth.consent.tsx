@@ -79,14 +79,12 @@ function Consent() {
         .eq("client_id" as never, clientId as never)
         .is("revoked_at" as never, null);
       if (writeDrafts && u.user) {
-        const { error: gErr } = await supabase
-          .from("assistant_grants" as never)
-          .insert({
-            user_id: u.user.id,
-            client_id: clientId,
-            client_name: name,
-            scope: "write_drafts",
-          } as never);
+        const { error: gErr } = await supabase.from("assistant_grants" as never).insert({
+          user_id: u.user.id,
+          client_id: clientId,
+          client_name: name,
+          scope: "write_drafts",
+        } as never);
         if (gErr) {
           setBusy(false);
           setError(gErr.message);
