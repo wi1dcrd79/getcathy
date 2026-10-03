@@ -6,6 +6,7 @@ import {
   enqueueSignature,
   isRetryable,
   readSignatureQueue,
+  readAllSignatures,
   writeSignatureQueue,
   type QueuedSignature,
   type SignatureTarget,
@@ -135,9 +136,10 @@ export async function signRecord(args: {
 }
 
 async function clearTarget(item: QueuedSignature) {
-  const q = await readSignatureQueue();
+  const q = await readAllSignatures();
   const next = q.filter(
     (x) =>
+      x.status === "discarded" ||
       !(
         x.target === item.target &&
         x.target_id === item.target_id &&
@@ -162,7 +164,7 @@ export async function flushSignatureQueue(onlyLocalId?: string): Promise<Signatu
   const report: SignatureFlushReport = { signed: 0, rejected: [], pending: 0 };
   const uid = await currentUserId();
   if (!uid) return report;
-  const q = await readSignatureQueue();
+  const q = await readAllSignatures();
   const todo = q.filter(
     (x) =>
       x.signer_id === uid &&
@@ -221,7 +223,7 @@ export async function flushSignatureQueue(onlyLocalId?: string): Promise<Signatu
 /** Re-queue and submit one failed item. Only for 5xx / network failures. */
 export async function retrySignature(localId: string): Promise<SignatureFlushReport | null> {
   const uid = await currentUserId();
-  const q = await readSignatureQueue();
+  const q = await readAllSignatures();
   const item = q.find((x) => x.local_id === localId);
   if (!item || item.signer_id !== uid || !isRetryable(item)) return null;
   await writeSignatureQueue(
@@ -236,7 +238,7 @@ export async function resignItem(
   row: Record<string, unknown>,
   pngBase64: string,
 ): Promise<SignOutcome> {
-  const q = await readSignatureQueue();
+  const q = await readAllSignatures();
   const old = q.find((x) => x.local_id === localId);
   const table = old ? TABLE_BY_TARGET[old.target] : undefined;
   if (!old || !table)

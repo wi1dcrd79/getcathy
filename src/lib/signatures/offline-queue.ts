@@ -10,7 +10,7 @@ export type SignatureTarget =
   | "incident_report_resolution_id";
 
 /** "needs_resign" = legacy item with no recorded signer; never auto-submitted. */
-export type OutboxStatus = "queued" | "syncing" | "conflict" | "failed" | "needs_resign";
+export type OutboxStatus = "queued" | "syncing" | "conflict" | "failed" | "needs_resign" | "discarded";
 
 export interface QueuedSignature {
   local_id: string;
@@ -42,19 +42,32 @@ export interface QueuedSignature {
   } | null | undefined;
   attempts?: number;
   last_attempt_at?: string;
+  discarded_at?: string;
+  discarded_by?: string;
+  discard_reason?: string;
 }
 
-export async function readSignatureQueue(): Promise<QueuedSignature[]> {
+/** Unfiltered, includes tombstones. Every read-then-write path must use this. */
+export async function readAllSignatures(): Promise<QueuedSignature[]> {
   try {
     const q = ((await get(KEY)) as QueuedSignature[] | undefined) ?? [];
     return q.map((x) => ({
       ...x,
       attempts: x.attempts ?? 0,
-      status: !x.signer_id ? "needs_resign" : (x.status ?? "queued"),
+      status: (x.status === "discarded"
+        ? "discarded"
+        : !x.signer_id
+          ? "needs_resign"
+          : (x.status ?? "queued")) as OutboxStatus,
     }));
   } catch {
     return [];
   }
+}
+
+/** UI-facing: hides tombstones. */
+export async function readSignatureQueue(): Promise<QueuedSignature[]> {
+  return (await readAllSignatures()).filter((x) => x.status !== "discarded");
 }
 
 export async function writeSignatureQueue(items: QueuedSignature[]) {
@@ -72,7 +85,7 @@ export async function writeSignatureQueue(items: QueuedSignature[]) {
  * target is replaced by the new capture (never a silent no-op).
  */
 export async function enqueueSignature(item: QueuedSignature): Promise<QueuedSignature> {
-  const q = await readSignatureQueue();
+  const q = await readAllSignatures();
   const same = (x: QueuedSignature) =>
     x.target === item.target && x.target_id === item.target_id && x.signer_id === item.signer_id;
   const active = q.find((x) => same(x) && (x.status === "queued" || x.status === "syncing"));
@@ -86,15 +99,32 @@ export async function enqueueSignature(item: QueuedSignature): Promise<QueuedSig
     error_code: undefined,
     existing: undefined,
   };
-  await writeSignatureQueue([...q.filter((x) => !same(x)), fresh]);
+  await writeSignatureQueue([...q.filter((x) => !same(x) || x.status === "discarded"), fresh]);
   return fresh;
 }
 
-/** Remove an item (and its stored image data). Only the capturing user may dismiss. */
-export async function dismissSignature(localId: string, currentUserId: string) {
-  const q = await readSignatureQueue();
+/** Tombstone, not delete: drops the image, keeps hash + audit fields. Only the capturing user may dismiss. */
+export async function dismissSignature(
+  localId: string,
+  currentUserId: string,
+  reason = "dismissed_by_user",
+): Promise<void> {
+  const q = await readAllSignatures();
   await writeSignatureQueue(
-    q.filter((x) => !(x.local_id === localId && (x.signer_id === currentUserId || !x.signer_id))),
+    q.map((x) =>
+      x.local_id === localId &&
+      x.status !== "discarded" &&
+      (x.signer_id === currentUserId || !x.signer_id)
+        ? {
+            ...x,
+            status: "discarded" as const,
+            signature_png_base64: "",
+            discarded_at: new Date().toISOString(),
+            discarded_by: currentUserId,
+            discard_reason: reason,
+          }
+        : x,
+    ),
   );
 }
 
