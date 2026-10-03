@@ -14,8 +14,9 @@ export default defineConfig({
         devOptions: { enabled: false },
         manifest: false,
         workbox: {
-          globDirectory: ".output/public",
+          globDirectory: "dist/client",
           globPatterns: ["**/*.{js,css,ico,png,svg,webp,woff2}"],
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallbackDenylist: [
             /^\/~oauth/,
             /^\/api\//,
