@@ -5,23 +5,26 @@ import {
   FileLock2,
   Layers,
   Monitor,
+  ShieldCheck,
   Smartphone,
   UserCheck,
   WifiOff,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { PLANS } from "@/lib/plans";
 import { BRAND, BRAND_DIVISION, COPYRIGHT_LINE, SUPPORT_EMAIL } from "@/lib/legal";
-
-/**
- * Set to a path under /public (e.g. "/images/hero-field-scan.jpg") to replace the
- * drawn hero illustration with a real photo.
- */
-const HERO_IMAGE_SRC: string | null = null;
-const HERO_IMAGE_ALT =
-  "Gloved hand holding a rugged scanner to a stamped barcode tag on a structural steel beam";
+import heroFieldScan from "@/assets/hero-field-scan.jpg";
+import yardDusk from "@/assets/yard-dusk.jpg";
 
 const TRADES = ["Structural Steel", "Pipe Yards", "Heavy Rigging & Cranes", "Pressure Piping"];
 
@@ -49,85 +52,39 @@ const HERO_BULLETS = [
   "Tamper-evident audit binders",
 ];
 
-// 9x9 pattern for the illustrative tag (1 = dark module)
-const TAG_PATTERN = [
-  "111010111",
-  "100110001",
-  "101011101",
-  "101100101",
-  "001010010",
-  "110101101",
-  "101110101",
-  "100010001",
-  "111011101",
+const PAIN_POINTS = [
+  {
+    pain: "A lapsed welder cert stops a pick mid-shift.",
+    fix: "30/14/7-day escalation alerts reach the supervisor before the lapse — never after.",
+  },
+  {
+    pain: "Auditors want proof, and the binder takes a week to compile.",
+    fix: "One click compiles a signed, SHA-256-sealed audit binder from live records.",
+  },
+  {
+    pain: "Rigging inspections live on paper in a truck cab.",
+    fix: "Glove-friendly mobile capture, offline queue, immutable history the moment signal returns.",
+  },
 ];
 
-function HeroIllustration() {
-  const cell = 9;
-  return (
-    <svg
-      viewBox="0 0 480 400"
-      role="img"
-      aria-label="Illustration of a barcode tag on a steel beam being scanned"
-      className="h-full w-full"
-    >
-      <defs>
-        <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#475569" />
-          <stop offset="0.5" stopColor="#334155" />
-          <stop offset="1" stopColor="#1E293B" />
-        </linearGradient>
-        <linearGradient id="scan" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#F59E0B" stopOpacity="0" />
-          <stop offset="0.5" stopColor="#F59E0B" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#F59E0B" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <rect width="480" height="400" fill="#0B1222" />
-      {/* structural steel web + flanges */}
-      <rect x="-10" y="70" width="500" height="34" fill="url(#beam)" />
-      <rect x="-10" y="296" width="500" height="34" fill="url(#beam)" />
-      <rect x="-10" y="104" width="500" height="192" fill="#2B3A52" />
-      {[130, 190, 250, 310, 370].map((y) => (
-        <line key={y} x1="-10" x2="490" y1={y} y2={y} stroke="#1E293B" strokeWidth="1" opacity="0.6" />
-      ))}
-      {/* stenciled heat number */}
-      <text x="40" y="150" fill="#94A3B8" fontSize="20" fontFamily="monospace" opacity="0.75">
-        HT# 4471-B  ASTM A992
-      </text>
-      {/* tag */}
-      <g transform="translate(150 170)">
-        <rect width="180" height="112" rx="8" fill="#E2E8F0" />
-        <rect x="6" y="6" width="168" height="100" rx="5" fill="none" stroke="#0F172A" strokeWidth="1.5" />
-        <g transform="translate(16 16)">
-          {TAG_PATTERN.map((row, r) =>
-            row.split("").map((c, i) =>
-              c === "1" ? (
-                <rect key={`${r}-${i}`} x={i * cell} y={r * cell} width={cell} height={cell} fill="#0F172A" />
-              ) : null,
-            ),
-          )}
-        </g>
-        <text x="108" y="38" fill="#0F172A" fontSize="12" fontFamily="monospace" fontWeight="700">
-          DY-CRN-202
-        </text>
-        <text x="108" y="56" fill="#334155" fontSize="9" fontFamily="monospace">
-          SWL 12 TON
-        </text>
-        <text x="108" y="70" fill="#334155" fontSize="9" fontFamily="monospace">
-          INSP 10/2026
-        </text>
-      </g>
-      {/* scan reticle */}
-      <g stroke="#F59E0B" strokeWidth="4" fill="none" strokeLinecap="round">
-        <path d="M130 190 V160 H160" />
-        <path d="M350 160 H380 V190" />
-        <path d="M130 262 V292 H160" />
-        <path d="M350 292 H380 V262" />
-      </g>
-      <rect x="120" y="224" width="270" height="4" fill="url(#scan)" />
-    </svg>
-  );
+const COMPARISON_ROWS: { label: string; free: boolean | string; pro: boolean | string; enterprise: boolean | string }[] = [
+  { label: "Tracked assets", free: "3", pro: "Unlimited", enterprise: "Unlimited" },
+  { label: "Crew seats", free: "1", pro: "5", enterprise: "Unlimited" },
+  { label: "Yard transfers & scan logging", free: true, pro: true, enterprise: true },
+  { label: "Offline capture & sync", free: true, pro: true, enterprise: true },
+  { label: "Site → Zone → Bin hierarchy", free: true, pro: true, enterprise: true },
+  { label: "Welder continuity alerts", free: false, pro: true, enterprise: true },
+  { label: "OSHA / client audit binder (PDF)", free: false, pro: true, enterprise: true },
+  { label: "Immutable location + inspection history", free: false, pro: true, enterprise: true },
+  { label: "Multi-yard / multi-site switching", free: false, pro: false, enterprise: true },
+  { label: "Priority binder export queue", free: false, pro: false, enterprise: true },
+  { label: "Dedicated compliance support", free: false, pro: false, enterprise: true },
+];
+
+function CompareCell({ value }: { value: boolean | string }) {
+  if (value === true) return <Check className="mx-auto h-4 w-4 text-accent" />;
+  if (value === false) return <X className="mx-auto h-4 w-4 text-muted-foreground/40" />;
+  return <span className="text-sm font-semibold">{value}</span>;
 }
 
 export function PublicLandingView() {
@@ -205,14 +162,16 @@ export function PublicLandingView() {
 
         <div className="relative">
           <div className="aspect-[6/5] overflow-hidden rounded-xl border-2 border-accent/70 shadow-[0_0_40px_-8px] shadow-accent/40">
-            {HERO_IMAGE_SRC ? (
-              <img src={HERO_IMAGE_SRC} alt={HERO_IMAGE_ALT} className="h-full w-full object-cover" />
-            ) : (
-              <HeroIllustration />
-            )}
+            <img
+              src={heroFieldScan}
+              alt="Gloved hand holding a rugged scanner to a stamped barcode asset tag on a structural steel beam in a fabrication yard at dusk"
+              className="h-full w-full object-cover"
+              width={1536}
+              height={1280}
+            />
           </div>
           <div className="absolute -bottom-4 left-4 right-4 flex items-center justify-between gap-3 rounded-lg border border-white/15 bg-background/70 px-4 py-3 backdrop-blur-md sm:left-auto sm:right-6 sm:w-auto">
-            <span className="tag-mono text-xs sm:text-sm">Asset: DY-CRN-202</span>
+            <span className="tag-mono text-xs sm:text-sm">Asset: ST-78432</span>
             <span className="rounded-full border border-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-accent">
               Audit Ready
             </span>
@@ -231,6 +190,54 @@ export function PublicLandingView() {
               {t}
             </span>
           ))}
+        </div>
+      </section>
+
+      {/* Why you need it — pain points */}
+      <section className="mx-auto max-w-7xl px-4 py-16">
+        <div className="mb-10 text-center">
+          <h2 className="font-display text-4xl font-bold uppercase tracking-tight">
+            Paper trails fail audits. Memory fails worse.
+          </h2>
+          <p className="mt-2 text-muted-foreground">
+            The three failures that cost fabricators contracts — and how C.A.T.H.Y. closes each one.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {PAIN_POINTS.map((p) => (
+            <Card key={p.pain} className="border-border bg-surface">
+              <CardHeader>
+                <CardTitle className="text-base font-semibold leading-snug">{p.pain}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                  <span>{p.fix}</span>
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Full-bleed yard photo band */}
+      <section className="relative overflow-hidden border-y border-border/40">
+        <img
+          src={yardDusk}
+          alt="Pipe laydown yard at dusk with a mobile crane lifting steel pipe under amber work lights"
+          className="absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
+          width={1920}
+          height={1088}
+        />
+        <div className="absolute inset-0 bg-background/70" />
+        <div className="relative mx-auto max-w-7xl px-4 py-24 text-center">
+          <h2 className="mx-auto max-w-3xl font-display text-4xl font-extrabold uppercase leading-tight sm:text-5xl">
+            Every tag. Every weld. <span className="text-accent">Every signature.</span> On record.
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            Built for crews in gloves and the auditors who come after them.
+          </p>
         </div>
       </section>
 
@@ -369,6 +376,33 @@ export function PublicLandingView() {
               </Card>
             );
           })}
+        </div>
+
+        {/* Full feature comparison */}
+        <div className="mx-auto mt-14 max-w-4xl overflow-x-auto">
+          <h3 className="mb-4 text-center font-display text-2xl font-bold uppercase tracking-tight">
+            Full plan breakdown
+          </h3>
+          <table className="w-full border-collapse text-left">
+            <thead>
+              <tr className="border-b border-border text-sm">
+                <th className="py-3 pr-4 font-semibold">Feature</th>
+                <th className="px-2 py-3 text-center font-display uppercase">Free</th>
+                <th className="px-2 py-3 text-center font-display uppercase text-accent">Field Yard Pro</th>
+                <th className="px-2 py-3 text-center font-display uppercase">Enterprise</th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARISON_ROWS.map((row) => (
+                <tr key={row.label} className="border-b border-border/50 text-sm">
+                  <td className="py-3 pr-4 text-muted-foreground">{row.label}</td>
+                  <td className="px-2 py-3 text-center"><CompareCell value={row.free} /></td>
+                  <td className="px-2 py-3 text-center"><CompareCell value={row.pro} /></td>
+                  <td className="px-2 py-3 text-center"><CompareCell value={row.enterprise} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
