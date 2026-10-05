@@ -44,10 +44,16 @@ export const certExpirationDispatcher = inngest.createFunction(
     id: "cert-expiration-dispatcher",
     concurrency: { limit: 1 },
     retries: 0,
-    triggers: [{ cron: "0 6 * * *" }],
+    // Cron covers all companies; the manual event must name one company (test runs).
+    triggers: [{ cron: "0 6 * * *" }, { event: "cert/dispatch.requested" }],
   },
-  async ({ step, runId }) => {
+  async ({ step, runId, event }) => {
     const results: Record<string, { sent: number; failed: number }> = {};
+    const evData = (event as { name?: string; data?: { company_id?: string } } | undefined) ?? {};
+    const companyId = evData.name === "cert/dispatch.requested" ? evData.data?.company_id : null;
+    if (evData.name === "cert/dispatch.requested" && !companyId) {
+      return { skipped: "company_id required for manual dispatch" };
+    }
 
     for (const days of THRESHOLDS) {
       results[`t${days}`] = await step.run(`process-threshold-${days}`, async () => {
@@ -56,6 +62,7 @@ export const certExpirationDispatcher = inngest.createFunction(
 
         const { data, error } = await supabase.rpc("find_certs_crossing_threshold", {
           p_threshold_days: days,
+          p_company_id: companyId ?? null,
         });
         if (error) throw error;
 
