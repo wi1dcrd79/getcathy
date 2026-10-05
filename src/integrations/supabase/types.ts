@@ -1800,7 +1800,7 @@ export type Database = {
       }
       bootstrap_current_user: { Args: never; Returns: string }
       find_certs_crossing_threshold: {
-        Args: { p_threshold_days: number }
+        Args: { p_company_id?: string; p_threshold_days: number }
         Returns: {
           admin_fallback_email: string
           cert_id: string
