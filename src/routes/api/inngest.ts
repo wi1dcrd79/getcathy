@@ -3,9 +3,10 @@ import { serve } from "inngest/edge";
 import { inngest } from "@/lib/inngest/client";
 import { telemetrySync } from "@/lib/inngest/functions/telemetry-sync";
 import { certExpirationDispatcher } from "@/lib/inngest/functions/cert-expiration-dispatcher";
+import { continuityLapseDispatcher } from "@/lib/inngest/functions/continuity-lapse-dispatcher";
 
 // Inngest serve endpoint. The SDK verifies every request with INNGEST_SIGNING_KEY.
-const handler = serve({ client: inngest, functions: [telemetrySync, certExpirationDispatcher] });
+const handler = serve({ client: inngest, functions: [telemetrySync, certExpirationDispatcher, continuityLapseDispatcher] });
 
 export const Route = createFileRoute("/api/inngest")({
   server: {

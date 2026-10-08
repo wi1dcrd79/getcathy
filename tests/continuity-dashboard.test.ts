@@ -34,3 +34,13 @@ describe("continuity dashboard", () => {
     expect(out.map((t) => t.type.code)).toEqual(["SMAW"]);
   });
 });
+
+import { lapseRecipients } from "@/lib/inngest/functions/continuity-lapse-dispatcher";
+describe("lapse email recipients", () => {
+  it("sends to welder and supervisor, not admin, when both have email", () => {
+    expect(lapseRecipients({ welder_email: "w@x", supervisor_email: "s@x", admin_fallback_email: "a@x" }).map((r) => r.role)).toEqual(["welder", "supervisor"]);
+  });
+  it("falls back to admin only when welder and supervisor both lack email", () => {
+    expect(lapseRecipients({ welder_email: null, supervisor_email: null, admin_fallback_email: "a@x" }).map((r) => r.role)).toEqual(["admin_fallback"]);
+  });
+});
