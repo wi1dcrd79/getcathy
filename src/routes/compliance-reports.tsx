@@ -121,8 +121,11 @@ function ComplianceReports() {
   const blocked = rows.filter((r) => !r.evaluation.isDispatchable).length;
   const warnings = rows.filter((r) => r.evaluation.status === "warning").length;
 
-  const isLoading = peopleQ.isLoading || certsQ.isLoading || typesQ.isLoading || logsQ.isLoading;
-  const loadError = peopleQ.error ?? certsQ.error ?? typesQ.error ?? logsQ.error;
+  const isLoading =
+    peopleQ.isLoading ||
+    certsQ.isLoading ||
+    (!gateUnavailable && !gateError && (typesQ.isLoading || logsQ.isLoading));
+  const loadError = peopleQ.error ?? certsQ.error ?? gateError;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
