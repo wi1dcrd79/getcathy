@@ -13,12 +13,12 @@ END $$;
 
 -- 1. Multi-trade presets
 INSERT INTO public.certification_types (code, name, requires_continuity) VALUES
-  ('ELEC_JOURNEYMAN', 'Journeyman Electrician License', false),
-  ('ELEC_MASTER',     'Master Electrician License', false),
+  ('ELEC_JOURNEYMAN', 'Journeyman Electrician', false),
+  ('ELEC_MASTER',     'Master Electrician', false),
   ('NFPA_70E',        'NFPA 70E Arc Flash Safety', false),
   ('ELEC_HV_SPLICE',  'Medium/High-Voltage Cable Splicer', false),
-  ('PLUMB_JOURNEYMAN','Journeyman Plumber License', false),
-  ('PLUMB_MASTER',    'Master Plumber License', false),
+  ('PLUMB_JOURNEYMAN','Journeyman Plumber', false),
+  ('PLUMB_MASTER',    'Master Plumber', false),
   ('ASSE_5110',       'ASSE 5110 Backflow Prevention Tester', false),
   ('ASSE_6010_BRAZE', 'ASSE 6010 Medical Gas Brazer', true)
 ON CONFLICT (code) DO NOTHING;
