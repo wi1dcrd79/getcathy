@@ -63,11 +63,13 @@ function ComplianceReports() {
     queryKey: ["certification-types"],
     queryFn: fetchCertificationTypes,
     enabled: !!session,
+    retry: 1,
   });
   const logsQ = useQuery({
     queryKey: ["continuity-logs"],
     queryFn: fetchContinuityLogs,
     enabled: !!session,
+    retry: 1,
   });
 
   const [tradeFilter, setTradeFilter] = useState<string>("all");
