@@ -263,3 +263,80 @@ export function buildDispatchRows(
     );
   });
 }
+
+/* ------------------------------------------------------------------ */
+/* Continuity dashboard                                                */
+/* ------------------------------------------------------------------ */
+
+export interface ContinuityHolder {
+  person: PersonnelRecord;
+  cert: PersonnelCert;
+  evaluation: DispatchEvaluation;
+  /** Date the 150-day clock runs from (last verified work, else issue date). */
+  anchorDate: string;
+}
+
+export interface TradeContinuitySummary {
+  type: CertificationType;
+  holders: ContinuityHolder[];
+  lapsed: number;
+  warning: number;
+  compliant: number;
+  logsLast30: number;
+  logsLast90: number;
+  recentLogs: ContinuityLog[];
+}
+
+/**
+ * One summary per continuity-tracked trade (requires_continuity = true).
+ * Each person is counted once per trade, using their most recently issued
+ * approved cert for that trade. Uses the same 120/150-day rule as the gate.
+ */
+export function summarizeContinuityByTrade(
+  people: PersonnelRecord[],
+  certs: PersonnelCert[],
+  types: CertificationType[],
+  logs: ContinuityLog[],
+): TradeContinuitySummary[] {
+  const byId = new Map(people.map((p) => [p.id, p]));
+  const approved = certs
+    .filter((c) => c.approval_status === "approved")
+    .sort((a, b) => b.issue_date.localeCompare(a.issue_date));
+
+  return types
+    .filter((t) => t.requires_continuity)
+    .map((type) => {
+      const seen = new Set<string>();
+      const holders: ContinuityHolder[] = [];
+      for (const cert of approved) {
+        if (seen.has(cert.personnel_id)) continue;
+        if (matchCertType(cert.cert_name, types)?.code !== type.code) continue;
+        const person = byId.get(cert.personnel_id);
+        if (!person) continue;
+        seen.add(cert.personnel_id);
+        const evaluation = evaluateDispatch(cert, type, logs);
+        holders.push({
+          person,
+          cert,
+          evaluation,
+          anchorDate: evaluation.lastVerifiedWork ?? cert.issue_date,
+        });
+      }
+      holders.sort(
+        (a, b) => STATUS_SEVERITY[b.evaluation.status] - STATUS_SEVERITY[a.evaluation.status],
+      );
+      const typeLogs = logs
+        .filter((l) => l.cert_type_code === type.code)
+        .sort((a, b) => b.performed_date.localeCompare(a.performed_date));
+      return {
+        type,
+        holders,
+        lapsed: holders.filter((h) => h.evaluation.status === "lapsed").length,
+        warning: holders.filter((h) => h.evaluation.status === "warning").length,
+        compliant: holders.filter((h) => h.evaluation.status === "compliant").length,
+        logsLast30: typeLogs.filter((l) => daysSince(l.performed_date) <= 30).length,
+        logsLast90: typeLogs.filter((l) => daysSince(l.performed_date) <= 90).length,
+        recentLogs: typeLogs.slice(0, 10),
+      };
+    });
+}
