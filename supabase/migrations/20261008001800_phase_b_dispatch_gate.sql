@@ -67,14 +67,15 @@ AS $$
 DECLARE
   v_requires_continuity boolean;
   v_interval integer;
+  v_type_name text;
   v_cert_id uuid;
   v_exp_date date;
   v_issue_date date;
   v_last_work date;
   v_days_since integer;
 BEGIN
-  SELECT ct.requires_continuity, ct.default_continuity_days
-    INTO v_requires_continuity, v_interval
+  SELECT ct.requires_continuity, ct.default_continuity_days, ct.name
+    INTO v_requires_continuity, v_interval, v_type_name
   FROM public.certification_types ct
   WHERE ct.code = p_cert_type_code AND ct.is_active;
 
@@ -90,7 +91,11 @@ BEGIN
   WHERE pc.personnel_id = p_personnel_id
     AND pr.status = 'active'
     AND pc.approval_status = 'approved'
-    AND pc.cert_name ILIKE '%(' || p_cert_type_code || ')%'
+    -- Same rule as the /compliance-reports UI (matchCertType): the type code OR its full
+    -- name appearing anywhere in cert_name, case-insensitive. Covers "(SMAW)", "SMAW Welder",
+    -- "AWS D1.1 SMAW". strpos (not LIKE) so '_' in codes is literal.
+    AND (strpos(upper(pc.cert_name), upper(p_cert_type_code)) > 0
+         OR strpos(upper(pc.cert_name), upper(v_type_name)) > 0)
   ORDER BY pc.expiration_date DESC NULLS LAST
   LIMIT 1;
 
@@ -124,7 +129,7 @@ BEGIN
     END IF;
   END IF;
 
-  IF v_exp_date IS NOT NULL AND v_exp_date - CURRENT_DATE < 30 THEN
+  IF v_exp_date IS NOT NULL AND v_exp_date - CURRENT_DATE <= 30 THEN
     RETURN QUERY SELECT 'warning'::text, true, (v_exp_date - CURRENT_DATE), 'Certification expiring within 30 days'::text;
     RETURN;
   END IF;
