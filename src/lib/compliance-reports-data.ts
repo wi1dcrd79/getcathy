@@ -200,7 +200,26 @@ export function evaluateDispatch(
   };
 }
 
-/** Build one row per person using their most recent approved cert. */
+/**
+ * Severity ranking used to pick the worst evaluation across a person's certs.
+ * Blocking statuses always beat dispatchable ones; among blocking statuses the
+ * more severe reason wins so the row explains the real blocker.
+ */
+const STATUS_SEVERITY: Record<DispatchStatus, number> = {
+  expired: 5,
+  lapsed: 4,
+  unverified: 3,
+  missing_cert: 2,
+  warning: 1,
+  compliant: 0,
+};
+
+/**
+ * Build one row per person by evaluating EVERY approved cert they hold and
+ * surfacing the worst result. A person is dispatchable only if all of their
+ * certs are dispatchable — a recent safety card must not hide a lapsed
+ * welder continuity clock (fail closed).
+ */
 export function buildDispatchRows(
   people: PersonnelRecord[],
   certs: PersonnelCert[],
@@ -213,13 +232,34 @@ export function buildDispatchRows(
     const mine = approved
       .filter((c) => c.personnel_id === person.id)
       .sort((a, b) => b.issue_date.localeCompare(a.issue_date));
-    const cert = mine[0] ?? null;
-    const certType = cert ? matchCertType(cert.cert_name, types) : null;
-    return {
-      person,
-      cert,
-      certType,
-      evaluation: evaluateDispatch(cert, certType, logs, gateUnavailable),
-    };
+
+    let worst: PersonnelDispatchRow | null = null;
+    for (const cert of mine) {
+      const certType = matchCertType(cert.cert_name, types);
+      const evaluation = evaluateDispatch(cert, certType, logs, gateUnavailable);
+      const candidate: PersonnelDispatchRow = { person, cert, certType, evaluation };
+      if (!worst) {
+        worst = candidate;
+        continue;
+      }
+      const candBlocks = !evaluation.isDispatchable;
+      const worstBlocks = !worst.evaluation.isDispatchable;
+      if (
+        (candBlocks && !worstBlocks) ||
+        (candBlocks === worstBlocks &&
+          STATUS_SEVERITY[evaluation.status] > STATUS_SEVERITY[worst.evaluation.status])
+      ) {
+        worst = candidate;
+      }
+    }
+
+    return (
+      worst ?? {
+        person,
+        cert: null,
+        certType: null,
+        evaluation: evaluateDispatch(null, null, logs, gateUnavailable),
+      }
+    );
   });
 }
