@@ -16,7 +16,7 @@ export interface ContinuityLog {
   verified_by: string | null;
 }
 
-export type DispatchStatus = "compliant" | "warning" | "lapsed" | "expired" | "missing_cert";
+export type DispatchStatus = "compliant" | "warning" | "lapsed" | "expired" | "missing_cert" | "unverified";
 
 export interface DispatchEvaluation {
   status: DispatchStatus;
@@ -104,6 +104,7 @@ export function evaluateDispatch(
   cert: PersonnelCert | null,
   certType: CertificationType | null,
   logs: ContinuityLog[],
+  gateUnavailable = false,
 ): DispatchEvaluation {
   if (!cert) {
     return {
@@ -122,6 +123,19 @@ export function evaluateDispatch(
       isDispatchable: false,
       daysRemaining: daysUntil(cert.expiration_date),
       reason: "Certification expired",
+      certCode: certType?.code ?? null,
+      lastVerifiedWork: null,
+    };
+  }
+
+  // Fail closed: without gate tables we cannot tell dual-gate from single-gate.
+  if (gateUnavailable) {
+    return {
+      status: "unverified",
+      isDispatchable: false,
+      daysRemaining: null,
+      reason:
+        "Continuity cannot be verified: dispatch-gate data is unavailable. Do not dispatch on calendar status alone.",
       certCode: certType?.code ?? null,
       lastVerifiedWork: null,
     };
@@ -192,6 +206,7 @@ export function buildDispatchRows(
   certs: PersonnelCert[],
   types: CertificationType[],
   logs: ContinuityLog[],
+  gateUnavailable = false,
 ): PersonnelDispatchRow[] {
   const approved = certs.filter((c) => c.approval_status === "approved");
   return people.map((person) => {
@@ -204,7 +219,7 @@ export function buildDispatchRows(
       person,
       cert,
       certType,
-      evaluation: evaluateDispatch(cert, certType, logs),
+      evaluation: evaluateDispatch(cert, certType, logs, gateUnavailable),
     };
   });
 }
