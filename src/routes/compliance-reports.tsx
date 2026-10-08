@@ -189,6 +189,12 @@ function ComplianceReports() {
         </div>
       </section>
 
+      {gateUnavailable && (
+        <p className="mb-6 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
+          The dispatch-gate tables (Phase A/B migrations) are not applied to this backend yet, so
+          continuity clocks are unavailable. Showing calendar-expiration status only.
+        </p>
+      )}
       {isLoading && <p className="text-sm text-muted-foreground">Loading compliance data…</p>}
       {loadError && (
         <p className="text-sm text-red-400">
