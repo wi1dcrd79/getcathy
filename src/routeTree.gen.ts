@@ -19,6 +19,7 @@ import { Route as BillingRouteImport } from './routes/billing'
 import { Route as CompanyAdminRouteImport } from './routes/company-admin'
 import { Route as CompanyPortalRouteImport } from './routes/company-portal'
 import { Route as ComplianceReportsRouteImport } from './routes/compliance-reports'
+import { Route as ContinuityRouteImport } from './routes/continuity'
 import { Route as EvidenceReviewRouteImport } from './routes/evidence-review'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as LedgerConflictsRouteImport } from './routes/ledger-conflicts'
@@ -84,6 +85,11 @@ const CompanyPortalRoute = CompanyPortalRouteImport.update({
 const ComplianceReportsRoute = ComplianceReportsRouteImport.update({
   id: '/compliance-reports',
   path: '/compliance-reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContinuityRoute = ContinuityRouteImport.update({
+  id: '/continuity',
+  path: '/continuity',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EvidenceReviewRoute = EvidenceReviewRouteImport.update({
@@ -180,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
   '/compliance-reports': typeof ComplianceReportsRoute
+  '/continuity': typeof ContinuityRoute
   '/evidence-review': typeof EvidenceReviewRoute
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByTo {
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
   '/compliance-reports': typeof ComplianceReportsRoute
+  '/continuity': typeof ContinuityRoute
   '/evidence-review': typeof EvidenceReviewRoute
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
@@ -237,6 +245,7 @@ export interface FileRoutesById {
   '/company-admin': typeof CompanyAdminRoute
   '/company-portal': typeof CompanyPortalRoute
   '/compliance-reports': typeof ComplianceReportsRoute
+  '/continuity': typeof ContinuityRoute
   '/evidence-review': typeof EvidenceReviewRoute
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
@@ -267,6 +276,7 @@ export interface FileRouteTypes {
     | '/company-admin'
     | '/company-portal'
     | '/compliance-reports'
+    | '/continuity'
     | '/evidence-review'
     | '/import'
     | '/ledger-conflicts'
@@ -295,6 +305,7 @@ export interface FileRouteTypes {
     | '/company-admin'
     | '/company-portal'
     | '/compliance-reports'
+    | '/continuity'
     | '/evidence-review'
     | '/import'
     | '/ledger-conflicts'
@@ -323,6 +334,7 @@ export interface FileRouteTypes {
     | '/company-admin'
     | '/company-portal'
     | '/compliance-reports'
+    | '/continuity'
     | '/evidence-review'
     | '/import'
     | '/ledger-conflicts'
@@ -352,6 +364,7 @@ export interface RootRouteChildren {
   CompanyAdminRoute: typeof CompanyAdminRoute
   CompanyPortalRoute: typeof CompanyPortalRoute
   ComplianceReportsRoute: typeof ComplianceReportsRoute
+  ContinuityRoute: typeof ContinuityRoute
   EvidenceReviewRoute: typeof EvidenceReviewRoute
   ImportRoute: typeof ImportRoute
   LedgerConflictsRoute: typeof LedgerConflictsRoute
@@ -440,6 +453,13 @@ declare module '@tanstack/react-router' {
       path: '/compliance-reports'
       fullPath: '/compliance-reports'
       preLoaderRoute: typeof ComplianceReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/continuity': {
+      id: '/continuity'
+      path: '/continuity'
+      fullPath: '/continuity'
+      preLoaderRoute: typeof ContinuityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/evidence-review': {
@@ -568,6 +588,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompanyAdminRoute: CompanyAdminRoute,
   CompanyPortalRoute: CompanyPortalRoute,
   ComplianceReportsRoute: ComplianceReportsRoute,
+  ContinuityRoute: ContinuityRoute,
   EvidenceReviewRoute: EvidenceReviewRoute,
   ImportRoute: ImportRoute,
   LedgerConflictsRoute: LedgerConflictsRoute,
