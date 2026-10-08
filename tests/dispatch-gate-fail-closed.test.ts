@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { evaluateDispatch } from "@/lib/compliance-reports-data";
-import type { PersonnelCert } from "@/lib/personnel-data";
+import { buildDispatchRows, evaluateDispatch } from "@/lib/compliance-reports-data";
+import type { PersonnelCert, PersonnelRecord } from "@/lib/personnel-data";
 
 const iso = (offsetDays: number) => {
   const d = new Date();
