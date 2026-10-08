@@ -73,6 +73,14 @@ function ComplianceReports() {
   const [tradeFilter, setTradeFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "blocked" | "dispatchable">("all");
 
+  // Phase A/B tables may not exist yet on a backend that hasn't received
+  // those migrations — degrade to cert-only evaluation instead of erroring.
+  const gateUnavailable = [typesQ.error, logsQ.error].some((e) => {
+    const m = e instanceof Error ? e.message : "";
+    return m.includes("does not exist") || m.includes("schema cache") || m.includes("Could not find");
+  });
+  const gateError = !gateUnavailable && (typesQ.error ?? logsQ.error);
+
   const rows = useMemo(
     () =>
       buildDispatchRows(
