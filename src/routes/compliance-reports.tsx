@@ -40,6 +40,7 @@ const STATUS_STYLE: Record<DispatchStatus, string> = {
   lapsed: "border-red-500/40 bg-red-500/10 text-red-400",
   expired: "border-red-500/40 bg-red-500/10 text-red-400",
   missing_cert: "border-border bg-muted text-muted-foreground",
+  unverified: "border-amber-500/40 bg-amber-500/10 text-amber-400",
 };
 
 const STATUS_LABEL: Record<DispatchStatus, string> = {
@@ -48,6 +49,7 @@ const STATUS_LABEL: Record<DispatchStatus, string> = {
   lapsed: "Lapsed",
   expired: "Expired",
   missing_cert: "No Cert",
+  unverified: "Continuity unknown",
 };
 
 function ComplianceReports() {
@@ -90,8 +92,9 @@ function ComplianceReports() {
         certsQ.data ?? [],
         typesQ.data ?? [],
         logsQ.data ?? [],
+        gateUnavailable,
       ),
-    [peopleQ.data, certsQ.data, typesQ.data, logsQ.data],
+    [peopleQ.data, certsQ.data, typesQ.data, logsQ.data, gateUnavailable],
   );
 
   const trades = useMemo(
@@ -142,6 +145,20 @@ function ComplianceReports() {
         </p>
       </header>
 
+      {gateUnavailable && (
+        <div
+          role="alert"
+          className="mb-6 rounded-lg border-2 border-amber-500/60 bg-amber-500/10 px-5 py-4 text-amber-400"
+        >
+          <p className="text-sm font-bold uppercase tracking-widest">Dispatch gate unavailable</p>
+          <p className="mt-2 text-sm">
+            Continuity cannot be verified on this system right now, so no one is shown as
+            dispatchable. Expired and missing certifications are still blocked. Confirm continuity
+            on the full dispatch gate before dispatching anyone.
+          </p>
+        </div>
+      )}
+
       <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Personnel</p>
@@ -191,12 +208,6 @@ function ComplianceReports() {
         </div>
       </section>
 
-      {gateUnavailable && (
-        <p className="mb-6 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
-          The dispatch-gate tables (Phase A/B migrations) are not applied to this backend yet, so
-          continuity clocks are unavailable. Showing calendar-expiration status only.
-        </p>
-      )}
       {isLoading && <p className="text-sm text-muted-foreground">Loading compliance data…</p>}
       {loadError && (
         <p className="text-sm text-red-400">
@@ -240,7 +251,11 @@ function ComplianceReports() {
                         <>
                           <p className="text-foreground">{cert.cert_name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {certType?.requires_continuity ? "Dual-gate · 150-day clock" : "Single-gate · calendar"}
+                            {gateUnavailable
+                              ? "Gate type unknown"
+                              : certType?.requires_continuity
+                                ? "Dual-gate · 150-day clock"
+                                : "Single-gate · calendar"}
                             {cert.expiration_date ? ` · exp ${formatDate(cert.expiration_date)}` : ""}
                           </p>
                         </>
