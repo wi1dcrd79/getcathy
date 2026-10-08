@@ -292,6 +292,12 @@ function Dashboard() {
             >
               Crafts
             </Link>
+            <Link
+              to="/compliance-reports"
+              className="rounded-md border border-border px-3 py-2 text-xs font-semibold uppercase tracking-widest text-foreground hover:border-primary"
+            >
+              Compliance Reports
+            </Link>
 
             <Link
               to="/import"
