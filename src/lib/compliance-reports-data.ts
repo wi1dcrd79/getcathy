@@ -51,22 +51,35 @@ function daysUntil(dateStr: string): number {
   return Math.round((then - today) / MS_DAY);
 }
 
+// Phase A/B tables are not yet in the auto-generated Database types,
+// so query them through a loosely-typed handle on the same client.
+const untyped = supabase as unknown as {
+  from: (table: string) => {
+    select: (cols: string) => {
+      order: (
+        col: string,
+        opts?: { ascending?: boolean },
+      ) => Promise<{ data: unknown[] | null; error: { message: string } | null }>;
+    };
+  };
+};
+
 export async function fetchCertificationTypes(): Promise<CertificationType[]> {
-  const { data, error } = await supabase
+  const { data, error } = await untyped
     .from("certification_types")
     .select("code, name, requires_continuity")
     .order("code");
-  if (error) throw error;
-  return (data ?? []) as unknown as CertificationType[];
+  if (error) throw new Error(error.message);
+  return (data ?? []) as CertificationType[];
 }
 
 export async function fetchContinuityLogs(): Promise<ContinuityLog[]> {
-  const { data, error } = await supabase
+  const { data, error } = await untyped
     .from("craft_continuity_logs")
     .select("id, personnel_id, cert_type_code, performed_date, work_reference, verified_by")
     .order("performed_date", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as unknown as ContinuityLog[];
+  if (error) throw new Error(error.message);
+  return (data ?? []) as ContinuityLog[];
 }
 
 /** Match a free-text cert_name to a certification type by code or name. */
