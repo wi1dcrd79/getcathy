@@ -6,7 +6,8 @@ import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { buildBreadcrumb } from "@/lib/compliance";
 import { UpgradeModal } from "@/components/certvault/UpgradeModal";
-import { PlanLimitError } from "@/lib/certvault-data";
+import { PlanLimitError, limitCodeOf } from "@/lib/certvault-data";
+import { assetLimitReason, checkBulkAssetImport } from "@/lib/plans";
 import { clean, matchCraft, parseDate, sanitizeRows } from "@/lib/import-sanitize";
 
 export const Route = createFileRoute("/import")({
@@ -88,7 +89,7 @@ function ImportPage() {
     if (!loading && !session) navigate({ to: "/auth" });
   }, [loading, session, navigate]);
 
-  const { companyId, canWriteCompliance, readOnly } = useProfile();
+  const { companyId, canWriteCompliance, readOnly, tier } = useProfile();
   const [mode, setMode] = useState<Mode>("assets");
   const [headers, setHeaders] = useState<string[]>([]);
   const [rows, setRows] = useState<Record<string, string>[]>([]);
@@ -97,7 +98,10 @@ function ImportPage() {
   const [result, setResult] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [upgrade, setUpgrade] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState(assetLimitReason("free"));
   const [existingTags, setExistingTags] = useState<Set<string>>(new Set());
+  const [existingAssetTags, setExistingAssetTags] = useState<Set<string>>(new Set());
+  const [existingAssetCount, setExistingAssetCount] = useState(0);
   const [existingEmployees, setExistingEmployees] = useState<Set<string>>(new Set());
   const [dropped, setDropped] = useState(0);
 
@@ -111,11 +115,17 @@ function ImportPage() {
       ]);
       if (!alive) return;
       const tags = new Set<string>();
+      const assetTags = new Set<string>();
       for (const r of a.data ?? []) {
-        if (r.asset_tag) tags.add(r.asset_tag.trim().toLowerCase());
+        if (r.asset_tag) {
+          tags.add(r.asset_tag.trim().toLowerCase());
+          assetTags.add(r.asset_tag.trim().toLowerCase());
+        }
         if (r.serial_or_vin) tags.add(r.serial_or_vin.trim().toLowerCase());
       }
       setExistingTags(tags);
+      setExistingAssetTags(assetTags);
+      setExistingAssetCount((a.data ?? []).length);
       setExistingEmployees(
         new Set(
           (p.data ?? []).map((r) => (r.employee_id ?? "").trim().toLowerCase()).filter(Boolean),
