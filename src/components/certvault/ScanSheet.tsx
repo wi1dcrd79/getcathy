@@ -38,7 +38,7 @@ export function ScanSheet({
   companyId: string | null;
   onClose: () => void;
   onSaved: () => void;
-  onLimit: () => void;
+  onLimit: (code: PlanLimitError["code"]) => void;
 }) {
   const [form, setForm] = useState<NewInspectionInput>(EMPTY);
   const [photo, setPhoto] = useState<string | null>(null);
@@ -90,9 +90,12 @@ export function ScanSheet({
     } catch (err) {
       if (err instanceof PlanLimitError) {
         onClose();
-        onLimit();
+        onLimit(err.code);
+      } else if (err instanceof Error && !("code" in err)) {
+        // Our own plain-language errors (e.g. not signed in).
+        setError(err.message);
       } else {
-        setError(err instanceof Error ? err.message : "Could not save this inspection.");
+        setError("Could not save this inspection. Check your signal and try again.");
       }
     } finally {
       setSaving(false);

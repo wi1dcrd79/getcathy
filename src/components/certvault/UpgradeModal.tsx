@@ -1,11 +1,17 @@
-import { useState } from "react";
-import { FREE_ASSET_LIMIT, PADDLE_PRICE_BY_TIER, PLANS, type PlanTier } from "@/lib/plans";
+import { useEffect, useState } from "react";
+import {
+  FREE_ASSET_LIMIT,
+  PADDLE_PRICE_BY_TIER,
+  PLANS,
+  PRO_ASSET_LIMIT,
+  PRO_SEATS,
+  upgradeTargetFor,
+  type PlanTier,
+} from "@/lib/plans";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useExternalBillingGuard } from "@/lib/platform";
-
-const CHOICES: PlanTier[] = ["pro", "enterprise"];
 
 export function UpgradeModal({
   open,
@@ -16,11 +22,16 @@ export function UpgradeModal({
   reason: string;
   onClose: () => void;
 }) {
-  const [selected, setSelected] = useState<PlanTier>("pro");
+  const { companyId, tier } = useProfile();
+  // Pro companies only see the Enterprise step up; Free sees both.
+  const choices: PlanTier[] = tier === "pro" ? ["enterprise"] : ["pro", "enterprise"];
+  const [selected, setSelected] = useState<PlanTier>(upgradeTargetFor(tier));
+  useEffect(() => {
+    if (open) setSelected(upgradeTargetFor(tier));
+  }, [open, tier]);
   const [notice, setNotice] = useState<string | null>(null);
   const { openCheckout, loading } = usePaddleCheckout();
   const { session } = useAuth();
-  const { companyId } = useProfile();
   const { guarded, native, webBillingUrl } = useExternalBillingGuard();
 
   if (!open) return null;

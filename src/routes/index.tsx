@@ -17,6 +17,7 @@ import { StatusBadge } from "@/components/certvault/StatusBadge";
 import { ScanSheet } from "@/components/certvault/ScanSheet";
 import { TransferSheet } from "@/components/certvault/TransferSheet";
 import { UpgradeModal } from "@/components/certvault/UpgradeModal";
+import { assetLimitReason } from "@/lib/plans";
 import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { useProfile } from "@/hooks/useProfile";
 import { WEB_BILLING_URL } from "@/lib/platform";
@@ -114,7 +115,7 @@ function Dashboard() {
   // Signed-out visitors get the public landing page (Paddle-required public
   // pricing/terms surface) instead of a hard redirect to /auth.
 
-  const { companyId, isPro, isSuperAdmin, readOnly, role } = useProfile();
+  const { companyId, isPro, isSuperAdmin, readOnly, role, tier } = useProfile();
   const showAdminConsole = isPro && (isSuperAdmin || role === "company_admin");
   const [generatedAt, setGeneratedAt] = useState("");
   useEffect(() => setGeneratedAt(new Date().toLocaleString()), []);
@@ -550,10 +551,8 @@ function Dashboard() {
         open={scanOpen}
         companyId={companyId}
         onClose={() => setScanOpen(false)}
-        onLimit={() =>
-          setUpgradeReason(
-            "Free accounts track up to 3 assets. Upgrade to add unlimited yard inventory.",
-          )
+        onLimit={(code) =>
+          setUpgradeReason(assetLimitReason(code === "PRO_PLAN_LIMIT" ? "pro" : tier))
         }
         onSaved={() => {
           assetsQ.refetch();
