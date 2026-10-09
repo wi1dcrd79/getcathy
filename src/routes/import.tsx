@@ -237,8 +237,24 @@ function ImportPage() {
       setErr("No company found for this account.");
       return;
     }
-    setBusy(true);
     setErr(null);
+    if (mode === "assets") {
+      // Pre-check: only brand-new tags count toward the plan cap. The database
+      // trigger is still the final authority if anything slips past this.
+      const check = checkBulkAssetImport({
+        tier,
+        existingCount: existingAssetCount,
+        existingTags: existingAssetTags,
+        incomingTags: good.map((c) => c.values["asset_tag"] ?? ""),
+      });
+      if (!check.ok) {
+        setErr(check.message);
+        setUpgradeReason(assetLimitReason(tier));
+        setUpgrade(true);
+        return;
+      }
+    }
+    setBusy(true);
     let ok = 0;
     try {
       for (const c of good) {
@@ -259,8 +275,9 @@ function ImportPage() {
             company_id: companyId,
           } as never);
           if (error) {
-            if (error.message.includes("FREE_PLAN_LIMIT")) throw new PlanLimitError();
-            throw new Error(error.message);
+            const code = limitCodeOf(error);
+            if (code) throw new PlanLimitError(code);
+            throw new Error("ROW_FAILED");
           }
           ok += 1;
         } else {
@@ -276,7 +293,7 @@ function ImportPage() {
             } as never)
             .select("id")
             .single();
-          if (error) throw new Error(error.message);
+          if (error) throw new Error("ROW_FAILED");
           ok += 1;
           if (v["cert_name"] && data?.id) {
             await supabase.from("personnel_certs").insert({
@@ -293,8 +310,13 @@ function ImportPage() {
         `Imported ${ok} record${ok === 1 ? "" : "s"}${bad ? `, held back ${bad} flagged row${bad === 1 ? "" : "s"}` : ""}.`,
       );
     } catch (e) {
-      if (e instanceof PlanLimitError) setUpgrade(true);
-      else setErr(e instanceof Error ? e.message : "The import stopped early.");
+      console.error("import stopped", e);
+      if (e instanceof PlanLimitError) {
+        setUpgradeReason(assetLimitReason(e.code === "PRO_PLAN_LIMIT" ? "pro" : tier));
+        setUpgrade(true);
+      } else {
+        setErr("The import stopped early. Check your connection and try again.");
+      }
       setResult(`Imported ${ok} record${ok === 1 ? "" : "s"} before stopping.`);
     } finally {
       setBusy(false);
