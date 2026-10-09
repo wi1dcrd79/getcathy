@@ -3,6 +3,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { SUPPORT_EMAIL } from "@/lib/legal";
 
 const Message = z.object({
   role: z.enum(["user", "assistant"]),
@@ -42,7 +43,7 @@ How to answer:
   (retry, check signal, sign in again, refresh, contact support) — never paste the raw error.
 - If the device is offline, say scans and transfers are saved on the device and sync later.
 - If something is clearly broken beyond the user's control, say so plainly and point them to
-  support at wi1dcrd79@gmail.com.
+  support at ${SUPPORT_EMAIL}.
 - Never invent records, prices, or compliance rulings. Say when you are not sure.`;
 
 export const askAssistant = createServerFn({ method: "POST" })
