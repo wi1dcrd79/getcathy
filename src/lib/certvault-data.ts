@@ -2,20 +2,31 @@ import { supabase } from "@/integrations/supabase/client";
 import type { AssetRow, InspectionRow, LocationMove, WelderRow } from "./compliance";
 import { buildBreadcrumb } from "./compliance";
 
-export const FREE_ASSET_LIMIT = 3;
+export { FREE_ASSET_LIMIT, PRO_ASSET_LIMIT } from "./plans";
 export const PRO_PRICE_LABEL = "$279/mo";
 
+export type PlanLimitCode = "FREE_PLAN_LIMIT" | "PRO_PLAN_LIMIT";
+
 export class PlanLimitError extends Error {
-  constructor(message = "FREE_PLAN_LIMIT") {
-    super(message);
+  readonly code: PlanLimitCode;
+  constructor(code: PlanLimitCode = "FREE_PLAN_LIMIT") {
+    super(code);
+    this.code = code;
     this.name = "PlanLimitError";
   }
 }
 
-function isLimitError(err: unknown): boolean {
+/** Detects either plan-cap error raised by the asset trigger; null if not a limit error. */
+export function limitCodeOf(err: unknown): PlanLimitCode | null {
   const msg =
     err instanceof Error ? err.message : String((err as { message?: string })?.message ?? "");
-  return msg.includes("FREE_PLAN_LIMIT");
+  if (msg.includes("PRO_PLAN_LIMIT")) return "PRO_PLAN_LIMIT";
+  if (msg.includes("FREE_PLAN_LIMIT")) return "FREE_PLAN_LIMIT";
+  return null;
+}
+
+export function isLimitError(err: unknown): boolean {
+  return limitCodeOf(err) !== null;
 }
 
 export interface AssetRecord extends AssetRow {
@@ -113,7 +124,8 @@ export async function logInspection(input: NewInspectionInput, companyId: string
       .select("id")
       .single();
     if (error) {
-      if (isLimitError(error)) throw new PlanLimitError();
+      const code = limitCodeOf(error);
+      if (code) throw new PlanLimitError(code);
       throw error;
     }
     assetId = (created as { id: string }).id;

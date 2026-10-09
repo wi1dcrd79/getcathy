@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { bootstrapAccount } from "@/lib/account.functions";
+import { normalizeTier } from "@/lib/plans";
 
 export interface CompanyContext {
   profile: {
