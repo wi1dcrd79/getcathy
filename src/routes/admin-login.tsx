@@ -4,7 +4,7 @@ import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
-import { SUPER_ADMIN_EMAIL } from "@/lib/legal";
+import { isSuperAdminEmail } from "@/lib/legal";
 
 export const Route = createFileRoute("/admin-login")({
   head: () => ({
@@ -42,7 +42,7 @@ function AdminLogin() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const ownerEmail = (session?.user?.email ?? "").trim().toLowerCase() === SUPER_ADMIN_EMAIL;
+  const ownerEmail = isSuperAdminEmail(session?.user?.email);
 
   // An already-signed-in owner goes straight through; anyone else is told to use
   // the normal crew sign in instead of silently landing on a locked screen.
@@ -71,7 +71,7 @@ function AdminLogin() {
         .maybeSingle();
 
       const allowed =
-        entered === SUPER_ADMIN_EMAIL &&
+        isSuperAdminEmail(entered) &&
         Boolean((profile as { is_super_admin?: boolean } | null)?.is_super_admin);
 
       if (!allowed) {

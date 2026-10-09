@@ -4,6 +4,14 @@ export const COPYRIGHT_LINE =
   "Copyright © 2026 C.A.T.H.Y. All Rights Reserved. Proprietary and Confidential.";
 export const TERMS_VERSION = "2026-01";
 export const SUPER_ADMIN_EMAIL = "wi1dcrd79@gmail.com";
+/** Platform-owner emails. UI-level gate only: the database is_super_admin flag is still required. */
+export const SUPER_ADMIN_EMAILS: readonly string[] = [
+  "luisgonzalez@cathyindustries.com",
+  "wi1dcrd79@gmail.com",
+];
+export function isSuperAdminEmail(email: string | null | undefined): boolean {
+  return SUPER_ADMIN_EMAILS.includes((email ?? "").trim().toLowerCase());
+}
 export const SUPPORT_EMAIL = "wi1dcrd79@gmail.com";
 
 export interface TermsSection {
