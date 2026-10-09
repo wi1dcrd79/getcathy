@@ -79,6 +79,8 @@ export function useProfile() {
     context: ctx,
     companyId: ctx?.profile.company_id ?? null,
     isPro: (company?.subscription_tier ?? "free") !== "free",
+    /** Normalised plan tier: free | pro | enterprise. */
+    tier: normalizeTier(company?.subscription_tier),
     isSuperAdmin,
     role,
     /** Only compliance/admin roles may create or edit crew, crafts and certifications. */
