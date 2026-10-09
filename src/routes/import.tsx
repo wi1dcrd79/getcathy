@@ -499,7 +499,7 @@ function ImportPage() {
 
       <UpgradeModal
         open={upgrade}
-        reason="Free accounts track up to 3 assets. Upgrade to bulk-load your whole yard."
+        reason={upgradeReason}
         onClose={() => setUpgrade(false)}
       />
     </div>
