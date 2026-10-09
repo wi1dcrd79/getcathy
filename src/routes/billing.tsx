@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { getPaddleEnvironment } from "@/lib/paddle";
 import { planFor, UNLIMITED } from "@/lib/plans";
+import { SUPPORT_EMAIL } from "@/lib/legal";
 import { UpgradeModal } from "@/components/certvault/UpgradeModal";
 
 export const Route = createFileRoute("/billing")({
@@ -268,7 +269,7 @@ function BillingDashboard() {
             </a>
           )}
           <a
-            href="mailto:wi1dcrd79@gmail.com"
+            href={`mailto:${SUPPORT_EMAIL}`}
             className="touch-target rounded-md border border-border px-4 py-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground hover:border-primary"
           >
             Contact billing support

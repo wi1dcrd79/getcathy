@@ -12,7 +12,7 @@ export const SUPER_ADMIN_EMAILS: readonly string[] = [
 export function isSuperAdminEmail(email: string | null | undefined): boolean {
   return SUPER_ADMIN_EMAILS.includes((email ?? "").trim().toLowerCase());
 }
-export const SUPPORT_EMAIL = "wi1dcrd79@gmail.com";
+export const SUPPORT_EMAIL = "support@cathyindustries.com";
 
 export interface TermsSection {
   heading: string;
