@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
-import { SUPER_ADMIN_EMAIL } from "@/lib/legal";
+import { isSuperAdminEmail } from "@/lib/legal";
 import { planFor, seatsForTier, type PlanTier } from "@/lib/plans";
 import { getPaddleEnvironment } from "@/lib/paddle";
 
@@ -76,7 +76,7 @@ function SuperAdmin() {
   const navigate = useNavigate();
   const { isSuperAdmin: profileSuperAdmin, isLoading: profileLoading } = useProfile();
   const isSuperAdmin =
-    profileSuperAdmin && (session?.user?.email ?? "").trim().toLowerCase() === SUPER_ADMIN_EMAIL;
+    profileSuperAdmin && isSuperAdminEmail(session?.user?.email);
   const qc = useQueryClient();
 
   useEffect(() => {

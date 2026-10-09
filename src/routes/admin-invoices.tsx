@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
-import { SUPER_ADMIN_EMAIL } from "@/lib/legal";
+import { isSuperAdminEmail } from "@/lib/legal";
 import { getPaddleEnvironment } from "@/lib/paddle";
 import { listAdminInvoices } from "@/lib/admin-invoices.functions";
 
@@ -52,7 +52,7 @@ function AdminInvoices() {
   const navigate = useNavigate();
   const { isSuperAdmin: profileSuperAdmin, isLoading: profileLoading } = useProfile();
   const isOwner =
-    profileSuperAdmin && (session?.user?.email ?? "").trim().toLowerCase() === SUPER_ADMIN_EMAIL;
+    profileSuperAdmin && isSuperAdminEmail(session?.user?.email);
 
   const [filter, setFilter] = useState<"all" | "paid" | "canceled">("all");
   const fetchInvoices = useServerFn(listAdminInvoices);
