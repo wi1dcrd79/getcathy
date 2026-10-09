@@ -68,8 +68,8 @@ const PAIN_POINTS = [
 ];
 
 const COMPARISON_ROWS: { label: string; free: boolean | string; pro: boolean | string; enterprise: boolean | string }[] = [
-  { label: "Tracked assets", free: "3", pro: "Unlimited", enterprise: "Unlimited" },
-  { label: "Crew seats", free: "1", pro: "5", enterprise: "Unlimited" },
+  { label: "Tracked assets", free: "3", pro: "15", enterprise: "Unlimited" },
+  { label: "Crew seats", free: "1", pro: "3", enterprise: "Unlimited" },
   { label: "Yard transfers & scan logging", free: true, pro: true, enterprise: true },
   { label: "Offline capture & sync", free: true, pro: true, enterprise: true },
   { label: "Site → Zone → Bin hierarchy", free: true, pro: true, enterprise: true },

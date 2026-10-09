@@ -1,11 +1,17 @@
-import { useState } from "react";
-import { FREE_ASSET_LIMIT, PADDLE_PRICE_BY_TIER, PLANS, type PlanTier } from "@/lib/plans";
+import { useEffect, useState } from "react";
+import {
+  FREE_ASSET_LIMIT,
+  PADDLE_PRICE_BY_TIER,
+  PLANS,
+  PRO_ASSET_LIMIT,
+  PRO_SEATS,
+  upgradeTargetFor,
+  type PlanTier,
+} from "@/lib/plans";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useExternalBillingGuard } from "@/lib/platform";
-
-const CHOICES: PlanTier[] = ["pro", "enterprise"];
 
 export function UpgradeModal({
   open,
@@ -16,11 +22,16 @@ export function UpgradeModal({
   reason: string;
   onClose: () => void;
 }) {
-  const [selected, setSelected] = useState<PlanTier>("pro");
+  const { companyId, tier } = useProfile();
+  // Pro companies only see the Enterprise step up; Free sees both.
+  const choices: PlanTier[] = tier === "pro" ? ["enterprise"] : ["pro", "enterprise"];
+  const [selected, setSelected] = useState<PlanTier>(upgradeTargetFor(tier));
+  useEffect(() => {
+    if (open) setSelected(upgradeTargetFor(tier));
+  }, [open, tier]);
   const [notice, setNotice] = useState<string | null>(null);
   const { openCheckout, loading } = usePaddleCheckout();
   const { session } = useAuth();
-  const { companyId } = useProfile();
   const { guarded, native, webBillingUrl } = useExternalBillingGuard();
 
   if (!open) return null;
@@ -40,7 +51,8 @@ export function UpgradeModal({
         successUrl: `${window.location.origin}/?checkout=success`,
       });
     } catch (e) {
-      setNotice(e instanceof Error ? e.message : "Could not open checkout.");
+      console.error("checkout failed", e);
+      setNotice("Could not open checkout. Check your connection and try again.");
     }
   };
 
@@ -58,14 +70,14 @@ export function UpgradeModal({
           <p className="mt-2 text-sm text-muted-foreground">{reason}</p>
 
           <div className="mt-4 grid gap-2">
-            {CHOICES.map((tier) => {
-              const p = PLANS[tier];
-              const active = selected === tier;
+            {choices.map((choice) => {
+              const p = PLANS[choice];
+              const active = selected === choice;
               return (
                 <button
-                  key={tier}
-                  onClick={() => setSelected(tier)}
-                  className={`rounded-lg border p-3 text-left transition ${
+                  key={choice}
+                  onClick={() => setSelected(choice)}
+                  className={`min-h-12 rounded-lg border p-3 text-left transition ${
                     active ? "border-primary bg-primary/10" : "border-border bg-input"
                   }`}
                 >
@@ -76,9 +88,9 @@ export function UpgradeModal({
                     <span className="text-sm font-bold text-primary">{p.priceLabel}</span>
                   </span>
                   <span className="mt-1 block text-xs text-muted-foreground">
-                    {tier === "enterprise"
-                      ? "Unlimited seats · multi-yard"
-                      : "Unlimited assets · 5 seats"}
+                    {choice === "enterprise"
+                      ? "Unlimited assets · unlimited seats · multi-yard"
+                      : `${PRO_ASSET_LIMIT} assets · ${PRO_SEATS} seats`}
                   </span>
                 </button>
               );
@@ -99,8 +111,8 @@ export function UpgradeModal({
               (guarded
                 ? `Subscriptions for this B2B workspace are purchased and managed on the web console${
                     native ? " outside the mobile app" : ""
-                  }. Free accounts include ${FREE_ASSET_LIMIT} tracked assets.`
-                : `Free accounts include ${FREE_ASSET_LIMIT} tracked assets. Preview checkouts run in test mode — no real charges.`)}
+                  }. Free includes ${FREE_ASSET_LIMIT} tracked assets; Field Yard Pro includes ${PRO_ASSET_LIMIT}.`
+                : `Free includes ${FREE_ASSET_LIMIT} tracked assets; Field Yard Pro includes ${PRO_ASSET_LIMIT}. Preview checkouts run in test mode — no real charges.`)}
           </p>
 
           {guarded ? (

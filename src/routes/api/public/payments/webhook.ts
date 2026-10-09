@@ -16,7 +16,7 @@ function getSupabase(): any {
 }
 
 const TIER_BY_PRICE: Record<string, { tier: string; seats: number }> = {
-  field_yard_pro_monthly: { tier: "pro", seats: 5 },
+  field_yard_pro_monthly: { tier: "pro", seats: 3 },
   enterprise_contractor_monthly: { tier: "enterprise", seats: 999999 },
 };
 
@@ -33,7 +33,7 @@ async function syncCompanyPlan(companyId: string | undefined, priceId: string, s
       .from("companies")
       .update({
         subscription_tier: mapping?.tier ?? "pro",
-        seat_limit: mapping?.seats ?? 5,
+        seat_limit: mapping?.seats ?? 3,
         subscription_status: "active",
         past_due_since: null,
       })

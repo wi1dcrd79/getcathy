@@ -6,7 +6,8 @@ import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { buildBreadcrumb } from "@/lib/compliance";
 import { UpgradeModal } from "@/components/certvault/UpgradeModal";
-import { PlanLimitError } from "@/lib/certvault-data";
+import { PlanLimitError, limitCodeOf } from "@/lib/certvault-data";
+import { assetLimitReason, checkBulkAssetImport } from "@/lib/plans";
 import { clean, matchCraft, parseDate, sanitizeRows } from "@/lib/import-sanitize";
 
 export const Route = createFileRoute("/import")({
@@ -88,7 +89,7 @@ function ImportPage() {
     if (!loading && !session) navigate({ to: "/auth" });
   }, [loading, session, navigate]);
 
-  const { companyId, canWriteCompliance, readOnly } = useProfile();
+  const { companyId, canWriteCompliance, readOnly, tier } = useProfile();
   const [mode, setMode] = useState<Mode>("assets");
   const [headers, setHeaders] = useState<string[]>([]);
   const [rows, setRows] = useState<Record<string, string>[]>([]);
@@ -97,7 +98,10 @@ function ImportPage() {
   const [result, setResult] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [upgrade, setUpgrade] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState(assetLimitReason("free"));
   const [existingTags, setExistingTags] = useState<Set<string>>(new Set());
+  const [existingAssetTags, setExistingAssetTags] = useState<Set<string>>(new Set());
+  const [existingAssetCount, setExistingAssetCount] = useState(0);
   const [existingEmployees, setExistingEmployees] = useState<Set<string>>(new Set());
   const [dropped, setDropped] = useState(0);
 
@@ -111,11 +115,17 @@ function ImportPage() {
       ]);
       if (!alive) return;
       const tags = new Set<string>();
+      const assetTags = new Set<string>();
       for (const r of a.data ?? []) {
-        if (r.asset_tag) tags.add(r.asset_tag.trim().toLowerCase());
+        if (r.asset_tag) {
+          tags.add(r.asset_tag.trim().toLowerCase());
+          assetTags.add(r.asset_tag.trim().toLowerCase());
+        }
         if (r.serial_or_vin) tags.add(r.serial_or_vin.trim().toLowerCase());
       }
       setExistingTags(tags);
+      setExistingAssetTags(assetTags);
+      setExistingAssetCount((a.data ?? []).length);
       setExistingEmployees(
         new Set(
           (p.data ?? []).map((r) => (r.employee_id ?? "").trim().toLowerCase()).filter(Boolean),
@@ -227,8 +237,24 @@ function ImportPage() {
       setErr("No company found for this account.");
       return;
     }
-    setBusy(true);
     setErr(null);
+    if (mode === "assets") {
+      // Pre-check: only brand-new tags count toward the plan cap. The database
+      // trigger is still the final authority if anything slips past this.
+      const check = checkBulkAssetImport({
+        tier,
+        existingCount: existingAssetCount,
+        existingTags: existingAssetTags,
+        incomingTags: good.map((c) => c.values["asset_tag"] ?? ""),
+      });
+      if (!check.ok) {
+        setErr(check.message);
+        setUpgradeReason(assetLimitReason(tier));
+        setUpgrade(true);
+        return;
+      }
+    }
+    setBusy(true);
     let ok = 0;
     try {
       for (const c of good) {
@@ -249,8 +275,9 @@ function ImportPage() {
             company_id: companyId,
           } as never);
           if (error) {
-            if (error.message.includes("FREE_PLAN_LIMIT")) throw new PlanLimitError();
-            throw new Error(error.message);
+            const code = limitCodeOf(error);
+            if (code) throw new PlanLimitError(code);
+            throw new Error("ROW_FAILED");
           }
           ok += 1;
         } else {
@@ -266,7 +293,7 @@ function ImportPage() {
             } as never)
             .select("id")
             .single();
-          if (error) throw new Error(error.message);
+          if (error) throw new Error("ROW_FAILED");
           ok += 1;
           if (v["cert_name"] && data?.id) {
             await supabase.from("personnel_certs").insert({
@@ -283,8 +310,13 @@ function ImportPage() {
         `Imported ${ok} record${ok === 1 ? "" : "s"}${bad ? `, held back ${bad} flagged row${bad === 1 ? "" : "s"}` : ""}.`,
       );
     } catch (e) {
-      if (e instanceof PlanLimitError) setUpgrade(true);
-      else setErr(e instanceof Error ? e.message : "The import stopped early.");
+      console.error("import stopped", e);
+      if (e instanceof PlanLimitError) {
+        setUpgradeReason(assetLimitReason(e.code === "PRO_PLAN_LIMIT" ? "pro" : tier));
+        setUpgrade(true);
+      } else {
+        setErr("The import stopped early. Check your connection and try again.");
+      }
       setResult(`Imported ${ok} record${ok === 1 ? "" : "s"} before stopping.`);
     } finally {
       setBusy(false);
@@ -467,7 +499,7 @@ function ImportPage() {
 
       <UpgradeModal
         open={upgrade}
-        reason="Free accounts track up to 3 assets. Upgrade to bulk-load your whole yard."
+        reason={upgradeReason}
         onClose={() => setUpgrade(false)}
       />
     </div>

@@ -66,9 +66,9 @@ export const TERMS_SECTIONS: TermsSection[] = [
   {
     heading: "8. Pricing and Subscription Billing",
     body: [
-      "Field Yard Pro — $279 per month: unlimited equipment and rigging tracking, 5 operational seats, automated continuous audit binders, and hardware barcode scanner support.",
-      "Enterprise Contractor — $699 per month: everything in Field Yard Pro plus multi-yard / multi-site switching, unlimited crew seats, the full personnel continuity engine, and priority audit binder export.",
-      "A Free tier is available at no charge, limited to 3 tracked assets and 1 seat.",
+      "Field Yard Pro — $279 per month: up to 15 tracked assets, 3 crew seats, automated continuous audit binders, and hardware barcode scanner support.",
+      "Enterprise Contractor — $699 per month: everything in Field Yard Pro plus unlimited tracked assets, unlimited crew seats, multi-yard / multi-site switching, the full personnel continuity engine, and priority audit binder export.",
+      "A Free tier is available at no charge, limited to 3 tracked assets and 1 crew seat.",
       "All paid plans are billed monthly in advance in U.S. dollars and renew automatically each month until canceled. Prices are exclusive of any sales tax or VAT, which is calculated and collected at checkout where applicable.",
       "Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders. Paddle provides all customer service inquiries and handles returns.",
     ],
@@ -145,8 +145,8 @@ export const PLAN_DISCLOSURES: PlanDisclosure[] = [
     name: "Field Yard Pro",
     price: "$279 / month",
     features: [
-      "Unlimited equipment & rigging tracking",
-      "5 operational seats",
+      "Up to 15 tracked assets",
+      "3 crew seats",
       "Automated continuous audit binders",
       "Hardware barcode scanner support",
     ],
@@ -155,6 +155,7 @@ export const PLAN_DISCLOSURES: PlanDisclosure[] = [
     name: "Enterprise Contractor",
     price: "$699 / month",
     features: [
+      "Unlimited tracked assets",
       "Multi-yard / multi-site switching",
       "Unlimited crew seats",
       "Full personnel continuity engine",

@@ -8,7 +8,9 @@
 - [ ] get_current_company_id() helper + non-recursive RLS on every table
 - [ ] Company bootstrap on first sign-in (company + admin profile)
 - [ ] Super admin hardcoded for w1dcrd79@gmail.com
-- [ ] Free tier: hard limit of 3 assets; seat limit on pro (5)
+- [x] Plan limits: Free 1 seat / 3 assets; Field Yard Pro ($279/mo) 3 seats / 15 assets; Enterprise Contractor ($699/mo) unlimited
+- [x] Pro at 15 assets shows Enterprise upgrade prompt; CSV import pre-checks new tags only and stops before saving
+- [x] Migration files saved (not run): 20261009000000_continuity_lapse_outbox, 20261009000100_pro_asset_limit
 - [x] Upgrade modal "Field Yard Pro — $279/mo" on limit or locked action
 - [x] /super-admin route: list companies, toggle tiers/seats
 
