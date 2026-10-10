@@ -197,8 +197,9 @@ export function PublicLandingView() {
       <section className="mx-auto max-w-7xl px-4 py-16">
         <div className="mb-10 text-center">
           <h2 className="font-display text-4xl font-bold uppercase tracking-tight">
-            Paper trails fail audits. Memory fails worse.
+            Fabrication compliance problems C.A.T.H.Y. solves
           </h2>
+          <p className="mt-1 font-display text-lg uppercase text-accent">Paper trails fail audits. Memory fails worse.</p>
           <p className="mt-2 text-muted-foreground">
             The three failures that cost fabricators contracts — and how C.A.T.H.Y. closes each one.
           </p>
@@ -244,7 +245,12 @@ export function PublicLandingView() {
       {/* Three pillars */}
       <section id="features" className="mx-auto max-w-7xl px-4 py-16">
         <div className="mb-10 text-center">
-          <h2 className="font-display text-4xl font-bold uppercase tracking-tight">Why C.A.T.H.Y.</h2>
+          <h2 className="font-display text-4xl font-bold uppercase tracking-tight">QA/QC software features: asset tracking, weld continuity &amp; audit binders</h2>
+          <p className="mt-2">
+            <Link to="/weld-tracking-software" className="text-accent underline-offset-4 hover:underline">
+              Learn about our weld tracking software →
+            </Link>
+          </p>
           <p className="mt-2 text-muted-foreground">
             Everything required to stay compliant and pass third-party audits.
           </p>
@@ -281,8 +287,9 @@ export function PublicLandingView() {
         <div className="mx-auto max-w-7xl px-4 py-16">
           <div className="mb-10 text-center">
             <h2 className="font-display text-4xl font-bold uppercase tracking-tight">
-              Built for the yard. Built for the office.
+              Mobile field inspection app &amp; desktop QC dashboard
             </h2>
+            <p className="mt-1 text-muted-foreground">Built for the yard. Built for the office.</p>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Card className="border-accent/40 bg-background">
@@ -321,7 +328,7 @@ export function PublicLandingView() {
       <section id="pricing" className="mx-auto max-w-7xl border-t border-border/40 px-4 py-16">
         <div className="mb-10 text-center">
           <h2 className="font-display text-4xl font-bold uppercase tracking-tight">
-            Transparent plans for every yard size
+            Compliance software pricing for every yard size
           </h2>
           <p className="mt-2 text-muted-foreground">
             All plans include secure cloud backup and full mobile support.

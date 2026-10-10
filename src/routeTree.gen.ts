@@ -30,6 +30,7 @@ import { Route as RiskAnalysisRouteImport } from './routes/risk-analysis'
 import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as WeldTrackingSoftwareRouteImport } from './routes/weld-tracking-software'
 import { Route as YardRouteImport } from './routes/yard'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as ApiInngestRouteImport } from './routes/api/inngest'
@@ -142,6 +143,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WeldTrackingSoftwareRoute = WeldTrackingSoftwareRouteImport.update({
+  id: '/weld-tracking-software',
+  path: '/weld-tracking-software',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const YardRoute = YardRouteImport.update({
   id: '/yard',
   path: '/yard',
@@ -197,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
+  '/weld-tracking-software': typeof WeldTrackingSoftwareRoute
   '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/inngest': typeof ApiInngestRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByTo {
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
+  '/weld-tracking-software': typeof WeldTrackingSoftwareRoute
   '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/inngest': typeof ApiInngestRoute
@@ -256,6 +264,7 @@ export interface FileRoutesById {
   '/scan-transfer': typeof ScanTransferRoute
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
+  '/weld-tracking-software': typeof WeldTrackingSoftwareRoute
   '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/inngest': typeof ApiInngestRoute
@@ -287,6 +296,7 @@ export interface FileRouteTypes {
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
+    | '/weld-tracking-software'
     | '/yard'
     | '/.well-known/oauth-protected-resource'
     | '/api/inngest'
@@ -316,6 +326,7 @@ export interface FileRouteTypes {
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
+    | '/weld-tracking-software'
     | '/yard'
     | '/.well-known/oauth-protected-resource'
     | '/api/inngest'
@@ -345,6 +356,7 @@ export interface FileRouteTypes {
     | '/scan-transfer'
     | '/super-admin'
     | '/terms'
+    | '/weld-tracking-software'
     | '/yard'
     | '/.well-known/oauth-protected-resource'
     | '/api/inngest'
@@ -375,6 +387,7 @@ export interface RootRouteChildren {
   ScanTransferRoute: typeof ScanTransferRoute
   SuperAdminRoute: typeof SuperAdminRoute
   TermsRoute: typeof TermsRoute
+  WeldTrackingSoftwareRoute: typeof WeldTrackingSoftwareRoute
   YardRoute: typeof YardRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiInngestRoute: typeof ApiInngestRoute
@@ -532,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/weld-tracking-software': {
+      id: '/weld-tracking-software'
+      path: '/weld-tracking-software'
+      fullPath: '/weld-tracking-software'
+      preLoaderRoute: typeof WeldTrackingSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/yard': {
       id: '/yard'
       path: '/yard'
@@ -599,6 +619,7 @@ const rootRouteChildren: RootRouteChildren = {
   ScanTransferRoute: ScanTransferRoute,
   SuperAdminRoute: SuperAdminRoute,
   TermsRoute: TermsRoute,
+  WeldTrackingSoftwareRoute: WeldTrackingSoftwareRoute,
   YardRoute: YardRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
