@@ -21,7 +21,8 @@
     "source-map-js": "1.2.2",
     "@modelcontextprotocol/sdk": "1.31.0",
     "fast-uri": "3.1.8",
-    "uuid": "11.1.1"
+    "uuid": "11.1.1",
+    "esbuild": "^0.27.0"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.87",
@@ -75,6 +76,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
+    "esbuild": "^0.25.10",
     "idb-keyval": "^6.3.0",
     "inngest": "^4.20.0",
     "input-otp": "^1.4.2",

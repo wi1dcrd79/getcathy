@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { isSuperAdminEmail } from "@/lib/legal";
-import { planFor, seatsForTier, type PlanTier } from "@/lib/plans";
+import { planFor, type PlanTier } from "@/lib/plans";
+import { useServerFn } from "@tanstack/react-start";
+import { updateCompanyPlan } from "@/lib/super-admin.functions";
 import { getPaddleEnvironment } from "@/lib/paddle";
 
 export const Route = createFileRoute("/super-admin")({
@@ -114,19 +116,16 @@ function SuperAdmin() {
     };
   }, [isSuperAdmin, qc]);
 
+  const updatePlanFn = useServerFn(updateCompanyPlan);
   const update = useMutation({
     mutationFn: async (vars: { id: string; tier?: string; seats?: number }) => {
-      const patch: Record<string, unknown> = {};
-      if (vars.tier !== undefined) {
-        patch["subscription_tier"] = vars.tier;
-        patch["seat_limit"] = seatsForTier(vars.tier as PlanTier);
-      }
-      if (vars.seats !== undefined) patch["seat_limit"] = vars.seats;
-      const { error } = await supabase
-        .from("companies")
-        .update(patch as never)
-        .eq("id", vars.id);
-      if (error) throw error;
+      await updatePlanFn({
+        data: {
+          id: vars.id,
+          tier: vars.tier as "free" | "pro" | "enterprise" | undefined,
+          seats: vars.seats,
+        },
+      });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["companies"] }),
   });
