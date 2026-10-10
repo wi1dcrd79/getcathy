@@ -25,6 +25,19 @@ export const compileAuditBinder = createServerFn({ method: "POST" })
       throw new Error("Your role can't compile audit binders.");
     const cid = profile.company_id;
 
+    // Paid-feature gate: entitlement comes from the server-held company row,
+    // which only super-admins and the billing webhook can change.
+    const { data: company, error: ce } = await supabase
+      .from("companies")
+      .select("subscription_tier")
+      .eq("id", cid)
+      .single();
+    if (ce || !company) throw new Error("Couldn't verify your plan.");
+    if ((company.subscription_tier ?? "free") === "free")
+      throw new Error(
+        "Audit binders are included with Field Yard Pro and Enterprise. Upgrade to compile one.",
+      );
+
     const [assets, insps, certs, prev] = await Promise.all([
       supabase
         .from("assets")

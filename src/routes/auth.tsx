@@ -6,6 +6,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { TermsModal } from "@/components/certvault/TermsModal";
 import { TERMS_VERSION } from "@/lib/legal";
 
+/** Only same-site paths: one leading slash, no backslashes, schemes or control chars. */
+export function isSafeNext(n: string): boolean {
+  return /^\/(?![/\\])[A-Za-z0-9\-._~/?&=%#]*$/.test(n);
+}
+
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
@@ -26,7 +31,7 @@ export const Route = createFileRoute("/auth")({
   }),
   validateSearch: (s: Record<string, unknown>): { next?: string } => {
     const n = s["next"];
-    return typeof n === "string" && n.startsWith("/") && !n.startsWith("//") ? { next: n } : {};
+    return typeof n === "string" && isSafeNext(n) ? { next: n } : {};
   },
   component: AuthPage,
 });
