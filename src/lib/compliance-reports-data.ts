@@ -233,9 +233,20 @@ export function buildDispatchRows(
       .filter((c) => c.personnel_id === person.id)
       .sort((a, b) => b.issue_date.localeCompare(a.issue_date));
 
-    let worst: PersonnelDispatchRow | null = null;
+    // A renewal supersedes older copies of the same credential: keep only the
+    // most recently issued cert per trade code (or per name if unmatched).
+    const seenKeys = new Set<string>();
+    const current: { cert: PersonnelCert; certType: CertificationType | null }[] = [];
     for (const cert of mine) {
       const certType = matchCertType(cert.cert_name, types);
+      const key = certType ? `code:${certType.code}` : `name:${cert.cert_name.trim().toUpperCase()}`;
+      if (seenKeys.has(key)) continue;
+      seenKeys.add(key);
+      current.push({ cert, certType });
+    }
+
+    let worst: PersonnelDispatchRow | null = null;
+    for (const { cert, certType } of current) {
       const evaluation = evaluateDispatch(cert, certType, logs, gateUnavailable);
       const candidate: PersonnelDispatchRow = { person, cert, certType, evaluation };
       if (!worst) {
