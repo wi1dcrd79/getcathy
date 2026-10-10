@@ -56,6 +56,19 @@ export const syncLedgerBatch = createServerFn({ method: "POST" })
         continue;
       }
 
+      // Ownership check: the asset must belong to the caller's company
+      // (RLS-scoped read) before anything — ledger row or conflict — is filed.
+      const { data: owned } = await supabase
+        .from("assets")
+        .select("id")
+        .eq("id", action.asset_id)
+        .eq("company_id", companyId)
+        .maybeSingle();
+      if (!owned) {
+        failedIds.push(action.id);
+        continue;
+      }
+
       // 1. Unconditional append-only ledger insert (idempotent on client UUID).
       const { error: ledgerErr } = await supabase.from("asset_ledger").upsert(
         {
