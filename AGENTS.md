@@ -28,4 +28,5 @@
 - Authority fields (signer_role, role claims) are looked up and stamped server-side, never trusted from the client.
 - Hashing: one shared RFC 8785 module client+server; server re-verifies before write; client hash checks are UI-only.
 - Storage: check existing bucket policies before reuse; sensitive/immutable artifacts (signatures, compiled binders) get dedicated buckets with server-only writes.
-- Lint: the 3 PUBLIC EXECUTE warnings (bootstrap, session rotation, admin replay) are intentional — confirm with the user before changing.
+- Account bootstrap runs only in the `bootstrapAccount` server fn (verified email, never alters an existing profile); the `bootstrap_current_user` RPC is service_role-only so no one can self-promote.
+- Lint: the 2 PUBLIC EXECUTE warnings (session rotation, admin replay) are intentional — confirm with the user before changing.
