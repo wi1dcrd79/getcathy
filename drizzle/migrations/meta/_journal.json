@@ -8,6 +8,13 @@
       "when": 1791597862533,
       "tag": "0000_tighten_certification_types_read_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791628293119,
+      "tag": "0001_companies_billing_lock",
+      "breakpoints": true
     }
   ]
 }
