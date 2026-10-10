@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { isSuperAdminEmail } from "@/lib/legal";
-import { planFor } from "@/lib/plans";
+import { planFor, type PlanTier } from "@/lib/plans";
 import { useServerFn } from "@tanstack/react-start";
 import { updateCompanyPlan } from "@/lib/super-admin.functions";
 import { getPaddleEnvironment } from "@/lib/paddle";
