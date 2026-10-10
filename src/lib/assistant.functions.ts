@@ -71,10 +71,19 @@ export const askAssistant = createServerFn({ method: "POST" })
     ].join("\n");
 
     try {
+      // Caller-supplied "assistant" messages could steer the model as if they
+      // were its own prior output. Only the server owns assistant/system roles:
+      // re-wrap any client assistant turns as quoted user context.
+      const safeMessages = data.messages.map((m) =>
+        m.role === "assistant"
+          ? { role: "user" as const, content: `[Earlier CATHY Assist reply, quoted for context]\n${m.content}` }
+          : m,
+      );
+
       const stream = streamText({
         model: lovable.responses("openai/gpt-6-astra"),
         system: `${SYSTEM_PROMPT}\n\nCurrent situation:\n${situation}`,
-        messages: data.messages,
+        messages: safeMessages,
         providerOptions: {
           openai: {
             forceReasoning: true,

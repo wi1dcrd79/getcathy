@@ -193,7 +193,13 @@ function Dashboard() {
         r.result,
         r.status,
       ]
-        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .map((v) => {
+          // Neutralize spreadsheet formula injection: a leading =, +, -, or @
+          // executes as a formula when the CSV is opened in Excel/Sheets.
+          let s = String(v);
+          if (/^[\s]*[=+\-@]/.test(s)) s = `'${s}`;
+          return `"${s.replace(/"/g, '""')}"`;
+        })
         .join(","),
     );
     const blob = new Blob([[head.join(","), ...body].join("\n")], { type: "text/csv" });

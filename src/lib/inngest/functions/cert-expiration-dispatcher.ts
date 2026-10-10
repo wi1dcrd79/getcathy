@@ -29,12 +29,24 @@ function recipientsFor(c: Candidate): Array<{ role: string; email: string }> {
   return out;
 }
 
+// cert_name / cert_number are user-supplied — escape before HTML interpolation.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function renderEmail(c: Candidate, days: number, role: string) {
   const urgent = role === "admin_fallback";
-  const subject = `${urgent ? "[ACTION REQUIRED] " : ""}Certification expires in ${days} days: ${c.cert_name}`;
+  const certName = escapeHtml(c.cert_name);
+  const certNumber = c.cert_number ? escapeHtml(c.cert_number) : null;
+  const subject = `${urgent ? "[ACTION REQUIRED] " : ""}Certification expires in ${days} days: ${c.cert_name.replace(/[\r\n]+/g, " ")}`;
   const html = `
     ${urgent ? `<p style="background:#b91c1c;color:#fff;padding:8px"><strong>No worker or supervisor email on file — escalated to company admin.</strong></p>` : ""}
-    <p>The certification <strong>${c.cert_name}</strong>${c.cert_number ? ` (#${c.cert_number})` : ""} expires on <strong>${c.expiration_date}</strong> (${days} days).</p>
+    <p>The certification <strong>${certName}</strong>${certNumber ? ` (#${certNumber})` : ""} expires on <strong>${escapeHtml(c.expiration_date)}</strong> (${days} days).</p>
     <p>Please schedule renewal to avoid dispatch blocks.</p>`;
   return { subject, html };
 }
