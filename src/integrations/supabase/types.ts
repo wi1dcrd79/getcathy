@@ -403,6 +403,36 @@ export type Database = {
           },
         ]
       }
+      certification_types: {
+        Row: {
+          code: string
+          created_at: string
+          default_continuity_days: number
+          id: string
+          is_active: boolean
+          name: string
+          requires_continuity: boolean
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          default_continuity_days?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          requires_continuity?: boolean
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          default_continuity_days?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          requires_continuity?: boolean
+        }
+        Relationships: []
+      }
       companies: {
         Row: {
           created_at: string
@@ -526,6 +556,157 @@ export type Database = {
           },
         ]
       }
+      continuity_lapse_notifications: {
+        Row: {
+          anchor_date: string
+          cert_id: string
+          cert_type_code: string
+          company_id: string
+          created_at: string
+          delivery_status: string
+          dispatched_at: string | null
+          id: string
+          notice_payload: Json
+          personnel_id: string
+          provider_message_id: string | null
+          recipient_email: string
+          recipient_role: string
+        }
+        Insert: {
+          anchor_date: string
+          cert_id: string
+          cert_type_code: string
+          company_id: string
+          created_at?: string
+          delivery_status?: string
+          dispatched_at?: string | null
+          id?: string
+          notice_payload?: Json
+          personnel_id: string
+          provider_message_id?: string | null
+          recipient_email: string
+          recipient_role: string
+        }
+        Update: {
+          anchor_date?: string
+          cert_id?: string
+          cert_type_code?: string
+          company_id?: string
+          created_at?: string
+          delivery_status?: string
+          dispatched_at?: string | null
+          id?: string
+          notice_payload?: Json
+          personnel_id?: string
+          provider_message_id?: string | null
+          recipient_email?: string
+          recipient_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "continuity_lapse_notifications_cert_id_fkey"
+            columns: ["cert_id"]
+            isOneToOne: false
+            referencedRelation: "personnel_certs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "continuity_lapse_notifications_cert_type_code_fkey"
+            columns: ["cert_type_code"]
+            isOneToOne: false
+            referencedRelation: "certification_types"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "continuity_lapse_notifications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "continuity_lapse_notifications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "continuity_lapse_notifications_personnel_id_fkey"
+            columns: ["personnel_id"]
+            isOneToOne: false
+            referencedRelation: "personnel_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      corrective_action_events: {
+        Row: {
+          actor_id: string | null
+          company_id: string
+          corrective_action_id: string
+          created_at: string
+          event_type: string
+          id: string
+          new_due_date: string | null
+          new_priority: string | null
+          new_status: string | null
+          old_due_date: string | null
+          old_priority: string | null
+          old_status: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          company_id: string
+          corrective_action_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          new_due_date?: string | null
+          new_priority?: string | null
+          new_status?: string | null
+          old_due_date?: string | null
+          old_priority?: string | null
+          old_status?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          company_id?: string
+          corrective_action_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          new_due_date?: string | null
+          new_priority?: string | null
+          new_status?: string | null
+          old_due_date?: string | null
+          old_priority?: string | null
+          old_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corrective_action_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_action_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "corrective_action_events_corrective_action_id_fkey"
+            columns: ["corrective_action_id"]
+            isOneToOne: false
+            referencedRelation: "corrective_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       corrective_actions: {
         Row: {
           asset_id: string | null
@@ -616,6 +797,82 @@ export type Database = {
           },
           {
             foreignKeyName: "corrective_actions_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      craft_continuity_logs: {
+        Row: {
+          cert_type_code: string
+          company_id: string
+          created_at: string
+          id: string
+          performed_date: string
+          personnel_id: string
+          verified_by: string | null
+          work_reference: string | null
+        }
+        Insert: {
+          cert_type_code: string
+          company_id: string
+          created_at?: string
+          id?: string
+          performed_date: string
+          personnel_id: string
+          verified_by?: string | null
+          work_reference?: string | null
+        }
+        Update: {
+          cert_type_code?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          performed_date?: string
+          personnel_id?: string
+          verified_by?: string | null
+          work_reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "craft_continuity_logs_cert_type_code_fkey"
+            columns: ["cert_type_code"]
+            isOneToOne: false
+            referencedRelation: "certification_types"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "craft_continuity_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "craft_continuity_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "craft_continuity_logs_personnel_id_fkey"
+            columns: ["personnel_id"]
+            isOneToOne: false
+            referencedRelation: "personnel_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "craft_continuity_logs_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "craft_continuity_logs_verified_by_fkey"
             columns: ["verified_by"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -1720,9 +1977,13 @@ export type Database = {
           chronic_asset_count: number | null
           company_id: string | null
           inspection_failure_rate_90d: number | null
+          inspection_needs_service_rate_90d: number | null
+          inspection_pass_rate_90d: number | null
           lapsed_certs_count: number | null
           mttr_p1_hours: number | null
           mttr_p2_hours: number | null
+          mttr_p3_hours: number | null
+          noncompliant_personnel_count: number | null
           open_p1_count: number | null
           open_p2_count: number | null
           open_p3_count: number | null
@@ -1733,9 +1994,13 @@ export type Database = {
           chronic_asset_count?: never
           company_id?: string | null
           inspection_failure_rate_90d?: never
+          inspection_needs_service_rate_90d?: never
+          inspection_pass_rate_90d?: never
           lapsed_certs_count?: never
           mttr_p1_hours?: never
           mttr_p2_hours?: never
+          mttr_p3_hours?: never
+          noncompliant_personnel_count?: never
           open_p1_count?: never
           open_p2_count?: never
           open_p3_count?: never
@@ -1746,9 +2011,13 @@ export type Database = {
           chronic_asset_count?: never
           company_id?: string | null
           inspection_failure_rate_90d?: never
+          inspection_needs_service_rate_90d?: never
+          inspection_pass_rate_90d?: never
           lapsed_certs_count?: never
           mttr_p1_hours?: never
           mttr_p2_hours?: never
+          mttr_p3_hours?: never
+          noncompliant_personnel_count?: never
           open_p1_count?: never
           open_p2_count?: never
           open_p3_count?: never
@@ -1799,6 +2068,10 @@ export type Database = {
         Returns: boolean
       }
       bootstrap_current_user: { Args: never; Returns: string }
+      check_dispatch_eligibility: {
+        Args: { p_personnel_id: string; p_required_cert_code: string }
+        Returns: Json
+      }
       find_certs_crossing_threshold: {
         Args: { p_company_id?: string; p_threshold_days: number }
         Returns: {
@@ -1808,6 +2081,23 @@ export type Database = {
           cert_number: string
           company_id: string
           expiration_date: string
+          supervisor_email: string
+          welder_email: string
+        }[]
+      }
+      find_lapsed_continuity: {
+        Args: { p_company_id?: string }
+        Returns: {
+          admin_fallback_email: string
+          anchor_date: string
+          cert_id: string
+          cert_name: string
+          cert_type_code: string
+          cert_type_name: string
+          company_id: string
+          days_elapsed: number
+          person_name: string
+          personnel_id: string
           supervisor_email: string
           welder_email: string
         }[]
