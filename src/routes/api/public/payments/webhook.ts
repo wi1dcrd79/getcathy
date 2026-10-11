@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
-import { verifyWebhook, EventName, type PaddleEnv } from "@/lib/paddle.server";
+import {
+  verifyWebhook,
+  verifyCheckoutContext,
+  EventName,
+  type PaddleEnv,
+} from "@/lib/paddle.server";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _supabase: any = null;
@@ -63,11 +68,17 @@ async function handleSubscriptionUpsert(data: any, env: PaddleEnv) {
   const { id, customerId, items, status, currentBillingPeriod, customData, scheduledChange } = data;
 
   const userId = customData?.userId;
-  const companyId = customData?.companyId;
-  if (!userId) {
-    console.error("No userId in customData");
+  const sig = customData?.sig;
+  if (!userId || !sig) {
+    console.error("Missing userId or sig in customData");
     return;
   }
+  const claimedCompanyId: string = customData?.companyId ?? "";
+  if (!verifyCheckoutContext(userId, claimedCompanyId, sig)) {
+    console.error("Checkout signature verification failed");
+    return;
+  }
+  const companyId = claimedCompanyId || undefined;
 
   const item = items?.[0];
   const priceId = item?.price?.importMeta?.externalId;

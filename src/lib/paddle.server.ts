@@ -1,4 +1,33 @@
 import { Environment, Paddle, EventName } from "@paddle/paddle-node-sdk";
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+function getCheckoutSecret(): string {
+  const secret = process.env["CHECKOUT_SIGNING_SECRET"];
+  if (!secret) throw new Error("CHECKOUT_SIGNING_SECRET is not configured");
+  return secret;
+}
+
+export function signCheckoutContext(userId: string, companyId: string): string {
+  return createHmac("sha256", getCheckoutSecret()).update(`${userId}.${companyId}`).digest("hex");
+}
+
+export function verifyCheckoutContext(
+  userId: string,
+  companyId: string,
+  sig: string | undefined,
+): boolean {
+  try {
+    if (typeof userId !== "string" || !userId) return false;
+    if (typeof companyId !== "string") return false;
+    if (typeof sig !== "string" || !/^[0-9a-f]{64}$/i.test(sig)) return false;
+    const expected = Buffer.from(signCheckoutContext(userId, companyId), "hex");
+    const given = Buffer.from(sig, "hex");
+    if (expected.length !== given.length) return false;
+    return timingSafeEqual(expected, given);
+  } catch {
+    return false;
+  }
+}
 
 const getEnv = (key: string): string => {
   const value = process.env[key];

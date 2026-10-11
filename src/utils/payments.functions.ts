@@ -1,6 +1,21 @@
 import { createServerFn } from "@tanstack/react-start";
-import { gatewayFetch, type PaddleEnv } from "@/lib/paddle.server";
+import { gatewayFetch, signCheckoutContext, type PaddleEnv } from "@/lib/paddle.server";
 import { PADDLE_PRICE_BY_TIER } from "@/lib/plans";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+export const getCheckoutContext = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: profile, error } = await context.supabase
+      .from("profiles")
+      .select("company_id")
+      .eq("id", context.userId)
+      .maybeSingle();
+    if (error) throw new Error("Could not load your account.");
+    const companyId = (profile?.company_id as string | null) ?? "";
+    const sig = signCheckoutContext(context.userId, companyId);
+    return { userId: context.userId, companyId, sig };
+  });
 
 const ALLOWED_PRICE_IDS = new Set<string>(Object.values(PADDLE_PRICE_BY_TIER));
 
