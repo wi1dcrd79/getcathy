@@ -445,7 +445,10 @@ function Dashboard() {
         </section>
 
         {/* Manager table (desktop) */}
-        <section className="mt-4 hidden overflow-x-auto lg:block">
+        <section aria-labelledby="records-table-heading" className="mt-4 hidden overflow-x-auto lg:block">
+          <h2 id="records-table-heading" className="sr-only">
+            Compliance records table
+          </h2>
           <table className="panel print-plain w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-[11px] uppercase tracking-widest text-muted-foreground">
