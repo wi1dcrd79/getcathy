@@ -8,6 +8,12 @@ import {
   SUPPORT_EMAIL,
   TERMS_SECTIONS,
   TERMS_VERSION,
+  BUSINESS_ENTITY,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_CITY_STATE,
+  BUSINESS_COUNTRY,
+  BUSINESS_PHONE,
+  BUSINESS_PHONE_TEL,
 } from "@/lib/legal";
 
 export const Route = createFileRoute("/terms")({
@@ -136,7 +142,23 @@ function TermsPage() {
       </section>
 
       <footer className="mt-10 border-t border-border pt-5 text-xs text-muted-foreground">
-        <p>{COPYRIGHT_LINE}</p>
+        <address className="not-italic">
+          <p className="font-semibold text-foreground">{BUSINESS_ENTITY}</p>
+          <p>{BUSINESS_ADDRESS_LINE1}</p>
+          <p>
+            {BUSINESS_ADDRESS_CITY_STATE}, {BUSINESS_COUNTRY}
+          </p>
+          <p>
+            <a href={`tel:${BUSINESS_PHONE_TEL}`} className="underline">
+              {BUSINESS_PHONE}
+            </a>{" "}
+            ·{" "}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="underline">
+              {SUPPORT_EMAIL}
+            </a>
+          </p>
+        </address>
+        <p className="mt-3">{COPYRIGHT_LINE}</p>
         <p className="mt-2">
           Questions about these terms should be directed to your {BRAND} account representative.
         </p>

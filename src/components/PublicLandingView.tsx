@@ -22,7 +22,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { PLANS } from "@/lib/plans";
-import { BRAND, BRAND_DIVISION, COPYRIGHT_LINE, SUPPORT_EMAIL } from "@/lib/legal";
+import {
+  BRAND,
+  BRAND_DIVISION,
+  COPYRIGHT_LINE,
+  SUPPORT_EMAIL,
+  BUSINESS_ENTITY,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_CITY_STATE,
+  BUSINESS_PHONE,
+  BUSINESS_PHONE_TEL,
+} from "@/lib/legal";
 import heroFieldScan from "@/assets/hero-field-scan.jpg";
 import yardDusk from "@/assets/yard-dusk.jpg";
 
@@ -418,6 +428,12 @@ export function PublicLandingView() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 text-sm text-muted-foreground md:flex-row">
           <div>
             <p className="font-semibold text-foreground">{BRAND_DIVISION}</p>
+            <address className="mt-1 not-italic">
+              {BUSINESS_ENTITY} · {BUSINESS_ADDRESS_LINE1} · {BUSINESS_ADDRESS_CITY_STATE} ·{" "}
+              <a href={`tel:${BUSINESS_PHONE_TEL}`} className="hover:text-foreground">
+                {BUSINESS_PHONE}
+              </a>
+            </address>
             <p className="mt-1">{COPYRIGHT_LINE}</p>
           </div>
           <div className="flex flex-wrap items-center gap-6">

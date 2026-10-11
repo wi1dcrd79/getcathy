@@ -13,6 +13,13 @@ export function isSuperAdminEmail(email: string | null | undefined): boolean {
   return SUPER_ADMIN_EMAILS.includes((email ?? "").trim().toLowerCase());
 }
 export const SUPPORT_EMAIL = "support@cathyindustries.com";
+export const BUSINESS_ENTITY = "CATHY Industries";
+export const BUSINESS_ADDRESS_LINE1 = "442 Fairmont Dr., Suite B";
+export const BUSINESS_ADDRESS_CITY_STATE = "Corpus Christi, TX 78408";
+export const BUSINESS_COUNTRY = "United States";
+export const BUSINESS_PHONE = "(361) 533-5197";
+export const BUSINESS_PHONE_TEL = "+13615335197";
+export const BUSINESS_ADDRESS_ONE_LINE = `${BUSINESS_ADDRESS_LINE1}, ${BUSINESS_ADDRESS_CITY_STATE}, ${BUSINESS_COUNTRY}`;
 
 export interface TermsSection {
   heading: string;
@@ -94,7 +101,8 @@ export const TERMS_SECTIONS: TermsSection[] = [
   {
     heading: "10. Support and Operator Contact",
     body: [
-      `Operational and billing support for the Platform is provided by ${BRAND} at ${SUPPORT_EMAIL}. We aim to respond to all support requests within one business day. Payment, invoice and refund inquiries may also be raised directly with Paddle, the Merchant of Record, at paddle.net.`,
+      `Operational and billing support for the Platform is provided by CATHY Industries at ${SUPPORT_EMAIL} or by phone at (361) 533-5197. We aim to respond to all support requests within one business day. Payment, invoice and refund inquiries may also be raised directly with Paddle, the Merchant of Record, at paddle.net.`,
+      "Physical correspondence: CATHY Industries, 442 Fairmont Dr., Suite B, Corpus Christi, TX 78408, United States.",
     ],
   },
   {
