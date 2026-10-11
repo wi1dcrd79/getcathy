@@ -349,11 +349,16 @@ function Dashboard() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-5">
-        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <MetricCard label="Total Tracked Assets" value={metrics.total} tone="neutral" />
-          <MetricCard label="Active / Compliant" value={metrics.compliant} tone="success" />
-          <MetricCard label="Expiring in < 30 Days" value={metrics.soon} tone="warning" />
-          <MetricCard label="Out of Compliance" value={metrics.out} tone="danger" />
+        <section aria-labelledby="compliance-metrics-heading">
+          <h2 id="compliance-metrics-heading" className="sr-only">
+            Compliance status overview
+          </h2>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <MetricCard label="Total Tracked Assets" value={metrics.total} tone="neutral" />
+            <MetricCard label="Active / Compliant" value={metrics.compliant} tone="success" />
+            <MetricCard label="Expiring in &lt; 30 Days" value={metrics.soon} tone="warning" />
+            <MetricCard label="Out of Compliance" value={metrics.out} tone="danger" />
+          </div>
         </section>
 
         <div className="no-print mt-5 flex flex-col gap-3">
