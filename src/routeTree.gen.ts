@@ -31,6 +31,7 @@ import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WeldTrackingSoftwareRouteImport } from './routes/weld-tracking-software'
+import { Route as WeldingManagementSoftwareRouteImport } from './routes/welding-management-software'
 import { Route as YardRouteImport } from './routes/yard'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as ApiInngestRouteImport } from './routes/api/inngest'
@@ -148,6 +149,12 @@ const WeldTrackingSoftwareRoute = WeldTrackingSoftwareRouteImport.update({
   path: '/weld-tracking-software',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WeldingManagementSoftwareRoute =
+  WeldingManagementSoftwareRouteImport.update({
+    id: '/welding-management-software',
+    path: '/welding-management-software',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const YardRoute = YardRouteImport.update({
   id: '/yard',
   path: '/yard',
@@ -204,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
   '/weld-tracking-software': typeof WeldTrackingSoftwareRoute
+  '/welding-management-software': typeof WeldingManagementSoftwareRoute
   '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/inngest': typeof ApiInngestRoute
@@ -234,6 +242,7 @@ export interface FileRoutesByTo {
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
   '/weld-tracking-software': typeof WeldTrackingSoftwareRoute
+  '/welding-management-software': typeof WeldingManagementSoftwareRoute
   '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/inngest': typeof ApiInngestRoute
@@ -265,6 +274,7 @@ export interface FileRoutesById {
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
   '/weld-tracking-software': typeof WeldTrackingSoftwareRoute
+  '/welding-management-software': typeof WeldingManagementSoftwareRoute
   '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/inngest': typeof ApiInngestRoute
@@ -297,6 +307,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/terms'
     | '/weld-tracking-software'
+    | '/welding-management-software'
     | '/yard'
     | '/.well-known/oauth-protected-resource'
     | '/api/inngest'
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/terms'
     | '/weld-tracking-software'
+    | '/welding-management-software'
     | '/yard'
     | '/.well-known/oauth-protected-resource'
     | '/api/inngest'
@@ -357,6 +369,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/terms'
     | '/weld-tracking-software'
+    | '/welding-management-software'
     | '/yard'
     | '/.well-known/oauth-protected-resource'
     | '/api/inngest'
@@ -388,6 +401,7 @@ export interface RootRouteChildren {
   SuperAdminRoute: typeof SuperAdminRoute
   TermsRoute: typeof TermsRoute
   WeldTrackingSoftwareRoute: typeof WeldTrackingSoftwareRoute
+  WeldingManagementSoftwareRoute: typeof WeldingManagementSoftwareRoute
   YardRoute: typeof YardRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiInngestRoute: typeof ApiInngestRoute
@@ -552,6 +566,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WeldTrackingSoftwareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/welding-management-software': {
+      id: '/welding-management-software'
+      path: '/welding-management-software'
+      fullPath: '/welding-management-software'
+      preLoaderRoute: typeof WeldingManagementSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/yard': {
       id: '/yard'
       path: '/yard'
@@ -620,6 +641,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperAdminRoute: SuperAdminRoute,
   TermsRoute: TermsRoute,
   WeldTrackingSoftwareRoute: WeldTrackingSoftwareRoute,
+  WeldingManagementSoftwareRoute: WeldingManagementSoftwareRoute,
   YardRoute: YardRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
