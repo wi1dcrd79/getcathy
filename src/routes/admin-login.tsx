@@ -99,7 +99,7 @@ function AdminLogin() {
           </span>
         </div>
         <h1 className="mt-2 text-2xl font-bold uppercase tracking-wide text-foreground">
-          Platform Owner
+          Platform Owner <span className="block text-base leading-tight">Sign In</span>
         </h1>
         <p className="mt-1 mb-5 text-xs uppercase tracking-widest text-muted-foreground">
           C.A.T.H.Y. company control

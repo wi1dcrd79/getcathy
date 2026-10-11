@@ -222,8 +222,8 @@ function Dashboard() {
     <div className="min-h-screen pb-40 lg:pb-10">
       <header className="safe-top no-print sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         <div className="hazard-stripe h-1 w-full opacity-70" />
-        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3">
-          <div className="flex min-w-0 items-center gap-3">
+        <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)] items-center gap-4 px-4 py-3">
+          <div className="flex min-w-0 shrink-0 items-center gap-3">
             <img
               src="/images/certvault-icon.png"
               alt=""
@@ -231,16 +231,16 @@ function Dashboard() {
               height={36}
               className="rounded-md"
             />
-            <div className="min-w-0">
-              <h1 className="truncate text-xl font-bold uppercase leading-none">
+            <h1 className="min-w-0">
+              <span className="block truncate text-xl font-bold uppercase leading-none">
                 C.A.T.<span className="text-primary">H.Y.</span>
-              </h1>
-              <p className="truncate text-[11px] uppercase tracking-widest text-muted-foreground">
+              </span>{" "}
+              <span className="block truncate text-[11px] uppercase tracking-widest text-muted-foreground">
                 Compliance, Asset Tracking &amp; Heavy Yards
-              </p>
-            </div>
+              </span>
+            </h1>
           </div>
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="hidden min-w-0 flex-wrap items-center gap-2 lg:flex">
             {isSuperAdmin && (
               <Link
                 to="/super-admin"
@@ -349,11 +349,16 @@ function Dashboard() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-5">
-        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <MetricCard label="Total Tracked Assets" value={metrics.total} tone="neutral" />
-          <MetricCard label="Active / Compliant" value={metrics.compliant} tone="success" />
-          <MetricCard label="Expiring in < 30 Days" value={metrics.soon} tone="warning" />
-          <MetricCard label="Out of Compliance" value={metrics.out} tone="danger" />
+        <section aria-labelledby="compliance-metrics-heading">
+          <h2 id="compliance-metrics-heading" className="sr-only">
+            Compliance status overview
+          </h2>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <MetricCard label="Total Tracked Assets" value={metrics.total} tone="neutral" />
+            <MetricCard label="Active / Compliant" value={metrics.compliant} tone="success" />
+            <MetricCard label="Expiring in &lt; 30 Days" value={metrics.soon} tone="warning" />
+            <MetricCard label="Out of Compliance" value={metrics.out} tone="danger" />
+          </div>
         </section>
 
         <div className="no-print mt-5 flex flex-col gap-3">
@@ -397,8 +402,12 @@ function Dashboard() {
         )}
 
         {/* Field cards (mobile) */}
-        <section className="mt-4 space-y-3 lg:hidden">
-          {visible.map((r) => (
+        <section aria-labelledby="field-records-heading" className="mt-4 lg:hidden">
+          <h2 id="field-records-heading" className="sr-only">
+            Rigging inspections and welder continuity records
+          </h2>
+          <div className="space-y-3">
+            {visible.map((r) => (
             <article key={r.id} className="panel print-plain p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -432,10 +441,14 @@ function Dashboard() {
           {!loading && visible.length === 0 && (
             <p className="text-sm text-muted-foreground">No records match this filter.</p>
           )}
+          </div>
         </section>
 
         {/* Manager table (desktop) */}
-        <section className="mt-4 hidden overflow-x-auto lg:block">
+        <section aria-labelledby="records-table-heading" className="mt-4 hidden overflow-x-auto lg:block">
+          <h2 id="records-table-heading" className="sr-only">
+            Compliance records table
+          </h2>
           <table className="panel print-plain w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-[11px] uppercase tracking-widest text-muted-foreground">
