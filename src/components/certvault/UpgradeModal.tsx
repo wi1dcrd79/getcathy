@@ -24,7 +24,7 @@ export function UpgradeModal({
   reason: string;
   onClose: () => void;
 }) {
-  const { companyId, tier } = useProfile();
+  const { tier } = useProfile();
   // Pro companies only see the Enterprise step up; Free sees both.
   const choices: PlanTier[] = tier === "pro" ? ["enterprise"] : ["pro", "enterprise"];
   const [selected, setSelected] = useState<PlanTier>(upgradeTargetFor(tier));
