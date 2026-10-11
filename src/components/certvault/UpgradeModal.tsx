@@ -12,6 +12,8 @@ import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useExternalBillingGuard } from "@/lib/platform";
+import { useServerFn } from "@tanstack/react-start";
+import { getCheckoutContext } from "@/utils/payments.functions";
 
 export function UpgradeModal({
   open,
@@ -33,6 +35,7 @@ export function UpgradeModal({
   const { openCheckout, loading } = usePaddleCheckout();
   const { session } = useAuth();
   const { guarded, native, webBillingUrl } = useExternalBillingGuard();
+  const fetchCheckoutContext = useServerFn(getCheckoutContext);
 
   if (!open) return null;
 
@@ -41,12 +44,14 @@ export function UpgradeModal({
   const handleCheckout = async () => {
     setNotice(null);
     try {
+      const ctx = await fetchCheckoutContext();
       await openCheckout({
         priceId: PADDLE_PRICE_BY_TIER[selected as "pro" | "enterprise"],
         ...(session?.user.email ? { customerEmail: session.user.email } : {}),
         customData: {
-          userId: session?.user.id ?? "",
-          companyId: companyId ?? "",
+          userId: ctx.userId,
+          companyId: ctx.companyId,
+          sig: ctx.sig,
         },
         successUrl: `${window.location.origin}/?checkout=success`,
       });
