@@ -402,8 +402,12 @@ function Dashboard() {
         )}
 
         {/* Field cards (mobile) */}
-        <section className="mt-4 space-y-3 lg:hidden">
-          {visible.map((r) => (
+        <section aria-labelledby="field-records-heading" className="mt-4 lg:hidden">
+          <h2 id="field-records-heading" className="sr-only">
+            Rigging inspections and welder continuity records
+          </h2>
+          <div className="space-y-3">
+            {visible.map((r) => (
             <article key={r.id} className="panel print-plain p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -437,6 +441,7 @@ function Dashboard() {
           {!loading && visible.length === 0 && (
             <p className="text-sm text-muted-foreground">No records match this filter.</p>
           )}
+          </div>
         </section>
 
         {/* Manager table (desktop) */}
