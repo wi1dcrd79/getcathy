@@ -222,8 +222,8 @@ function Dashboard() {
     <div className="min-h-screen pb-40 lg:pb-10">
       <header className="safe-top no-print sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         <div className="hazard-stripe h-1 w-full opacity-70" />
-        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3">
-          <div className="flex min-w-0 items-center gap-3">
+        <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)] items-center gap-4 px-4 py-3">
+          <div className="flex min-w-0 shrink-0 items-center gap-3">
             <img
               src="/images/certvault-icon.png"
               alt=""
@@ -240,7 +240,7 @@ function Dashboard() {
               </span>
             </h1>
           </div>
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="hidden min-w-0 items-center gap-2 overflow-x-auto lg:flex">
             {isSuperAdmin && (
               <Link
                 to="/super-admin"
