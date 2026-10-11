@@ -231,14 +231,14 @@ function Dashboard() {
               height={36}
               className="rounded-md"
             />
-            <div className="min-w-0">
-              <h1 className="truncate text-xl font-bold uppercase leading-none">
+            <h1 className="min-w-0">
+              <span className="block truncate text-xl font-bold uppercase leading-none">
                 C.A.T.<span className="text-primary">H.Y.</span>
-              </h1>
-              <p className="truncate text-[11px] uppercase tracking-widest text-muted-foreground">
+              </span>{" "}
+              <span className="block truncate text-[11px] uppercase tracking-widest text-muted-foreground">
                 Compliance, Asset Tracking &amp; Heavy Yards
-              </p>
-            </div>
+              </span>
+            </h1>
           </div>
           <div className="hidden items-center gap-2 lg:flex">
             {isSuperAdmin && (
