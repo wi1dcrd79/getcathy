@@ -240,7 +240,7 @@ function Dashboard() {
               </span>
             </h1>
           </div>
-          <div className="hidden min-w-0 items-center gap-2 overflow-x-auto lg:flex">
+          <div className="hidden min-w-0 flex-wrap items-center gap-2 lg:flex">
             {isSuperAdmin && (
               <Link
                 to="/super-admin"
