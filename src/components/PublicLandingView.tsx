@@ -22,7 +22,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { PLANS } from "@/lib/plans";
-import { BRAND, BRAND_DIVISION, COPYRIGHT_LINE, SUPPORT_EMAIL } from "@/lib/legal";
+import {
+  BRAND,
+  BRAND_DIVISION,
+  COPYRIGHT_LINE,
+  SUPPORT_EMAIL,
+  BUSINESS_ENTITY,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_CITY_STATE,
+  BUSINESS_PHONE,
+  BUSINESS_PHONE_TEL,
+} from "@/lib/legal";
 import heroFieldScan from "@/assets/hero-field-scan.jpg";
 import yardDusk from "@/assets/yard-dusk.jpg";
 
