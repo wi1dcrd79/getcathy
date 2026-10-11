@@ -133,6 +133,7 @@ async function handleWebhook(req: Request, env: PaddleEnv) {
   switch (event.eventType) {
     case EventName.SubscriptionCreated:
     case EventName.SubscriptionUpdated:
+    case EventName.SubscriptionPastDue:
       await handleSubscriptionUpsert(event.data, env);
       break;
     case EventName.SubscriptionCanceled:
