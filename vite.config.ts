@@ -15,6 +15,7 @@ export default defineConfig({
         manifest: false,
         workbox: {
           globDirectory: "dist/client",
+          navigateFallback: null,
           globPatterns: ["**/*.{js,css,ico,png,svg,webp,woff2}"],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallbackDenylist: [
