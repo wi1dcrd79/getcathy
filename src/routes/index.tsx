@@ -21,6 +21,7 @@ import { assetLimitReason } from "@/lib/plans";
 import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { useProfile } from "@/hooks/useProfile";
 import { WEB_BILLING_URL } from "@/lib/platform";
+import { InstallBanner } from "@/components/InstallBanner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
