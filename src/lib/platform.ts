@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 
 /** Stable web console URL used for billing when running inside the native app. */
-export const WEB_CONSOLE_URL = "https://project--f32e5ca4-7ae0-4134-8784-a0c93f72246e.lovable.app";
-export const WEB_BILLING_URL = `${WEB_CONSOLE_URL}/?billing=manage`;
+export const WEB_CONSOLE_URL = "https://getcathy.lovable.app";
+/** Lands on the My Plan page (/billing), which is where subscription management lives. */
+export const WEB_BILLING_URL = `${WEB_CONSOLE_URL}/billing`;
 
 /** True when running inside the Capacitor native shell. */
 export function isNativeShell(): boolean {

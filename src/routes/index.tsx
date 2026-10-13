@@ -225,7 +225,7 @@ function Dashboard() {
         <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)] items-center gap-4 px-4 py-3">
           <div className="flex min-w-0 shrink-0 items-center gap-3">
             <img
-              src="/images/certvault-icon.png"
+              src="/images/icon-192.png"
               alt=""
               width={36}
               height={36}

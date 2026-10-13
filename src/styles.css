@@ -147,6 +147,18 @@
   }
 }
 
+/* iOS Safari zooms the page when a focused text control renders below 16px.
+   Kept unlayered (and outside @layer base) so it beats per-component text-sm
+   utilities, and scoped to touch devices / small screens so desktop density
+   is untouched. */
+@media (max-width: 767px), (pointer: coarse) {
+  select,
+  textarea,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="image"]) {
+    font-size: 16px;
+  }
+}
+
 /* ---- Audit binder (screen + print) ---- */
 .binder .watermark {
   position: fixed;
