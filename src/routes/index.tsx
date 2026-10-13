@@ -21,6 +21,7 @@ import { assetLimitReason } from "@/lib/plans";
 import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { useProfile } from "@/hooks/useProfile";
 import { WEB_BILLING_URL } from "@/lib/platform";
+import { InstallBanner } from "@/components/InstallBanner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -220,6 +221,7 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen pb-40 lg:pb-10">
+      <InstallBanner />
       <header className="safe-top no-print sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         <div className="hazard-stripe h-1 w-full opacity-70" />
         <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)] items-center gap-4 px-4 py-3">
