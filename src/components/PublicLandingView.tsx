@@ -260,6 +260,10 @@ export function PublicLandingView() {
             <Link to="/weld-tracking-software" className="text-accent underline-offset-4 hover:underline">
               Learn about our weld tracking software →
             </Link>
+            {" · "}
+            <Link to="/welder-continuity-log" className="text-accent underline-offset-4 hover:underline">
+              Free continuity log for welders →
+            </Link>
           </p>
           <p className="mt-2 text-muted-foreground">
             Everything required to stay compliant and pass third-party audits.
