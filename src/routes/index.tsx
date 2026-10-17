@@ -110,7 +110,7 @@ const READ_ONLY_REASON =
   "Your account is past due. Records stay readable and printable for 30 days, but new assets and yard moves are paused until payment is updated.";
 
 function Dashboard() {
-  const { session, loading: authLoading } = useAuth();
+  const { session } = useAuth();
   const navigate = useNavigate();
 
   // Signed-out visitors get the public landing page (Paddle-required public
