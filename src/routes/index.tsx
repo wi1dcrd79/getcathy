@@ -110,7 +110,7 @@ const READ_ONLY_REASON =
   "Your account is past due. Records stay readable and printable for 30 days, but new assets and yard moves are paused until payment is updated.";
 
 function Dashboard() {
-  const { session, loading: authLoading } = useAuth();
+  const { session } = useAuth();
   const navigate = useNavigate();
 
   // Signed-out visitors get the public landing page (Paddle-required public
@@ -215,7 +215,11 @@ function Dashboard() {
   const loading = assetsQ.isLoading || weldersQ.isLoading;
   const error = assetsQ.error || weldersQ.error;
 
-  if (!authLoading && !session) {
+  // No session yet (SSR, crawlers, signed-out visitors, or auth still
+  // resolving): render the public landing page so search engines get the
+  // marketing content instead of an empty dashboard shell. Signed-in users
+  // see this briefly while their session loads, then the dashboard.
+  if (!session) {
     return <PublicLandingView />;
   }
 
