@@ -215,7 +215,11 @@ function Dashboard() {
   const loading = assetsQ.isLoading || weldersQ.isLoading;
   const error = assetsQ.error || weldersQ.error;
 
-  if (!authLoading && !session) {
+  // No session yet (SSR, crawlers, signed-out visitors, or auth still
+  // resolving): render the public landing page so search engines get the
+  // marketing content instead of an empty dashboard shell. Signed-in users
+  // see this briefly while their session loads, then the dashboard.
+  if (!session) {
     return <PublicLandingView />;
   }
 
