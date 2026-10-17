@@ -26,17 +26,17 @@ import { InstallBanner } from "@/components/InstallBanner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "C.A.T.H.Y. — Rigging & Welder Compliance Tracking" },
+      { title: "C.A.T.H.Y. — Weld Tracking Software & Rigging Compliance" },
       {
         name: "description",
         content:
-          "Field-first QA/QC dashboard tracking rigging inspections, equipment certifications and welder continuity with OSHA-ready audit binders.",
+          "Weld tracking software and field-first QA/QC dashboard: welder continuity logs, rigging inspections, equipment certifications and OSHA-ready audit binders.",
       },
-      { property: "og:title", content: "C.A.T.H.Y. — Rigging & Welder Compliance Tracking" },
+      { property: "og:title", content: "C.A.T.H.Y. — Weld Tracking Software & Rigging Compliance" },
       {
         property: "og:description",
         content:
-          "Scan assets in the field, track expirations, and export an OSHA-ready compliance binder.",
+          "Track welder continuity, scan assets in the field, and export an OSHA-ready compliance binder.",
       },
     ],
   }),

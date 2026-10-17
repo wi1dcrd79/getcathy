@@ -31,6 +31,7 @@ import { Route as ScanTransferRouteImport } from './routes/scan-transfer'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WeldTrackingSoftwareRouteImport } from './routes/weld-tracking-software'
+import { Route as WelderContinuityLogRouteImport } from './routes/welder-continuity-log'
 import { Route as WeldingManagementSoftwareRouteImport } from './routes/welding-management-software'
 import { Route as YardRouteImport } from './routes/yard'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -149,6 +150,11 @@ const WeldTrackingSoftwareRoute = WeldTrackingSoftwareRouteImport.update({
   path: '/weld-tracking-software',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WelderContinuityLogRoute = WelderContinuityLogRouteImport.update({
+  id: '/welder-continuity-log',
+  path: '/welder-continuity-log',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WeldingManagementSoftwareRoute =
   WeldingManagementSoftwareRouteImport.update({
     id: '/welding-management-software',
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
   '/weld-tracking-software': typeof WeldTrackingSoftwareRoute
+  '/welder-continuity-log': typeof WelderContinuityLogRoute
   '/welding-management-software': typeof WeldingManagementSoftwareRoute
   '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
   '/weld-tracking-software': typeof WeldTrackingSoftwareRoute
+  '/welder-continuity-log': typeof WelderContinuityLogRoute
   '/welding-management-software': typeof WeldingManagementSoftwareRoute
   '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/super-admin': typeof SuperAdminRoute
   '/terms': typeof TermsRoute
   '/weld-tracking-software': typeof WeldTrackingSoftwareRoute
+  '/welder-continuity-log': typeof WelderContinuityLogRoute
   '/welding-management-software': typeof WeldingManagementSoftwareRoute
   '/yard': typeof YardRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/terms'
     | '/weld-tracking-software'
+    | '/welder-continuity-log'
     | '/welding-management-software'
     | '/yard'
     | '/.well-known/oauth-protected-resource'
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/terms'
     | '/weld-tracking-software'
+    | '/welder-continuity-log'
     | '/welding-management-software'
     | '/yard'
     | '/.well-known/oauth-protected-resource'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/terms'
     | '/weld-tracking-software'
+    | '/welder-continuity-log'
     | '/welding-management-software'
     | '/yard'
     | '/.well-known/oauth-protected-resource'
@@ -401,6 +413,7 @@ export interface RootRouteChildren {
   SuperAdminRoute: typeof SuperAdminRoute
   TermsRoute: typeof TermsRoute
   WeldTrackingSoftwareRoute: typeof WeldTrackingSoftwareRoute
+  WelderContinuityLogRoute: typeof WelderContinuityLogRoute
   WeldingManagementSoftwareRoute: typeof WeldingManagementSoftwareRoute
   YardRoute: typeof YardRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -566,6 +579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WeldTrackingSoftwareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/welder-continuity-log': {
+      id: '/welder-continuity-log'
+      path: '/welder-continuity-log'
+      fullPath: '/welder-continuity-log'
+      preLoaderRoute: typeof WelderContinuityLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/welding-management-software': {
       id: '/welding-management-software'
       path: '/welding-management-software'
@@ -641,6 +661,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperAdminRoute: SuperAdminRoute,
   TermsRoute: TermsRoute,
   WeldTrackingSoftwareRoute: WeldTrackingSoftwareRoute,
+  WelderContinuityLogRoute: WelderContinuityLogRoute,
   WeldingManagementSoftwareRoute: WeldingManagementSoftwareRoute,
   YardRoute: YardRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
