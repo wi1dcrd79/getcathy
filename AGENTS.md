@@ -18,6 +18,10 @@
 
 ## Build Rules (apply to every migration, function, feature)
 
+- Personal continuity uses editable submissions separate from append-only verified craft logs; an atomic review trigger appends evidence so pending work never changes dispatch eligibility.
+- Personal log identity matches exactly one active company personnel email to the authenticated profile email; ambiguous or absent matches block writes rather than letting workers select someone else.
+- Continuity offline drafts and pending retries are IndexedDB-scoped to company and authenticated user; version-checked sync preserves conflicts for review, and approvals require an online independent reviewer.
+
 - Multi-tenancy: every company-scoped table has company_id + RLS; policies use `app_internal.get_current_company_id()`, `current_user_role()`, `is_super_admin()`; own-row checks compare directly to `auth.uid()` — never cross-tenant.
 - Roles: only company_admin, safety_director, qc_inspector, field_supervisor, operator, field_tech, viewer, craftsman; only company_admin/super_admin change roles; authority FKs (e.g. supervisor_id) are role-checked in triggers, not just tenant-checked.
 - Migrations: idempotent (IF NOT EXISTS, DROP POLICY IF EXISTS, DO $$ guards on constraints); never redeclare objects across files unguarded (caused a real CI failure); extend existing tables instead of forking; no polymorphic record_id — separate nullable FKs + exactly-one CHECK.

@@ -22,6 +22,7 @@ import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { useProfile } from "@/hooks/useProfile";
 import { WEB_BILLING_URL } from "@/lib/platform";
 import { InstallBanner } from "@/components/InstallBanner";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,6 +34,8 @@ export const Route = createFileRoute("/")({
           "Weld tracking software and field-first QA/QC dashboard: welder continuity logs, rigging inspections, equipment certifications and OSHA-ready audit binders.",
       },
       { property: "og:title", content: "C.A.T.H.Y. — Weld Tracking Software & Rigging Compliance" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       {
         property: "og:description",
         content:
@@ -317,6 +320,7 @@ function Dashboard() {
             >
               Continuity
             </Link>
+            <Link to="/my-continuity"><Button variant="outline" className="touch-target">My Continuity Log</Button></Link>
 
             <Link
               to="/import"

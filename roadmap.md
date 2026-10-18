@@ -1,5 +1,12 @@
 # C.A.T.H.Y. Roadmap
 
+## Personal continuity log
+- [x] Explain preview location and confirm compilation after the credit-usage concern
+- [x] Editable own-work submissions, tenant/identity checks and independent supervisor approval
+- [x] Signed-in log with offline drafts, conflict-safe reconnect and public template link
+- [x] Compliance tests, signed-in rendering and mobile layout verified
+- [ ] Full worker submission → independent approval verification: blocked by missing linked worker account and independent reviewer session
+
 ## Phase 1 — Enterprise architecture (in progress)
 
 - [ ] companies + profiles (company_id, role, is_super_admin, session token)
