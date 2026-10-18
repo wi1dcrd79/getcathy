@@ -70,9 +70,9 @@ function WelderContinuityLogPage() {
         </h1>
         <p className="mt-5 max-w-2xl text-lg text-muted-foreground">{DESC}</p>
         <div className="mt-8 flex flex-wrap gap-4">
-          <Link to="/auth">
+          <Link to="/my-continuity">
             <Button size="lg" className="gap-2 bg-accent font-bold uppercase text-accent-foreground hover:bg-accent/90">
-              Track continuity free <ArrowRight className="h-4 w-4" />
+              Open my continuity log <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
         </div>
