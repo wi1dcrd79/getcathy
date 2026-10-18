@@ -1,6 +1,7 @@
 # C.A.T.H.Y. Roadmap
 
 ## Personal continuity log
+- [x] Explain preview location and confirm compilation after the credit-usage concern
 - [ ] Editable own-work submissions, tenant/identity checks and independent supervisor approval
 - [ ] Signed-in log with offline drafts, conflict-safe reconnect and public template link
 - [ ] Compliance tests and live workflow verification

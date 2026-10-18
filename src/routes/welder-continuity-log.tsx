@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Check, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BRAND, COPYRIGHT_LINE } from "@/lib/legal";
+import { useAuth } from "@/hooks/useAuth";
+import { PersonalContinuityLog } from "@/components/PersonalContinuityLog";
 
 const URL = "https://getcathy.lovable.app/welder-continuity-log";
 const TITLE = "Continuity Log for Welders — Free Template & Tracker | C.A.T.H.Y.";
@@ -56,6 +58,8 @@ const WHY_NOT_SPREADSHEET = [
 ];
 
 function WelderContinuityLogPage() {
+  const { user } = useAuth();
+  if (user) return <main className="safe-x safe-bottom mx-auto max-w-5xl px-4 py-8 text-base"><header className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><p className="text-muted-foreground">C.A.T.H.Y.</p><h1 className="text-3xl font-bold">My continuity log</h1></div><Link to="/"><Button variant="outline" className="touch-target">Home</Button></Link></header><PersonalContinuityLog /></main>;
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border/40">
