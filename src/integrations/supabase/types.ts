@@ -640,6 +640,130 @@ export type Database = {
           },
         ]
       }
+      continuity_submissions: {
+        Row: {
+          cert_type_code: string
+          company_id: string
+          created_at: string
+          id: string
+          performed_date: string
+          personnel_id: string
+          position: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          standard: string
+          status: string
+          submitted_by: string
+          updated_at: string
+          verified_log_id: string | null
+          version: number
+          work_reference: string
+        }
+        Insert: {
+          cert_type_code: string
+          company_id: string
+          created_at?: string
+          id?: string
+          performed_date: string
+          personnel_id: string
+          position?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          standard?: string
+          status?: string
+          submitted_by: string
+          updated_at?: string
+          verified_log_id?: string | null
+          version?: number
+          work_reference: string
+        }
+        Update: {
+          cert_type_code?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          performed_date?: string
+          personnel_id?: string
+          position?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          standard?: string
+          status?: string
+          submitted_by?: string
+          updated_at?: string
+          verified_log_id?: string | null
+          version?: number
+          work_reference?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "continuity_submissions_cert_type_code_fkey"
+            columns: ["cert_type_code"]
+            isOneToOne: false
+            referencedRelation: "certification_types"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "continuity_submissions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "continuity_submissions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_compliance_rollups"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "continuity_submissions_personnel_id_fkey"
+            columns: ["personnel_id"]
+            isOneToOne: false
+            referencedRelation: "personnel_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "continuity_submissions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "continuity_submissions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "continuity_submissions_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "company_team_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "continuity_submissions_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "continuity_submissions_verified_log_id_fkey"
+            columns: ["verified_log_id"]
+            isOneToOne: false
+            referencedRelation: "craft_continuity_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       corrective_action_events: {
         Row: {
           actor_id: string | null
