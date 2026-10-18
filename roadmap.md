@@ -1,5 +1,10 @@
 # C.A.T.H.Y. Roadmap
 
+## Personal continuity log
+- [ ] Editable own-work submissions, tenant/identity checks and independent supervisor approval
+- [ ] Signed-in log with offline drafts, conflict-safe reconnect and public template link
+- [ ] Compliance tests and live workflow verification
+
 ## Phase 1 — Enterprise architecture (in progress)
 
 - [ ] companies + profiles (company_id, role, is_super_admin, session token)
