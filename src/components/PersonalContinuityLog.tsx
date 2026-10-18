@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { continuityInput, canReviewContinuity, readLocalWork, writeLocalWork, type LocalWork } from "@/lib/personal-continuity";
-import { getPersonalContinuity, savePersonalContinuity, reviewPersonalContinuity } from "@/lib/personal-continuity.functions";
+import { getPersonalContinuity, savePersonalContinuity, reviewPersonalContinuity, linkContinuityWorker } from "@/lib/personal-continuity.functions";
 
 type LogContext = Awaited<ReturnType<typeof getPersonalContinuity>>;
 export function PersonalContinuityLog() {
@@ -16,6 +16,9 @@ export function PersonalContinuityLog() {
   const load = useServerFn(getPersonalContinuity);
   const save = useServerFn(savePersonalContinuity);
   const review = useServerFn(reviewPersonalContinuity);
+  const linkWorker = useServerFn(linkContinuityWorker);
+  const [workerId, setWorkerId] = useState("");
+  const [workerEmail, setWorkerEmail] = useState("");
   const qc = useQueryClient();
   const [online, setOnline] = useState(true);
   const [local, setLocal] = useState<LocalWork[]>([]);
@@ -33,7 +36,7 @@ export function PersonalContinuityLog() {
       return cached;
     }
     const data = await load();
-    await set(cacheKey, data);
+    try { await set(cacheKey, data); } catch { /* Online reads still work if device storage is unavailable. */ }
     return data;
   }, retry: false, networkMode: "always" });
   const ctx = q.data;
@@ -67,6 +70,7 @@ export function PersonalContinuityLog() {
       }
       await qc.invalidateQueries({ queryKey: ["personal-continuity", user.id] });
       await qc.invalidateQueries({ queryKey: ["continuity-logs"] });
+      if (!rows.some((r) => r.error)) setMessage("Work submitted for supervisor approval.");
     } catch (e) { setMessage(e instanceof Error ? e.message : "Could not sync local work."); }
     finally { lock.current = false; setBusy(false); }
   }
@@ -101,6 +105,7 @@ export function PersonalContinuityLog() {
       <div className="flex gap-2"><Button variant="outline" className="touch-target" disabled={busy || !online} onClick={() => sync()}><RefreshCw className="h-4 w-4" />Sync</Button><Button className="touch-target" disabled={!ctx.person || ctx.profile.role === "viewer" || busy} onClick={() => { setMessage(""); setEditor({ id: crypto.randomUUID(), version: 0, cert_type_code: ctx.types[0]?.code ?? "", performed_date: new Date().toISOString().slice(0,10), work_reference: "", standard: "", position: "", queued: false }); }}><Plus className="h-4 w-4" />Log work</Button></div>
     </div>
     {!ctx.person && <p role="alert" className="my-5 text-warning">Ask your company admin to set the same email on your account and one active personnel record.</p>}
+    {ctx.profile.role === "company_admin" && <details className="my-5 border-y border-border py-4"><summary className="min-h-12 cursor-pointer font-semibold">Link worker account</summary><form className="space-y-3 py-3" onSubmit={async (e) => { e.preventDefault(); setBusy(true); try { await linkWorker({ data: { personnel_id: workerId, email: workerEmail } }); await q.refetch(); setMessage("Worker account linked."); } catch (e) { setMessage(e instanceof Error ? e.message : "Could not link account."); } finally { setBusy(false); } }}><select aria-label="Personnel record" required className={field} value={workerId} onChange={(e) => setWorkerId(e.target.value)}><option value="">Select active worker</option>{ctx.people.filter((p) => p.status === "active").map((p) => <option key={p.id} value={p.id}>{p.first_name} {p.last_name} · {p.employee_id}</option>)}</select><Input aria-label="Worker account email" required type="email" maxLength={255} className="min-h-12 text-base" placeholder="Worker's sign-in email" value={workerEmail} onChange={(e) => setWorkerEmail(e.target.value)} /><Button className="touch-target" disabled={!online || busy || !workerId} type="submit">Link account</Button></form></details>}
     {message && <p role="status" className="my-4 break-words text-base text-warning">{message}</p>}
     {editor && <form className="my-6 space-y-4 border-y border-border py-6" onSubmit={(e) => { e.preventDefault(); void storeDraft(true); }}>
       <h2 className="text-2xl font-bold">{editor.version ? "Edit submitted work" : "Work entry"}</h2>

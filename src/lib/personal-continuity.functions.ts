@@ -18,7 +18,18 @@ export const getPersonalContinuity = createServerFn({ method: "POST" })
     if (ee || te) throw new Error("Could not load continuity logs.");
     const { data: logs, error: le } = person ? await db.from("craft_continuity_logs").select("id,cert_type_code,performed_date,work_reference,verified_by").eq("company_id", profile.company_id).eq("personnel_id", person.id).order("performed_date", { ascending: false }) : { data: [], error: null };
     if (le) throw new Error("Could not load verified continuity.");
-    return { profile, person, types: types ?? [], entries: entries ?? [], logs: logs ?? [], people: (people ?? []).filter((p) => entries?.some((e) => e.personnel_id === p.id)) };
+    return { profile, person, types: types ?? [], entries: entries ?? [], logs: logs ?? [], people: (people ?? []).filter((p) => profile.role === "company_admin" || entries?.some((e) => e.personnel_id === p.id)) };
+  });
+
+export const linkContinuityWorker = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ personnel_id: z.uuid(), email: z.email().max(255) }).parse(input))
+  .handler(async ({ context, data }) => {
+    const { data: me } = await context.supabase.from("profiles").select("company_id,role").eq("id", context.userId).single();
+    if (!me?.company_id || me.role !== "company_admin") throw new Error("Only a company admin can link worker accounts.");
+    const { data: saved, error } = await context.supabase.from("personnel_records").update({ email: data.email.trim().toLowerCase() }).eq("id", data.personnel_id).eq("company_id", me.company_id).select("id").maybeSingle();
+    if (error || !saved) throw new Error("The worker account could not be linked.");
+    return { ok: true };
   });
 
 export const savePersonalContinuity = createServerFn({ method: "POST" })
