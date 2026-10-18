@@ -58,6 +58,7 @@ export function PersonalContinuityLog() {
     lock.current = true; setBusy(true);
     try {
       let rows = await readLocalWork(ctx.profile.company_id, user.id);
+      const hadQueuedWork = rows.some((r) => r.queued);
       for (const entry of rows.filter((r) => r.queued)) {
         try {
           await save({ data: continuityInput.parse(entry) });
@@ -70,7 +71,7 @@ export function PersonalContinuityLog() {
       }
       await qc.invalidateQueries({ queryKey: ["personal-continuity", user.id] });
       await qc.invalidateQueries({ queryKey: ["continuity-logs"] });
-      if (!rows.some((r) => r.error)) setMessage("Work submitted for supervisor approval.");
+      if (hadQueuedWork && !rows.some((r) => r.error)) setMessage("Work submitted for supervisor approval.");
     } catch (e) { setMessage(e instanceof Error ? e.message : "Could not sync local work."); }
     finally { lock.current = false; setBusy(false); }
   }
