@@ -24,6 +24,7 @@ import { Route as EvidenceReviewRouteImport } from './routes/evidence-review'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as LedgerConflictsRouteImport } from './routes/ledger-conflicts'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as MyContinuityRouteImport } from './routes/my-continuity'
 import { Route as OutboxRouteImport } from './routes/outbox'
 import { Route as PersonnelRouteImport } from './routes/personnel'
 import { Route as RiskAnalysisRouteImport } from './routes/risk-analysis'
@@ -113,6 +114,11 @@ const LedgerConflictsRoute = LedgerConflictsRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyContinuityRoute = MyContinuityRouteImport.update({
+  id: '/my-continuity',
+  path: '/my-continuity',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OutboxRoute = OutboxRouteImport.update({
@@ -210,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
   '/mcp': typeof McpRoute
+  '/my-continuity': typeof MyContinuityRoute
   '/outbox': typeof OutboxRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
   '/mcp': typeof McpRoute
+  '/my-continuity': typeof MyContinuityRoute
   '/outbox': typeof OutboxRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   '/import': typeof ImportRoute
   '/ledger-conflicts': typeof LedgerConflictsRoute
   '/mcp': typeof McpRoute
+  '/my-continuity': typeof MyContinuityRoute
   '/outbox': typeof OutboxRoute
   '/personnel': typeof PersonnelRoute
   '/risk-analysis': typeof RiskAnalysisRoute
@@ -309,6 +318,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/ledger-conflicts'
     | '/mcp'
+    | '/my-continuity'
     | '/outbox'
     | '/personnel'
     | '/risk-analysis'
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/ledger-conflicts'
     | '/mcp'
+    | '/my-continuity'
     | '/outbox'
     | '/personnel'
     | '/risk-analysis'
@@ -373,6 +384,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/ledger-conflicts'
     | '/mcp'
+    | '/my-continuity'
     | '/outbox'
     | '/personnel'
     | '/risk-analysis'
@@ -406,6 +418,7 @@ export interface RootRouteChildren {
   ImportRoute: typeof ImportRoute
   LedgerConflictsRoute: typeof LedgerConflictsRoute
   McpRoute: typeof McpRoute
+  MyContinuityRoute: typeof MyContinuityRoute
   OutboxRoute: typeof OutboxRoute
   PersonnelRoute: typeof PersonnelRoute
   RiskAnalysisRoute: typeof RiskAnalysisRoute
@@ -528,6 +541,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-continuity': {
+      id: '/my-continuity'
+      path: '/my-continuity'
+      fullPath: '/my-continuity'
+      preLoaderRoute: typeof MyContinuityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/outbox': {
@@ -654,6 +674,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImportRoute: ImportRoute,
   LedgerConflictsRoute: LedgerConflictsRoute,
   McpRoute: McpRoute,
+  MyContinuityRoute: MyContinuityRoute,
   OutboxRoute: OutboxRoute,
   PersonnelRoute: PersonnelRoute,
   RiskAnalysisRoute: RiskAnalysisRoute,

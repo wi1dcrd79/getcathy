@@ -22,6 +22,7 @@ import { BreadcrumbChips } from "@/components/certvault/Breadcrumb";
 import { useProfile } from "@/hooks/useProfile";
 import { WEB_BILLING_URL } from "@/lib/platform";
 import { InstallBanner } from "@/components/InstallBanner";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   head: () => ({
