@@ -4,6 +4,7 @@ import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { PastDueBanner } from "@/components/certvault/PastDueBanner";
 import { AssistantWidget } from "@/components/certvault/AssistantWidget";
 import { SignatureSync } from "@/components/certvault/SignatureSync";
+import { GlobalBarcodeScanner } from "@/components/GlobalBarcodeScanner";
 import { Toaster } from "@/components/ui/sonner";
 import {
   Outlet,
@@ -164,6 +165,7 @@ function RootComponent() {
       <Outlet />
       <AssistantWidget />
       <SignatureSync />
+      <GlobalBarcodeScanner />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );

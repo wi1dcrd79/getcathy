@@ -27,6 +27,7 @@
 - [x] Quick Transfer flow (scan asset -> scan/select bin -> confirm)
 - [x] Immutable location_history audit trail
 - [x] Breadcrumb chips on asset cards, search across serial/stamp/tag/bin
+- [x] Global hardware-scanner listener (off on /scan-transfer, Enter + first-char leak suppressed, per-company unique tag, 10s Undo, audio cues)
 
 ## Compliance engine
 
