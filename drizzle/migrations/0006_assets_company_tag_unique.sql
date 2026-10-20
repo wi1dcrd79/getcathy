@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS idx_assets_company_asset_tag ON public.assets (company_id, asset_tag);

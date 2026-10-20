@@ -43,6 +43,13 @@
       "when": 1792355714400,
       "tag": "0005_continuity_review_null_safe_authority",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792495253531,
+      "tag": "0006_assets_company_tag_unique",
+      "breakpoints": true
     }
   ]
 }
