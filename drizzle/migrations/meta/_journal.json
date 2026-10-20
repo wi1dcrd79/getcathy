@@ -57,6 +57,13 @@
       "when": 1792495684822,
       "tag": "0007_drop_global_asset_tag_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792496066746,
+      "tag": "0008_assets_company_id_not_null",
+      "breakpoints": true
     }
   ]
 }

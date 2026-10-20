@@ -96,7 +96,7 @@ export type Database = {
           assigned_to: string | null
           bin: string
           category: Database["public"]["Enums"]["asset_category"]
-          company_id: string | null
+          company_id: string
           created_at: string
           current_ledger_event_id: string | null
           current_location: string
@@ -116,7 +116,7 @@ export type Database = {
           assigned_to?: string | null
           bin?: string
           category?: Database["public"]["Enums"]["asset_category"]
-          company_id?: string | null
+          company_id: string
           created_at?: string
           current_ledger_event_id?: string | null
           current_location?: string
@@ -136,7 +136,7 @@ export type Database = {
           assigned_to?: string | null
           bin?: string
           category?: Database["public"]["Enums"]["asset_category"]
-          company_id?: string | null
+          company_id?: string
           created_at?: string
           current_ledger_event_id?: string | null
           current_location?: string
