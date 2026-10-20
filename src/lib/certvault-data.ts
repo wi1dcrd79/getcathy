@@ -99,6 +99,7 @@ export async function logInspection(input: NewInspectionInput, companyId: string
   const { data: existing } = await supabase
     .from("assets")
     .select("id")
+    .eq("company_id", companyId)
     .eq("asset_tag", input.asset_tag)
     .maybeSingle();
 
