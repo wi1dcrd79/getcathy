@@ -106,12 +106,12 @@ function ImportPage() {
   const [dropped, setDropped] = useState(0);
 
   useEffect(() => {
-    if (!session) return;
+    if (!session || !companyId) return;
     let alive = true;
     (async () => {
       const [a, p] = await Promise.all([
-        supabase.from("assets").select("asset_tag,serial_or_vin"),
-        supabase.from("personnel_records").select("employee_id"),
+        supabase.from("assets").select("asset_tag,serial_or_vin").eq("company_id", companyId),
+        supabase.from("personnel_records").select("employee_id").eq("company_id", companyId),
       ]);
       if (!alive) return;
       const tags = new Set<string>();
@@ -135,7 +135,7 @@ function ImportPage() {
     return () => {
       alive = false;
     };
-  }, [session, result]);
+  }, [session, companyId, result]);
 
   const onFile = (file: File) => {
     setErr(null);
